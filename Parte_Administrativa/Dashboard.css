@@ -1,0 +1,204 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+.sidebar {
+    width: 280px;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;  
+    height: 100vh;   
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar ul {
+    flex: 1;          
+    display: flex;   
+    flex-direction: column; 
+}
+
+.container-fluid {
+    margin-left: 280px; 
+    width: calc(100% - 280px); 
+}
+
+.nav-link {
+    font-size: 1.1rem;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link i {
+    width: 25px; 
+    margin-right: 10px;
+}
+
+.nav-item.dropdown {
+    position: relative; 
+}
+
+#solicitudesSubmenu .nav-link {
+    padding-left: 35px; 
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.stat-card h3 {
+    font-size: 2rem;
+}
+.btn-custom {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+}
+
+.btn-custom2 {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+}
+
+.img-fluid{
+    height: 80px;
+    width: auto;
+}
+
+.basic{
+    position: relative;
+    margin-top: auto;
+    margin-bottom: 20px;
+    padding: 0;
+
+}
+
+.advance{
+    margin-top: 55px;
+    padding: 0;
+}
+
+.fa-home{ 
+    color: #ffa500;
+}
+
+.fa-user{
+    color: #7d7d7d;
+}
+
+.fa-clipboard{
+    color: #7d7d7d;
+}
+
+.fa-envelope{
+    color: #023878;
+}
+
+.fa-circle-check{
+    color: #75f94c
+}
+
+.fa-ban{
+    color: #B41513;
+}
+
+.fa-clock{
+    color: #fff007;
+}
+
+.text-access{
+    color: #454242;
+    margin-top: 40px;
+    font-size: 22px;
+}
+
+.mt-4   {
+    display: flex;             
+    justify-content: left;   
+    align-items: center;       
+    gap: 10px;                 
+    margin-top: 30px;          
+}
+
+.text-bienvenido{
+    color: #023877;
+    font-size: 24px;
+}
+
+p{
+    color: #000000;
+}
+
+h5{
+    color: #454242;
+    font-size: 19px;
+
+}
+
+.text-cantidad{
+    color: #023878;
+}
+
+.btn-custom,
+.btn-custom2 {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    background-color: #023878;
+    color: white;
+    border: none;
+    transition: transform 0.1s;
+}
+
+.btn-custom:hover,
+.btn-custom2:hover {
+    transform: scale(1.05);
+    background-color: #023878;
+    color: white;
+}
+
+.btn-custom:active,
+.btn-custom2:active {
+    background-color: #023878;
+    color: white;
+    transform: scale(0.98);
+}
+
+.btn-custom:focus,
+.btn-custom2:focus {
+    background-color: #023878;
+    color: white;
+    box-shadow: 0 0 0 0.25rem rgba(2, 56, 120, 0.25); 
+    outline: none;
+}
+
+.dropdown .nav-link {
+    cursor: pointer;
+}
+
+#solicitudesSubmenu {
+    transition: all 0.3s ease;
+    position: absolute;
+    width: 100%;
+    background-color: #fff;
+
+}
+
+#solicitudesSubmenu .nav-link {
+    font-size: 0.95rem;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+#solicitudesSubmenu .nav-link:hover {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+[aria-expanded="true"] .fa-chevron-down {
+    transform: rotate(180deg);
+}

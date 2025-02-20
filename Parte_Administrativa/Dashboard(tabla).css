@@ -1,0 +1,225 @@
+/* Viejo css */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+.sidebar {
+    width: 280px;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    height: 100vh;   
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar ul {
+    flex: 1;          
+    display: flex;    
+    flex-direction: column; 
+}
+
+.nav-link {
+    font-size: 1.1rem;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link i {
+    width: 25px; 
+    margin-right: 10px;
+}
+
+.nav-item.dropdown {
+    position: relative; 
+}
+
+#solicitudesSubmenu .nav-link {
+    padding-left: 35px; 
+}
+
+.img-fluid{
+    height: 80px;
+    width: auto;
+}
+
+.basic{
+    position: relative;
+    margin-top: auto;
+    margin-bottom: 20px;
+    padding: 0;
+
+}
+
+.advance{
+    margin-top: 55px;
+    padding: 0;
+}
+
+.fa-home{ 
+    color: #ffa500;
+}
+
+.fa-user{
+    color: #7d7d7d;
+}
+
+.fa-clipboard{
+    color: #7d7d7d;
+}
+
+.fa-clock{
+    color: #fff007;
+}
+
+.dropdown .nav-link {
+    cursor: pointer;
+}
+
+#solicitudesSubmenu {
+    transition: all 0.3s ease;
+    position: absolute;
+    width: 100%;
+    background-color: #fff;
+
+}
+
+#solicitudesSubmenu .nav-link {
+    font-size: 0.95rem;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+#solicitudesSubmenu .nav-link:hover {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.fa-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+[aria-expanded="true"] .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.estado-aprobado {
+    color: green;
+    font-weight: bold;
+  }
+  .estado-denegado {
+    color: red;
+    font-weight: bold;
+  }
+  .estado-pendiente {
+    color: #6c757d;
+    font-weight: bold;
+  }
+  .content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 280px; 
+    overflow-x: hidden; 
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    position: sticky; /* Mantiene la barra superior fija */
+    left: 0;
+    z-index: 1; /* Asegura que esté por encima de la tabla */
+    background-color: #f8f9fa; /* Mismo color que el fondo */
+    padding-right: 20px; /* Espacio para el scroll */
+  }
+  .table-container {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem;
+    position: relative; /* Añadido */
+    width: 100%;
+  }
+  /* Contenedor interno para la tabla con scroll */
+.table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 1rem; /* Espacio para la paginación */
+    padding-right: 2px;
+}
+/* Estiliza la barra de desplazamiento */
+.table-wrapper::-webkit-scrollbar {
+    height: 8px; /* Altura de la barra */
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Color del track */
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #888; /* Color de la barra */
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color al hover */
+}
+.table {
+    width: 100%;
+    min-width: 30px; /* O el ancho mínimo que necesites */
+    margin-bottom: 0; /* Quita el margen inferior de la tabla */
+    position: relative;
+}
+
+/* Asegura que la paginación quede por debajo del scroll */
+.pagination {
+    margin-top: 1rem;
+    position: sticky;
+    left: 0;
+    width: 100%;
+}
+  th{
+      white-space: nowrap;
+  }
+  .highlight {
+  background-color: #fff3cd;
+  padding: 2px;
+  border-radius: 2px;
+  }
+
+  .input-group .btn-outline-secondary {
+  border-color: #ced4da;
+  padding: 0.375rem 0.75rem;
+  }
+
+  .input-group .btn-outline-secondary:hover {
+  background-color: #e9ecef;
+  }
+
+  .btn-aprobar, .btn-denegar {
+    width: 100%;
+    margin: 2px 0;
+}
+
+.btn-aprobar {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-denegar {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+td.align-middle .d-flex {
+    width: 100%;
+}
+
+  .table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
