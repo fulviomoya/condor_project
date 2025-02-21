@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $localidad = trim($_POST["localidad"]);
     $fecha_nacimiento = trim($_POST["fecha_nacimiento"]);
     $lugar_nacimiento = trim($_POST["lugar_nacimiento"]);
-    $nacionalidad = trim($_POST["nacionalidad"]);
+    $nacionalidad = isset($_POST['nacionalidad']) ? $_POST['nacionalidad'] : (isset($_POST['otra_nacionalidad']) ? $_POST['otra_nacionalidad'] : '');
     $correo_electronico = trim($_POST["correo_electronico"]);
     $grado_solicitado = trim($_POST["grado_solicitado"]);
 
@@ -116,13 +116,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Modificar la consulta INSERT para usar id_acta_nacimiento como clave principal
-    $stmt = $conn->prepare("INSERT INTO datos_estudiantes (
-        id_acta_nacimiento, nombre, apellido, segundo_apellido, edad,
-        acta_nacimiento_pdf, record_calificaciones, 
-        escuela_anterior, direccion_actual, sector, localidad, 
-        fecha_nacimiento, lugar_nacimiento, nacionalidad, 
-        correo_electronico, grado_solicitado, estado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
+    $sql_estudiante = "INSERT INTO datos_estudiantes (
+        nombre, apellido, segundo_apellido, edad, 
+        id_acta_nacimiento, escuela_anterior, direccion_actual,
+        sector, localidad, fecha_nacimiento, lugar_nacimiento,
+        nacionalidad, correo_electronico, grado_solicitado,
+        nombre_padres, ocupacion_padres, telefono_padres,
+        correo_padres, tipo_familia, direccion_padres,
+        record_calificaciones, acta_nacimiento_pdf
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+        COALESCE(?, 'No registrado'), 
+        COALESCE(?, 'No registrado'), 
+        COALESCE(?, 'No registrado'),
+        COALESCE(?, 'No registrado'),
+        COALESCE(?, 'No registrado'),
+        COALESCE(?, 'No registrado'),
+        ?, ?
+    )";
+
 
     if (!$stmt) {
         die("Error en la consulta: " . $conn->error);
@@ -136,15 +147,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Modificar el orden de los parámetros en bind_param
+    // Preparar y ejecutar la consulta con todos los datos
+    $stmt = $conn->prepare($sql_estudiante);
     $stmt->bind_param(
-        "ssssisssssssssss",
-        $id_acta_nacimiento,
+        "sssissssssssssssssssss", // Añadir dos 's' más para los archivos
         $nombre,
         $apellido,
         $segundo_apellido,
         $edad,
-        $acta_nacimiento_path,
-        $record_notas_path,
+        $id_acta_nacimiento,
         $escuela_anterior,
         $direccion_actual,
         $sector,
@@ -153,20 +164,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $lugar_nacimiento,
         $nacionalidad,
         $correo_electronico,
-        $grado_solicitado
+        $grado_solicitado,
+        $_POST['nombre_padres'],
+        $_POST['ocupacion_padres'],
+        $_POST['telefono_padres'],
+        $_POST['correo_padres'],
+        $_POST['tipo_familia'],
+        $_POST['direccion_padres'],
+        $record_notas_path,    // Agregar ruta del record
+        $acta_nacimiento_path  // Agregar ruta del acta
     );
 
+    // Ejecutar la consulta y manejar errores
     if ($stmt->execute()) {
-        // Guardar todos los datos del estudiante en la sesión
-        $_SESSION['estudiante_id'] = $id_acta_nacimiento;
-        $_SESSION['estudiante_nombre'] = $nombre;
-        $_SESSION['estudiante_apellido'] = $apellido;
-        $_SESSION['estudiante_segundo_apellido'] = $segundo_apellido;
-
-        header("Location: Form2.php");
-        exit();
+        header("Location: Form1.php");
+        echo "Registro completado exitosamente";
     } else {
-        echo "Error al enviar los datos: " . $stmt->error;
+        echo "Error: " . $stmt->error;
     }
 
     $stmt->close();

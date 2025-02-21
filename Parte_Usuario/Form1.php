@@ -28,6 +28,10 @@
             <div class="num">3</div>
             <div class="line" style=></div>
             <div class="num">4</div>
+            <div class="line"></div>
+            <div class="num">5</div>
+            <div class="line"></div>
+            <div class="num">6</div>
 
           </div>
           <form action="datos.php" method="post" enctype="multipart/form-data" id="form">
@@ -134,17 +138,18 @@
               </div>
 
               <div>
-                <label for="nacionalidad">Nacionalidad</label>
-                <select id="nacionalidad_select" name="nacionalidad_select" required
-                  onchange="toggleOtraNacionalidad()">
-                  <option value="" disabled selected>Seleccione Nacionalidad</option>
-                  <option value="Dominicano">Dominicano</option>
-                  <option value="otro">Otro</option>
+                <label for="nacionalidad_select">Nacionalidad:</label>
+                <select id="nacionalidad_select" name="nacionalidad" required>
+                  <option value="" disabled selected>Seleccione su nacionalidad</option>
+                  <option value="dominicana">Dominicana</option>
+                  <option value="otro">Otra</option>
                 </select>
-                <input id="otra_nacionalidad" name="nacionalidad" type="text" placeholder="Especifique Nacionalidad"
-                  style="display:none;" required disabled>
               </div>
 
+              <div id="otra_nacionalidad_div" style="display: none;">
+                <label for="otra_nacionalidad">Especifique su nacionalidad:</label>
+                <input type="text" id="otra_nacionalidad" name="otra_nacionalidad" placeholder="Ingrese su nacionalidad">
+              </div>
               <div>
                 <label for="correo_electronico">Correo Electronico</label>
                 <input id="correo_electronico" name="correo_electronico" type="email"
@@ -162,6 +167,53 @@
               </div>
 
               <button>Enviar</button>
+            </div>
+            <div class="fifth_section">
+              <div>
+                <label for="nombre_padres">Nombre del padre o tutor:</label>
+                <input id="nombre_padres" name="nombre_padres" type="text" placeholder="Nombre completo" required>
+              </div>
+
+              <div>
+                <label for="tipo_familia">Tipo de familia:</label>
+                <select id="tipo_familia" name="tipo_familia" required>
+                  <option value="" disabled selected>Seleccione tipo de familia</option>
+                  <option value="biparental">Biparental</option>
+                  <option value="monoparental">Monoparental</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="ocupacion">Ocupación:</label>
+                <select id="ocupacion" name="ocupacion_padres" required>
+                  <option value="" disabled selected>Seleccione ocupación</option>
+                  <option value="publica">Empleado público</option>
+                  <option value="privada">Empleado privado</option>
+                  <option value="independiente">Trabajador independiente</option>
+                </select>
+              </div>
+
+              <button>Siguiente</button>
+            </div>
+
+            <!-- Sixth section (Segunda sección de padres) -->
+            <div class="sixth_section">
+              <div>
+                <label for="telefono">Teléfono:</label>
+                <input id="telefono" name="telefono_padres" type="tel" placeholder="telefono" required>
+              </div>
+
+              <div>
+                <label for="correo_padres">Correo electrónico:</label>
+                <input id="correo_padres" name="correo_padres" placeholder="correo del padre" type="email">
+              </div>
+
+              <div>
+                <label for="direccion_padres">Dirección:</label>
+                <input id="direccion_padres" name="direccion_padres" type="text" placeholder="direccion actual" required>
+              </div>
+
+              <button>Finalizar</button>
             </div>
 
           </form>

@@ -152,6 +152,7 @@ input[type="date"] {
   font-family: 'popinsBold';
   margin-bottom: 10px;
 }
+  
 
 /* Responsive adjustments */
 @media (max-width: 808px) {
@@ -206,19 +207,22 @@ document.head.appendChild(styleSheet);
 
 // JavaScript for handling section navigation
 document.addEventListener('DOMContentLoaded', function () {
-  // Add popup HTML to the document
-
-  const form = document.getElementById("form")
+  const form = document.getElementById("form");
+  //SECCIONES
   const sections = [
     document.querySelector('.first_section'),
     document.querySelector('.second_section'),
     document.querySelector('.third_section'),
-    document.querySelector('.fourth_section')
+    document.querySelector('.fourth_section'),
+    document.querySelector('.fifth_section'),
+    document.querySelector('.sixth_section')
   ];
 
   const numbers = document.querySelectorAll('.circulos .num');
   const lines = document.querySelectorAll('.circulos .line');
   let currentSection = 0;
+  // Añadir esta línea para definir completedSections
+  let completedSections = new Set([0]); // Inicializar con la primera sección
 
   // Initialize first section and styles
   sections[0].classList.add('section', 'active');
@@ -278,177 +282,184 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Si es la última sección y todos los campos son válidos, mostrar el popup
+      // Si es la última sección (sixth_section)
       if (index === sections.length - 1) {
-        // reenviar 
-        window.location.href = "Form2.php";
+        const nombreEstudiante = document.getElementById('nombre').value || '';
+        const apellidoEstudiante = document.getElementById('apellido').value || '';
+        const segundoApellidoEstudiante = document.getElementById('segundo_apellido').value || '';
+        const nombreCompleto = `${nombreEstudiante} ${apellidoEstudiante} ${segundoApellidoEstudiante}`.trim();
+        const codigoAdmision = Math.floor(Math.random() * 9000000) + 1000000;
+
+        // Mostrar ventana emergente
+        const popupHTML = `
+        <div class="Pop-Pup" id="successPopup">
+          <div class="header_pop">
+            <div class="logo_pop">
+              <img src="./IMG/logo1.png" alt="Logo" class="logo_pop"/>
+            </div>
+            <div class="svg_x" id="closePopup">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="cont_pop-pup">
+            <div class="text_pop-pup">
+              <span>¡Formulario completado exitosamente!</span>
+            </div>
+            <div class="info_user">
+              <div>
+                <span id="codigoAdmision">${codigoAdmision}</span>
+                <h3>Código de admisión</h3>
+              </div>
+              <div>
+                <span id="nombreCompleto">${nombreCompleto}</span>
+                <h3>Nombre completo</h3>
+              </div>
+            </div>
+            <button id="enviarFormulario" class="btn btn-primary mt-4">Enviar Formulario</button>
+          </div>
+        </div>
+        <div class="overlay" id="overlay"></div>
+      `;
+
+        document.body.insertAdjacentHTML('beforeend', popupHTML);
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('successPopup').style.display = 'flex';
+
+        // Configurar el envío del formulario
+        document.getElementById('enviarFormulario').addEventListener('click', function () {
+          document.querySelector('form').submit();
+        });
+
         return;
       }
 
-      // Si no es la última sección, continuar con la navegación normal
-      sections[currentSection].classList.remove('active');
-      if (currentSection < numbers.length - 1) {
-        numbers[currentSection + 1].classList.add('active');
-        if (lines[currentSection]) {
-          lines[currentSection].classList.add('active');
-        }
-      }
-
-      currentSection++;
-      sections[currentSection].classList.add('active');
+      // Si no es la última sección, continuar normalmente
+      navigateToSection(currentSection + 1);
       showAlert('Sección completada correctamente', 'success');
     });
-  });
 
-
-  // Reset border color when user starts typing
-  document.querySelectorAll('input[required], select[required]').forEach(input => {
-    input.addEventListener('input', function () {
-      this.style.borderColor = '#BABABA';
+    // Reset border color when user starts typing
+    document.querySelectorAll('input[required], select[required]').forEach(input => {
+      input.addEventListener('input', function () {
+        this.style.borderColor = '#BABABA';
+      });
     });
   });
-});
 
 
-// Add click handlers to the numbers for navigation
-numbers.forEach((number, index) => {
-  number.addEventListener('click', () => {
-    const targetSection = index;
+  // Add click handlers to the numbers for navigation
+  numbers.forEach((number, index) => {
+    number.addEventListener('click', () => {
+      const targetSection = index;
 
-    // Allow moving backwards without validation
-    if (targetSection < currentSection) {
-      navigateToSection(targetSection);
-      return;
-    }
+      // Allow moving backwards without validation
+      if (targetSection < currentSection) {
+        navigateToSection(targetSection);
+        return;
+      }
 
-    // For forward navigation, check if all previous sections are completed
-    if (canNavigateToSection(targetSection)) {
-      navigateToSection(targetSection);
-    } else {
-      showAlert('Por favor complete la sección actual antes de avanzar', 'danger');
-    }
+      // For forward navigation, check if all previous sections are completed
+      if (canNavigateToSection(targetSection)) {
+        navigateToSection(targetSection);
+      } else {
+        showAlert('Por favor complete la sección actual antes de avanzar', 'danger');
+      }
+    });
   });
-});
 
-function canNavigateToSection(targetSection) {
-  // Check if all previous sections have been completed
-  for (let i = 0; i < targetSection; i++) {
-    if (!completedSections.has(i)) {
-      return false;
+  function canNavigateToSection(targetSection) {
+    // Check if all previous sections have been completed
+    for (let i = 0; i < targetSection; i++) {
+      if (!completedSections.has(i)) {
+        return false;
+      }
     }
+    return true;
   }
-  return true;
-}
 
-function navigateToSection(targetSection) {
-  // Remove active class from current section
-  sections[currentSection].classList.remove('active');
+  function navigateToSection(targetSection) {
+    // Remove active class from current section
+    sections[currentSection].classList.remove('active');
 
-  // Add active class to target section
-  sections[targetSection].classList.add('active');
+    // Add active class to target section
+    sections[targetSection].classList.add('active');
 
-  // Update number and line styles
-  updateNavigationStyles(targetSection);
+    // Update number and line styles
+    updateNavigationStyles(targetSection);
 
-  // Update current section
-  currentSection = targetSection;
-}
+    // Update current section
+    currentSection = targetSection;
+  }
 
-function updateNavigationStyles(targetSection) {
-  // Update numbers
-  numbers.forEach((num, index) => {
-    if (index <= targetSection || completedSections.has(index)) {
-      num.classList.add('active');
-    } else {
-      num.classList.remove('active');
-    }
-  });
-
-  // Update lines
-  lines.forEach((line, index) => {
-    if (index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))) {
-      line.classList.add('active');
-    } else {
-      line.classList.remove('active');
-    }
-  });
-}
-
-// Modify your existing button click handlers
-sections.forEach((section, index) => {
-  const button = section.querySelector('button');
-  button.addEventListener('click', function (e) {
-    e.preventDefault();
-
-    const requiredFields = section.querySelectorAll('input[required], select[required]');
-    let isValid = true;
-    let hasEmptyFields = false;
-    let errorMessages = [];
-
-    // Your existing validation code...
-    requiredFields.forEach(field => {
-      if (!field.value.trim()) {
-        isValid = false;
-        hasEmptyFields = true;
-        field.style.borderColor = 'red';
-      } else if (field.id === 'telefono') {
-        if (!/^\d{10}$/.test(field.value.trim())) {
-          isValid = false;
-          field.style.borderColor = 'red';
-          errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
-        }
-      } else if (field.id === 'correo_electronico') {
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(field.value.trim())) {
-          isValid = false;
-          field.style.borderColor = 'red';
-          errorMessages.push('Por favor, introduce un correo electrónico válido');
-        }
+  function updateNavigationStyles(targetSection) {
+    // Update numbers
+    numbers.forEach((num, index) => {
+      if (index <= targetSection || completedSections.has(index)) {
+        num.classList.add('active');
+      } else {
+        num.classList.remove('active');
       }
     });
 
-    if (hasEmptyFields) {
-      errorMessages.unshift('Debe llenar los campos obligatorios');
+    // Update lines
+    lines.forEach((line, index) => {
+      if (index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))) {
+        line.classList.add('active');
+      } else {
+        line.classList.remove('active');
+      }
+    });
+
+    // Agregar el event listener para el select de nacionalidad
+    const nacionalidadSelect = document.getElementById('nacionalidad_select');
+    const otraNacionalidadDiv = document.getElementById('otra_nacionalidad_div');
+    const otraNacionalidadInput = document.getElementById('otra_nacionalidad');
+
+
+    nacionalidadSelect.addEventListener('change', function () {
+      if (this.value === 'otro') {
+        otraNacionalidadDiv.style.display = 'block';
+        otraNacionalidadInput.required = true;
+      } else {
+        otraNacionalidadDiv.style.display = 'none';
+        otraNacionalidadInput.required = false;
+        otraNacionalidadInput.value = ''; // Limpiar el valor
+      }
+
+
+    });
+    // Modificar la parte del envío del formulario
+    document.getElementById('enviarFormulario')?.addEventListener('click', function () {
+      const form = document.querySelector('form');
+      const nacionalidadSelect = document.getElementById('nacionalidad_select');
+      const otraNacionalidad = document.getElementById('otra_nacionalidad');
+
+      // Crear o actualizar el campo oculto para la nacionalidad
+      let hiddenInput = document.querySelector('input[name="nacionalidad"]');
+      if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'nacionalidad';
+        form.appendChild(hiddenInput);
+      }
+
+      // Establecer el valor de nacionalidad
+      if (nacionalidadSelect.value === 'otro' && otraNacionalidad.value) {
+        hiddenInput.value = otraNacionalidad.value;
+      } else {
+        hiddenInput.value = nacionalidadSelect.value;
+      }
+
+
     }
 
-    if (!isValid) {
-      const errorMessage = errorMessages.join('<br>');
-      showAlert(errorMessage, 'danger');
-      return;
-    }
-
-    completedSections.add(index);
-
-    // Si es la última sección y todos los campos son válidos
-    // if (index === sections.length - 1) {
-    //   const nombre = document.getElementById('nombre').value || '';
-    //   const apellido = document.getElementById('apellido').value || '';
-    //   const segundoApellido = document.getElementById('segundo_apellido').value || '';
-    //   const nombreCompleto = `${nombre} ${apellido} ${segundoApellido}`.trim();
-    //   const codigoAdmision = Math.floor(Math.random() * 9000000) + 1000000;
-
-    //   document.getElementById('nombreCompleto').textContent = nombreCompleto;
-    //   document.getElementById('codigoAdmision').textContent = codigoAdmision;
-
-    //   // Mostrar el popup
-    //   document.getElementById('overlay').style.display = 'flex';
-    //   document.getElementById('successPopup').style.display = 'flex';
-
-    //   // Agregar event listener para el botón de enviar
-    //   document.getElementById('enviarFormulario').addEventListener('click', function () {
-    //     showAlert('Formulario enviado correctamente', 'success');
-    //     form.submit();
-    //   });
-
-    //   return;
-    // }
-
-
-    // Navigate to next section
-    navigateToSection(currentSection + 1);
-    showAlert('Sección completada correctamente', 'success');
-  });
+    );
+  }
 });
+
 
 // Agregar estilos para el botón
 const additionalStyles = `
@@ -471,15 +482,4 @@ const additionalStyles = `
 // Agregar los estilos adicionales
 styleSheet.textContent = styles + additionalStyles;
 
-function toggleOtraNacionalidad() {
-  const nacionalidadSelect = document.getElementById('nacionalidad_select');
-  const otraNacionalidad = document.getElementById('otra_nacionalidad');
 
-  if (nacionalidadSelect.value === 'otro') {
-    otraNacionalidad.style.display = 'block';
-    otraNacionalidad.disabled = false;
-  } else {
-    otraNacionalidad.style.display = 'none';
-    otraNacionalidad.disabled = true;
-  }
-}
