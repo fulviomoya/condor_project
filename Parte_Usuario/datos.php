@@ -55,8 +55,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre_usuario = $nombre . "_" . $apellido;
     $nombre_usuario = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nombre_usuario);
 
-    // Crear carpeta con formato: nombre_usuario_idActaNacimiento
-    $nombre_carpeta = "uploads/" . $nombre_usuario . "_" . $id_acta_nacimiento . "/";
+    // Modificar la creación de la carpeta para usar el id_plaza
+    $id_plaza = isset($_POST['id_plaza']) ? trim($_POST['id_plaza']) : '';
+    $nombre_carpeta = "uploads/" . $id_plaza . "/";
     if (!is_dir($nombre_carpeta)) {
         mkdir($nombre_carpeta, 0777, true);
     }
@@ -64,28 +65,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acta_nacimiento_path = "";
     $record_notas_path = "";
 
+
     // Definir límite de tamaño (2MB)
     $max_file_size = 2 * 1024 * 1024; // 2MB
 
-    // Validar acta de nacimientoo
+    // Procesar el acta de nacimiento
     if (isset($_FILES["acta_nacimiento"]) && $_FILES["acta_nacimiento"]["error"] == 0) {
         if ($_FILES["acta_nacimiento"]["size"] > $max_file_size) {
             die("❌ El archivo del acta de nacimiento es demasiado grande (máx. 2MB).");
         }
-    }
 
-    // Validar récord de notas
-    if (isset($_FILES["record_notas"]) && $_FILES["record_notas"]["error"] == 0) {
-        if ($_FILES["record_notas"]["size"] > $max_file_size) {
-            die("❌ El archivo del récord de notas es demasiado grande (máx. 2MB).");
-        }
-    }
-    // Procesar el acta de nacimiento
-    if (isset($_FILES["acta_nacimiento"]) && $_FILES["acta_nacimiento"]["error"] == 0) {
         $file_ext = pathinfo($_FILES["acta_nacimiento"]["name"], PATHINFO_EXTENSION);
 
         if (strtolower($file_ext) == 'pdf') {
-            $ruta_acta = $nombre_carpeta . "acta.pdf";
+            $ruta_acta = $nombre_carpeta . $id_plaza . "_acta.pdf";
             if (move_uploaded_file($_FILES["acta_nacimiento"]["tmp_name"], $ruta_acta)) {
                 $acta_nacimiento_path = $ruta_acta;
                 echo "✅ Acta guardada en: $ruta_acta <br>";
@@ -95,16 +88,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo "❌ El acta de nacimiento debe ser un archivo PDF.<br>";
         }
-    } else {
-        echo "❌ No se recibió el acta de nacimiento.<br>";
     }
 
     // Procesar el récord de notas
     if (isset($_FILES["record_notas"]) && $_FILES["record_notas"]["error"] == 0) {
+        if ($_FILES["record_notas"]["size"] > $max_file_size) {
+            die("❌ El archivo del récord de notas es demasiado grande (máx. 2MB).");
+        }
+
         $file_ext = pathinfo($_FILES["record_notas"]["name"], PATHINFO_EXTENSION);
 
         if (strtolower($file_ext) == 'pdf') {
-            $ruta_record = $nombre_carpeta . "record.pdf";
+            $ruta_record = $nombre_carpeta . $id_plaza . "_record.pdf";
             if (move_uploaded_file($_FILES["record_notas"]["tmp_name"], $ruta_record)) {
                 $record_notas_path = $ruta_record;
                 echo "✅ Record guardado en: $ruta_record <br>";
@@ -114,10 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo "❌ El récord de notas debe ser un archivo PDF.<br>";
         }
-    } else {
-        echo "❌ No se recibió el récord de notas.<br>";
     }
-
     // Modificar la consulta INSERT para usar id_acta_nacimiento como clave principal
     $sql_estudiante = "INSERT INTO datos_estudiantes (
         id_plaza, 

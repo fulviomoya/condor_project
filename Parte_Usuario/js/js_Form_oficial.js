@@ -218,6 +218,52 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.sixth_section')
   ];
 
+  const actaNacimientoInput = document.getElementById('Acta_de_nacimiento');
+  const recordNotasInput = document.getElementById('record_notas');
+
+  // Función para validar el tamaño y tipo de archivo
+  function validarArchivo(archivo, tipoDocumento) {
+    const tiposPermitidos = ['application/pdf'];
+    const tamañoMaximo = 5 * 1024 * 1024; // 5MB en bytes
+
+    if (!archivo) {
+      showAlert(`Por favor seleccione un archivo para ${tipoDocumento}`, 'warning');
+      return false;
+    }
+
+    if (!tiposPermitidos.includes(archivo.type)) {
+      showAlert(`El archivo de ${tipoDocumento} debe ser PDF`, 'danger');
+      return false;
+    }
+
+    if (archivo.size > tamañoMaximo) {
+      showAlert(`El archivo de ${tipoDocumento} no debe exceder 5MB`, 'danger');
+      return false;
+    }
+
+    return true;
+  }
+
+  // Listener para acta de nacimiento
+  actaNacimientoInput.addEventListener('change', function (e) {
+    const archivo = e.target.files[0];
+    if (validarArchivo(archivo, 'Acta de Nacimiento')) {
+      showAlert('Acta de nacimiento cargada correctamente', 'success');
+    } else {
+      this.value = ''; // Limpiar el input si no es válido
+    }
+  });
+
+  // Listener para record de notas
+  recordNotasInput.addEventListener('change', function (e) {
+    const archivo = e.target.files[0];
+    if (validarArchivo(archivo, 'Record de Notas')) {
+      showAlert('Record de notas cargado correctamente', 'success');
+    } else {
+      this.value = ''; // Limpiar el input si no es válido
+    }
+  });
+
   const numbers = document.querySelectorAll('.circulos .num');
   const lines = document.querySelectorAll('.circulos .line');
   let currentSection = 0;
