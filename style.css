@@ -113,7 +113,7 @@
             
         }
 
-        .instructions a {
+        .instructions span {
             color: var(--principal-color);
             text-decoration: none;
         }
