@@ -15,7 +15,7 @@
         <div class="container">
             <div class="header">
                 <img src="Parte_Administrativa\IMG\LOGO.png" alt="">
-                <h1>¡Bienvenido al <span>Politecnico ITLA</span>!</h1>
+                <h1>¡Bienvenido al <span>Politécnico ITLA!</span></h1>
                 <a href="Login.php">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -30,7 +30,7 @@
 
 
             <div class="instructions">
-                Para evitar inconvenientes, por favor, leer detenidamente todas las <a href="#">instrucciones</a> antes
+                Para evitar inconvenientes, por favor, leer detenidamente todas las <span href="#">instrucciones</span> antes
                 de
                 llenar el formulario.
             </div>
@@ -46,7 +46,7 @@
                     </li>
                     <li>
                         <span class="field-name">Cédula:</span>
-                        <span class="field-description">Ver imagen de referencia para llenar este campo.</span>
+                        <span class="field-description"> Ingresa el número de identificación del acta de nacimiento del alumno (O también llamada cédula) sin espacios ni guiones. </span>
                     </li>
                     <li>
                         <span class="field-name">Escuela Anterior:</span>
@@ -55,7 +55,7 @@
                     </li>
                     <li>
                         <span class="field-name">Dirección Actual:</span>
-                        <span class="field-description">Debes completar este campo con tu domicilio actual, no
+                        <span class="field-description">Completar este campo con tu domicilio actual, no
                             necesariamente el
                             que contiene la cédula de identidad del padre o tutor.</span>
                     </li>
@@ -119,7 +119,7 @@
                     </li>
                     <li>
                         <span class="field-name">Familia:</span>
-                        <span class="field-description">Selecciona el tipo de familia que es.</span>
+                        <span class="field-description">Selecciona el tipo de familia.</span>
                     </li>
                     <li>
                         <span class="field-name">Dirección:</span>
@@ -130,7 +130,7 @@
                 </ul>
 
                 <div class="nota">
-                    <span class="nota-label">Nota:</span> Clickea el botón "Siguiente" para completar el formulario.
+                    <span class="nota-label">Nota:</span> Cliquea el botón "Siguiente" para completar el formulario.
                 </div>
 
                 <div class="button-container">

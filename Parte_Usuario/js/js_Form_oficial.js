@@ -158,6 +158,7 @@ input[type="date"] {
 @media (max-width: 808px) {
   .Pop-Pup {
     width: 90%;
+    padding: 14px;
     background-color:transarent;
   }
   
