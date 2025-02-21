@@ -223,3 +223,18 @@ td.align-middle .d-flex {
     max-width: 100%;
 }
 
+
+.highlight {
+    background-color: #fff3cd;
+    padding: 2px;
+    border-radius: 2px;
+  }
+  
+  .input-group .btn-outline-secondary {
+    border-color: #ced4da;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  .input-group .btn-outline-secondary:hover {
+    background-color: #e9ecef;
+  }
