@@ -18,7 +18,10 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
+    // Verificar que el id_plaza existe
+    if (!isset($_POST['id_plaza']) || empty($_POST['id_plaza'])) {
+        die("Error: No se recibió el ID de plaza");
+    }
     // Recoger los datos del formulario
     $nombre = trim($_POST["nombre"]);
     $apellido = trim($_POST["apellido"]);
@@ -117,23 +120,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Modificar la consulta INSERT para usar id_acta_nacimiento como clave principal
     $sql_estudiante = "INSERT INTO datos_estudiantes (
-        nombre, apellido, segundo_apellido, edad, 
-        id_acta_nacimiento, escuela_anterior, direccion_actual,
-        sector, localidad, fecha_nacimiento, lugar_nacimiento,
-        nacionalidad, correo_electronico, grado_solicitado,
-        nombre_padres, ocupacion_padres, telefono_padres,
-        correo_padres, tipo_familia, direccion_padres,
-        record_calificaciones, acta_nacimiento_pdf
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
-        COALESCE(?, 'No registrado'), 
-        COALESCE(?, 'No registrado'), 
-        COALESCE(?, 'No registrado'),
-        COALESCE(?, 'No registrado'),
-        COALESCE(?, 'No registrado'),
-        COALESCE(?, 'No registrado'),
-        ?, ?
-    )";
+        id_plaza, 
+        nombre, 
+        apellido, 
+        segundo_apellido, 
+        edad, 
+        id_acta_nacimiento, 
+        escuela_anterior, 
+        direccion_actual,
+        sector, 
+        localidad, 
+        fecha_nacimiento, 
+        lugar_nacimiento,
+        nacionalidad, 
+        correo_electronico, 
+        grado_solicitado,
+        nombre_padres, 
+        ocupacion_padres, 
+        telefono_padres,
+        correo_padres, 
+        tipo_familia, 
+        direccion_padres,
+        record_calificaciones, 
+        acta_nacimiento_pdf
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+    // Asegúrate de obtener el id_plaza del formulario
+    $id_plaza = isset($_POST['id_plaza']) ? trim($_POST['id_plaza']) : '';
 
     if (!$stmt) {
         die("Error en la consulta: " . $conn->error);
@@ -150,7 +163,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Preparar y ejecutar la consulta con todos los datos
     $stmt = $conn->prepare($sql_estudiante);
     $stmt->bind_param(
-        "sssissssssssssssssssss", // Añadir dos 's' más para los archivos
+        "ssssissssssssssssssssss",
+        $id_plaza, // Nuevo parámetro
         $nombre,
         $apellido,
         $segundo_apellido,
