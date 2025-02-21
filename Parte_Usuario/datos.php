@@ -18,7 +18,7 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
+
     // Recoger los datos del formulario
     $nombre = trim($_POST["nombre"]);
     $apellido = trim($_POST["apellido"]);
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nacionalidad = trim($_POST["nacionalidad"]);
     $correo_electronico = trim($_POST["correo_electronico"]);
     $grado_solicitado = trim($_POST["grado_solicitado"]);
-    
+
 
     // Verificar si el ID ya está registrado (modificado)
     $check_sql = "SELECT id_acta_nacimiento FROM datos_estudiantes WHERE id_acta_nacimiento = ?";
@@ -117,12 +117,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Modificar la consulta INSERT para usar id_acta_nacimiento como clave principal
     $stmt = $conn->prepare("INSERT INTO datos_estudiantes (
-         id_acta_nacimiento, nombre, apellido, edad, segundo_apellido, 
-        id_acta_nacimiento, acta_nacimiento_pdf, record_calificaciones, 
+        id_acta_nacimiento, nombre, apellido, segundo_apellido, edad,
+        acta_nacimiento_pdf, record_calificaciones, 
         escuela_anterior, direccion_actual, sector, localidad, 
         fecha_nacimiento, lugar_nacimiento, nacionalidad, 
         correo_electronico, grado_solicitado, estado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
 
     if (!$stmt) {
         die("Error en la consulta: " . $conn->error);
@@ -138,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Modificar el orden de los parámetros en bind_param
     $stmt->bind_param(
         "ssssisssssssssss",
-        $id_acta_nacimiento, // Ahora es el primer parámetro
+        $id_acta_nacimiento,
         $nombre,
         $apellido,
         $segundo_apellido,
@@ -157,8 +157,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     );
 
     if ($stmt->execute()) {
-        // Ya no necesitamos obtener el insert_id
-        $_SESSION['estudiante_id'] = $id_acta_nacimiento; // Usamos el id_acta_nacimiento
+        // Guardar todos los datos del estudiante en la sesión
+        $_SESSION['estudiante_id'] = $id_acta_nacimiento;
+        $_SESSION['estudiante_nombre'] = $nombre;
+        $_SESSION['estudiante_apellido'] = $apellido;
+        $_SESSION['estudiante_segundo_apellido'] = $segundo_apellido;
+
         header("Location: Form2.php");
         exit();
     } else {

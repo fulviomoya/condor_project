@@ -147,8 +147,8 @@
 
               <div>
                 <label for="correo_electronico">Correo Electronico</label>
-                <input id="correo_electronico" name="correo_electronico" type="email" placeholder="Correo Electrónico"
-                  required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                <input id="correo_electronico" name="correo_electronico" type="email"
+                  placeholder="Correo Electrónico" required>
               </div>
 
               <div>
