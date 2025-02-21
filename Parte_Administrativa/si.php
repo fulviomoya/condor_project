@@ -1,5 +1,4 @@
 <?php
-// aceptadas.php - Maneja la visualización de solicitudes aceptadas
 $host = "localhost";
 $usuario = "root";
 $contrasena = "";
@@ -11,11 +10,13 @@ if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
 
-// Obtener todas las columnas necesarias para solicitudes aceptadas
-$sql = "SELECT id, nombre, apellido, segundo_apellido, sector, localidad, estado 
+// Modificar la consulta para usar id_acta_nacimiento
+$sql = "SELECT id_acta_nacimiento as id, nombre, apellido, segundo_apellido, 
+        sector, localidad, estado, 
+        acta_nacimiento_pdf as acta_nacimiento
         FROM datos_estudiantes 
         WHERE estado = 'Aprobado' 
-        ORDER BY id DESC";
+        ORDER BY id_acta_nacimiento DESC";
 $resultado = $conexion->query($sql);
 
 $usuarios = [];
@@ -25,9 +26,7 @@ if ($resultado) {
     }
 }
 
-// Devolver los resultados como JSON
 header('Content-Type: application/json');
 echo json_encode($usuarios);
 
 $conexion->close();
-?>

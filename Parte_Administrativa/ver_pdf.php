@@ -1,98 +1,68 @@
 <?php
-// Archivo: ver_pdf.php
-session_start();
-include("../config.php");
-include("conexion.php");
+require_once 'verificar_sesion.php';
+verificarSesion();
 
-// Habilita errores para depuración
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$host = "localhost";
+$usuario = "root";
+$contrasena = "";
+$base_datos = "RegistroEstudiantes";
 
-// Verifica si se pasó el ID y el tipo de documento
-if (!isset($_GET['id']) || !isset($_GET['tipo'])) {
-    die("Acceso no válido.");
+$conexion = new mysqli($host, $usuario, $contrasena, $base_datos);
+
+if ($conexion->connect_error) {
+    die("Error de conexión: " . $conexion->connect_error);
 }
 
-$id = intval($_GET['id']); // Convierte el ID a número entero para evitar inyección SQL
+if (!isset($_GET['tipo']) || !isset($_GET['id'])) {
+    die("Parámetros incorrectos");
+}
+
 $tipo = $_GET['tipo'];
+$id = $_GET['id'];
 
-// CONSULTA A LA BASE DE DATOS PARA OBTENER LA RUTA DIRECTA DEL ARCHIVO
-if ($tipo === "acta") {
-    $query = "SELECT acta_nacimiento_pdf, nombre, apellido FROM datos_estudiantes WHERE id = ?";
-} elseif ($tipo === "record") {
-    $query = "SELECT record_calificaciones, nombre, apellido FROM datos_estudiantes WHERE id = ?";
-} else {
-    die("Tipo de documento no válido.");
+// Seleccionar la columna correcta según el tipo de documento
+$columna = ($tipo === 'acta') ? 'acta_nacimiento_pdf' : 'record_calificaciones';
+
+// Preparar la consulta usando id_acta_nacimiento
+$stmt = $conexion->prepare("SELECT $columna FROM datos_estudiantes WHERE id_acta_nacimiento = ?");
+
+if (!$stmt) {
+    die("Error en la preparación de la consulta: " . $conexion->error);
 }
 
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt->bind_param("s", $id);
 
-if ($result->num_rows === 0) {
-    die("No se encontró el usuario con ID: $id");
+if (!$stmt->execute()) {
+    die("Error al ejecutar la consulta: " . $stmt->error);
 }
 
-$row = $result->fetch_assoc();
+$resultado = $stmt->get_result();
 
-// Determinar la ruta del archivo según el tipo
-if ($tipo === "acta") {
-    $archivo = $row['acta_nacimiento_pdf'];
-} else { // record
-    $archivo = $row['record_calificaciones'];
-}
+if ($fila = $resultado->fetch_assoc()) {
+    // Modificar la construcción de la ruta para apuntar a Parte_Usuario
+    $ruta_archivo = "../Parte_Usuario/" . $fila[$columna];
 
-// Si la ruta no existe en la DB, intenta construirla
-if (empty($archivo)) {
-    $nombre_usuario = $row['nombre'] . "_" . $row['apellido'];
-    $nombre_usuario = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nombre_usuario);
+    // Agregar log para depuración
+    error_log("Intentando acceder al archivo: " . $ruta_archivo);
 
-    if ($tipo === "acta") {
-        $archivo = "uploads/" . $nombre_usuario . "/acta.pdf";
+    if (file_exists($ruta_archivo)) {
+        // Verificar que el archivo sea un PDF
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $ruta_archivo);
+        finfo_close($finfo);
+
+        if ($mime_type === 'application/pdf') {
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . basename($ruta_archivo) . '"');
+            readfile($ruta_archivo);
+            exit;
+        } else {
+            die("El archivo no es un PDF válido");
+        }
     } else {
-        $archivo = "uploads/" . $nombre_usuario . "/record.pdf";
+        die("El archivo no existe en el servidor. Ruta: " . $ruta_archivo .
+            "\nRuta absoluta: " . realpath($ruta_archivo));
     }
 }
-
-// Verificar si la ruta es relativa y añadir la ruta base si es necesario
-if (strpos($archivo, '/') !== 0 && strpos($archivo, ':') === false) {
-    // Si la ruta comienza con "uploads/"
-    if (strpos($archivo, 'uploads/') === 0) {
-        $archivo = "../Parte_Usuario/" . $archivo;
-    }
-}
-
-// Imprime la ruta para depuración (puedes comentar esta línea en producción)
-// echo "Ruta generada: $archivo<br>";
-
-// Verifica si el archivo existe
-if (!file_exists($archivo)) {
-    die("El archivo no existe en la ruta: $archivo");
-}
-
-if (!is_readable($archivo)) {
-    die("El archivo existe pero no es accesible (permisos).");
-}
-
-// Determinar el tipo de contenido
-$extension = pathinfo($archivo, PATHINFO_EXTENSION);
-if (strtolower($extension) == 'pdf') {
-    $tipo_contenido = 'application/pdf';
-} else {
-    die("Tipo de archivo no soportado");
-}
-
-// Enviar el archivo PDF al navegador
-header('Content-Type: ' . $tipo_contenido);
-header('Content-Disposition: inline; filename="' . basename($archivo) . '"');
-header('Content-Length: ' . filesize($archivo));
-header('Cache-Control: no-cache, must-revalidate');
-header('Pragma: no-cache');
-
-// Limpia el buffer y envía el archivo
-ob_clean();
-flush();
-readfile($archivo);
-exit;
-?>
+$stmt->close();
+$conexion->close();
