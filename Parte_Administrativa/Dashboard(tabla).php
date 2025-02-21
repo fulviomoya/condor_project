@@ -13,6 +13,7 @@ verificarSesion();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="IMG/SUKA.png">
@@ -404,6 +405,212 @@ function mostrarNotificacion(mensaje, tipo) {
           alert('Error al actualizar el estado');
         });
     }
+
+
+
+    function downloadExcel() {
+    const table = document.getElementById('tablaUsuarios');
+    const rows = Array.from(table.querySelectorAll('tr'));
+    
+    // Mapeo correcto basado en los encabezados reales de tu tabla
+    const headerMapping = {
+        'ID de plaza': 'ID de plaza',
+        'Nombre': 'Nombre del Estudiante',
+        'Apellido': 'Primer Apellido',
+        'Segundo Apellido': 'Segundo Apellido',
+        'Nombre de los padres': 'Nombre de los Tutores',
+        'Localidad': 'Localidad de Residencia',
+        'Sector': 'Sector',
+        'Dirección Actual': 'Domicilio Actual',
+        'Escuela Anterior': 'Centro Educativo Anterior',
+        'Fecha de nacimiento': 'Fecha de Nacimiento',
+        'Ocupación de los padres': 'Ocupación de los Tutores',
+        'Tipo de Familia': 'Tipo de familia',
+        'Teléfono de contacto': 'Teléfono para Contacto',
+        'Correo Electrónico': 'Correo Electrónico de Contacto',
+        'Acta de nacimiento': 'Acta de nacimiento',
+        'Estado': 'Estado de la Solicitud'
+    };
+
+    // Obtener los encabezados originales
+    const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
+        .slice(0, -1) // Excluir la columna de Acciones
+        .map(th => th.textContent.trim());
+
+    // Transformar los encabezados usando el mapeo
+    const newHeaders = originalHeaders.map(header => 
+        headerMapping[header] || header // Si no existe en el mapeo, mantiene el original
+    );
+
+    // Preparar los datos para Excel con los nuevos headers
+    const workbookData = [
+        newHeaders
+    ];
+
+    // Datos de las filas
+    rows.slice(1).forEach(row => {
+        const rowData = Array.from(row.querySelectorAll('td'))
+            .slice(0, -1) // Excluir la columna de Acciones
+            .map((cell, index) => {
+                let value = cell.textContent.trim();
+                
+                // Si es la columna de fecha de nacimiento (índice 9)
+                if (index === 9 && value) {
+                    const date = new Date(value);
+                    if (!isNaN(date)) {
+                        value = date.toLocaleDateString('es-ES');
+                    }
+                }
+                
+                // Si es la columna de acta de nacimiento (índice 14)
+                if (index === 14) {
+                    const pdfLink = cell.querySelector('a');
+                    value = pdfLink ? 'Disponible' : 'No disponible';
+                }
+
+                // Si es la columna de estado (índice 15)
+                if (index === 15) {
+                    return value || 'Pendiente';
+                }
+
+                return value || '';
+            });
+        workbookData.push(rowData);
+    });
+
+    // Crear libro de trabajo
+    const ws = XLSX.utils.aoa_to_sheet(workbookData);
+
+    // Establecer anchos de columna
+    const columnWidths = newHeaders.map(header => ({
+        wch: Math.max(header.length, 15)
+    }));
+    ws['!cols'] = columnWidths;
+
+    // Dar formato a las celdas
+    for (let i = 0; i < workbookData.length; i++) {
+        for (let j = 0; j < workbookData[i].length; j++) {
+            const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
+            
+            // Dar formato al encabezado
+            if (i === 0) {
+                ws[cellRef].s = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "4472C4" } },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+            }
+            
+            // Dar formato a las celdas de estado
+            if (j === 15 && i > 0) {
+                const estado = workbookData[i][j].toLowerCase();
+                let fillColor = "FFFFFF";
+                
+                if (estado === 'Aprobado') fillColor = "C6EFCE";
+                else if (estado === 'Denegado') fillColor = "FFC7CE";
+                else if (estado === 'Pendiente') fillColor = "FFEB9C";
+                
+                ws[cellRef].s = {
+                    fill: { fgColor: { rgb: fillColor } }
+                };
+            }
+        }
+    }
+
+    // Crear libro y agregar la hoja
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
+
+    // Generar el archivo
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+    const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+}
+
+// Código para agregar el botón de Excel
+document.addEventListener('DOMContentLoaded', function() {
+    // Buscar el elemento "Reporte de datos" de manera más precisa
+    const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
+    
+    // Crear el nuevo elemento para el botón de Excel
+    const excelButton = document.createElement('li');
+    excelButton.className = 'nav-item';
+    excelButton.innerHTML = `
+        <a class="nav-link text-dark" href="#" onclick="downloadExcel(); return false;">
+            <i class="fas fa-file-excel" style="color: #217346;"></i> Exportar Excel
+        </a>
+    `;
+    
+    // Insertar el botón después del elemento "Reporte de datos"
+    if (reporteLink) {
+        reporteLink.parentNode.insertBefore(excelButton, reporteLink.nextSibling);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.querySelector('.input-group input[type="text"]');
+  const table = document.getElementById('tablaUsuarios');
+  const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+  function filterTable(searchTerm) {
+    searchTerm = searchTerm.toLowerCase().trim();
+
+    Array.from(rows).forEach(row => {
+      const cells = Array.from(row.getElementsByTagName('td')).slice(0, -1);
+      
+      // Si no hay término de búsqueda, mostrar todas las filas
+      if (searchTerm === '') {
+        row.style.display = '';
+        cells.forEach(cell => {
+          cell.innerHTML = cell.textContent;
+        });
+        return;
+      }
+
+      const found = cells.some(cell => {
+        const text = cell.textContent.toLowerCase();
+        return text.includes(searchTerm);
+      });
+
+      if (found) {
+        row.style.display = '';
+        cells.forEach(cell => {
+          const text = cell.textContent;
+          // Solo resaltar el texto exacto que se busca
+          if (text.toLowerCase().includes(searchTerm)) {
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
+            cell.innerHTML = highlightedText;
+          } else {
+            cell.innerHTML = text;
+          }
+        });
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  // Botón para limpiar la búsqueda
+  const searchContainer = searchInput.parentElement;
+  const clearButton = document.createElement('button');
+  clearButton.className = 'btn btn-outline-secondary';
+  clearButton.innerHTML = '<i class="fa fa-times"></i>';
+  clearButton.style.display = 'none';
+  searchContainer.appendChild(clearButton);
+
+  clearButton.addEventListener('click', () => {
+    searchInput.value = '';
+    filterTable('');
+    clearButton.style.display = 'none';
+  });
+
+  searchInput.addEventListener('input', (e) => {
+    filterTable(e.target.value);
+    clearButton.style.display = e.target.value ? '' : 'none';
+  });
+});
   </script>
 </body>
 
