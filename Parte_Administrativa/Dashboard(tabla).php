@@ -13,6 +13,7 @@ verificarSesion();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="IMG/SUKA.png">
@@ -144,8 +145,9 @@ verificarSesion();
     </div>
   </div>
 
-  <!-- Actualización del modal de confirmación -->
-  <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+  <!-- Modal de confirmación actualizado -->
+  <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -158,15 +160,23 @@ verificarSesion();
             <p>¿Estás seguro que quieres aprobar esta solicitud?</p>
           </div>
 
-          <!-- Contenido para Denegar -->
+          <!-- Contenido actualizado para Denegar -->
           <div id="denegarContent" style="display: none;">
             <p class="mb-3">¿Por qué deniega esta solicitud?</p>
             <select class="form-select" id="razonDenegacion" required>
               <option value="" disabled selected>Seleccione una razón</option>
-              <option value="localidad">Por localidad</option>
-              <option value="edad">Por edad</option>
-              <option value="historial">Por historial académico</option>
+              <option value="documentacion_incompleta">Documentación incompleta</option>
+              <option value="informacion_incorrecta">Información incorrecta</option>
+              <option value="fuera_zona">Fuera de zona de cobertura</option>
+              <option value="edad_inadecuada">Edad no corresponde al grado</option>
+              <option value="cupo_lleno">Cupo lleno</option>
+              <option value="historial_academico">Historial académico no cumple requisitos</option>
+              <option value="datos_invalidos">Datos de contacto inválidos</option>
+              <option value="otro">Otro motivo</option>
             </select>
+            <div id="otroMotivoContainer" style="display: none;" class="mt-3">
+              <textarea id="otroMotivo" class="form-control" placeholder="Especifique el motivo" rows="3"></textarea>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -181,12 +191,26 @@ verificarSesion();
 
 
   <script>
+    // Variables globales actualizadas
     let idSolicitud = null;
     let estadoSolicitud = "";
     let filaSeleccionada = null;
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       cargarDatos();
+
+      // Event listener para el cambio de razón
+      document.getElementById('razonDenegacion').addEventListener('change', function () {
+        const otroMotivoContainer = document.getElementById('otroMotivoContainer');
+        if (this.value === 'otro') {
+          otroMotivoContainer.style.display = 'block';
+        } else {
+          otroMotivoContainer.style.display = 'none';
+        }
+        this.classList.remove('is-invalid');
+        const errorDiv = document.getElementById('errorRazon');
+        if (errorDiv) errorDiv.remove();
+      });
     });
 
     function mostrarModalConfirmacion(id, estado, fila) {
@@ -194,12 +218,11 @@ verificarSesion();
       estadoSolicitud = estado;
       filaSeleccionada = fila;
 
-      // Obtener referencias a los contenedores
       const aprobarContent = document.getElementById("aprobarContent");
       const denegarContent = document.getElementById("denegarContent");
       const btnConfirmar = document.getElementById("btnConfirmarAccion");
+      const otroMotivoContainer = document.getElementById("otroMotivoContainer");
 
-      // Configurar el modal según la acción
       if (estado === 'Aprobado') {
         aprobarContent.style.display = 'block';
         denegarContent.style.display = 'none';
@@ -210,28 +233,40 @@ verificarSesion();
         denegarContent.style.display = 'block';
         btnConfirmar.classList.remove('btn-success');
         btnConfirmar.classList.add('btn-danger');
-
-        // Resetear el select
         document.getElementById('razonDenegacion').value = '';
+        otroMotivoContainer.style.display = 'none';
+        document.getElementById('otroMotivo').value = '';
       }
 
       let modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
       modal.show();
     }
 
-    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
+    document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
       if (estadoSolicitud === 'Denegado') {
         const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+
         if (!razonSelect.value) {
-          // Agregar clase de error al select
           razonSelect.classList.add('is-invalid');
-          // Mostrar mensaje de error
           if (!document.getElementById('errorRazon')) {
             const errorDiv = document.createElement('div');
             errorDiv.id = 'errorRazon';
             errorDiv.className = 'invalid-feedback';
             errorDiv.textContent = 'Por favor, seleccione una razón para denegar';
             razonSelect.parentNode.appendChild(errorDiv);
+          }
+          return;
+        }
+
+        if (razonSelect.value === 'otro' && !otroMotivo.value.trim()) {
+          otroMotivo.classList.add('is-invalid');
+          if (!document.getElementById('errorOtroMotivo')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'errorOtroMotivo';
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = 'Por favor, especifique el motivo';
+            otroMotivo.parentNode.appendChild(errorDiv);
           }
           return;
         }
@@ -242,14 +277,49 @@ verificarSesion();
       modal.hide();
     });
 
-    // Eliminar la clase de error cuando se selecciona una opción
-    document.getElementById('razonDenegacion')?.addEventListener('change', function() {
-      this.classList.remove('is-invalid');
-      const errorDiv = document.getElementById('errorRazon');
-      if (errorDiv) {
-        errorDiv.remove();
+    function actualizarEstado(id, nuevoEstado, fila) {
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('estado', nuevoEstado);
+
+      if (nuevoEstado === 'Denegado') {
+        const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+        let razonFinal = razonSelect.value;
+
+        if (razonSelect.value === 'otro') {
+          razonFinal = otroMotivo.value.trim();
+        } else {
+          razonFinal = razonSelect.options[razonSelect.selectedIndex].text;
+        }
+
+        formData.append('razon', razonFinal);
       }
-    });
+
+      fetch('filtros.php', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const estadoCell = fila.querySelector('.estado');
+            const botonesCell = fila.querySelector('td:last-child');
+
+            estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
+            estadoCell.textContent = nuevoEstado;
+            botonesCell.innerHTML = '';
+
+            mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+          } else {
+            mostrarNotificacion('Error al actualizar el estado: ' + (data.message || 'Error desconocido'), 'danger');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          mostrarNotificacion('Error al actualizar el estado', 'danger');
+        });
+    }
 
     function actualizarEstado(id, nuevoEstado, fila) {
       const formData = new FormData();
@@ -262,9 +332,9 @@ verificarSesion();
       }
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
@@ -335,21 +405,21 @@ verificarSesion();
             <td>${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
             <td>${usuario.correo ? usuario.correo : 'No registrado'}</td>
             <td>
-    ${usuario.acta_nacimiento_pdf ?
-    `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
-        onclick="return confirm('¿Desea abrir el PDF?')">
-        <i class="fas fa-file-pdf"></i> Ver Acta
-    </a>`
-    : 'No disponible'}
-</td>
-        <td>
-    ${usuario.record_calificaciones ?
-    `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
-        onclick="return confirm('¿Desea abrir el PDF?')">
-        <i class="fas fa-file-pdf"></i> Ver Record
-    </a>`
-    : 'No disponible'}
-</td>
+            ${usuario.acta_nacimiento_pdf ?
+                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
+                  onclick="return confirm('¿Desea abrir el PDF?')">
+                  <i class="fas fa-file-pdf"></i> Ver Acta
+                  </a>`
+                : 'No disponible'}
+            </td>
+            <td>
+            ${usuario.record_calificaciones ?
+                `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
+                  onclick="return confirm('¿Desea abrir el PDF?')">
+                  <i class="fas fa-file-pdf"></i> Ver Record
+                </a>`
+                     : 'No disponible'}
+            </td>
            
           
 
@@ -366,14 +436,14 @@ verificarSesion();
           });
 
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
             });
@@ -392,9 +462,9 @@ verificarSesion();
       formData.append('estado', nuevoEstado);
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
@@ -414,6 +484,212 @@ verificarSesion();
           alert('Error al actualizar el estado');
         });
     }
+
+
+
+    function downloadExcel() {
+    const table = document.getElementById('tablaUsuarios');
+    const rows = Array.from(table.querySelectorAll('tr'));
+    
+    // Mapeo correcto basado en los encabezados reales de tu tabla
+    const headerMapping = {
+        'ID de plaza': 'ID de plaza',
+        'Nombre': 'Nombre del Estudiante',
+        'Apellido': 'Primer Apellido',
+        'Segundo Apellido': 'Segundo Apellido',
+        'Nombre de los padres': 'Nombre de los Tutores',
+        'Localidad': 'Localidad de Residencia',
+        'Sector': 'Sector',
+        'Dirección Actual': 'Domicilio Actual',
+        'Escuela Anterior': 'Centro Educativo Anterior',
+        'Fecha de nacimiento': 'Fecha de Nacimiento',
+        'Ocupación de los padres': 'Ocupación de los Tutores',
+        'Tipo de Familia': 'Tipo de familia',
+        'Teléfono de contacto': 'Teléfono para Contacto',
+        'Correo Electrónico': 'Correo Electrónico de Contacto',
+        'Acta de nacimiento': 'Acta de nacimiento',
+        'Estado': 'Estado de la Solicitud'
+    };
+
+    // Obtener los encabezados originales
+    const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
+        .slice(0, -1) // Excluir la columna de Acciones
+        .map(th => th.textContent.trim());
+
+    // Transformar los encabezados usando el mapeo
+    const newHeaders = originalHeaders.map(header => 
+        headerMapping[header] || header // Si no existe en el mapeo, mantiene el original
+    );
+
+    // Preparar los datos para Excel con los nuevos headers
+    const workbookData = [
+        newHeaders
+    ];
+
+    // Datos de las filas
+    rows.slice(1).forEach(row => {
+        const rowData = Array.from(row.querySelectorAll('td'))
+            .slice(0, -1) // Excluir la columna de Acciones
+            .map((cell, index) => {
+                let value = cell.textContent.trim();
+                
+                // Si es la columna de fecha de nacimiento (índice 9)
+                if (index === 9 && value) {
+                    const date = new Date(value);
+                    if (!isNaN(date)) {
+                        value = date.toLocaleDateString('es-ES');
+                    }
+                }
+                
+                // Si es la columna de acta de nacimiento (índice 14)
+                if (index === 14) {
+                    const pdfLink = cell.querySelector('a');
+                    value = pdfLink ? 'Disponible' : 'No disponible';
+                }
+
+                // Si es la columna de estado (índice 15)
+                if (index === 15) {
+                    return value || 'Pendiente';
+                }
+
+                return value || '';
+            });
+        workbookData.push(rowData);
+    });
+
+    // Crear libro de trabajo
+    const ws = XLSX.utils.aoa_to_sheet(workbookData);
+
+    // Establecer anchos de columna
+    const columnWidths = newHeaders.map(header => ({
+        wch: Math.max(header.length, 15)
+    }));
+    ws['!cols'] = columnWidths;
+
+    // Dar formato a las celdas
+    for (let i = 0; i < workbookData.length; i++) {
+        for (let j = 0; j < workbookData[i].length; j++) {
+            const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
+            
+            // Dar formato al encabezado
+            if (i === 0) {
+                ws[cellRef].s = {
+                    font: { bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "4472C4" } },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+            }
+            
+            // Dar formato a las celdas de estado
+            if (j === 15 && i > 0) {
+                const estado = workbookData[i][j].toLowerCase();
+                let fillColor = "FFFFFF";
+                
+                if (estado === 'Aprobado') fillColor = "C6EFCE";
+                else if (estado === 'Denegado') fillColor = "FFC7CE";
+                else if (estado === 'Pendiente') fillColor = "FFEB9C";
+                
+                ws[cellRef].s = {
+                    fill: { fgColor: { rgb: fillColor } }
+                };
+            }
+        }
+    }
+
+    // Crear libro y agregar la hoja
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
+
+    // Generar el archivo
+    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+    const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+}
+
+// Código para agregar el botón de Excel
+document.addEventListener('DOMContentLoaded', function() {
+    // Buscar el elemento "Reporte de datos" de manera más precisa
+    const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
+    
+    // Crear el nuevo elemento para el botón de Excel
+    const excelButton = document.createElement('li');
+    excelButton.className = 'nav-item';
+    excelButton.innerHTML = `
+        <a class="nav-link text-dark" href="#" onclick="downloadExcel(); return false;">
+            <i class="fas fa-file-excel" style="color: #217346;"></i> Exportar Excel
+        </a>
+    `;
+    
+    // Insertar el botón después del elemento "Reporte de datos"
+    if (reporteLink) {
+        reporteLink.parentNode.insertBefore(excelButton, reporteLink.nextSibling);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.querySelector('.input-group input[type="text"]');
+  const table = document.getElementById('tablaUsuarios');
+  const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+  function filterTable(searchTerm) {
+    searchTerm = searchTerm.toLowerCase().trim();
+
+    Array.from(rows).forEach(row => {
+      const cells = Array.from(row.getElementsByTagName('td')).slice(0, -1);
+      
+      // Si no hay término de búsqueda, mostrar todas las filas
+      if (searchTerm === '') {
+        row.style.display = '';
+        cells.forEach(cell => {
+          cell.innerHTML = cell.textContent;
+        });
+        return;
+      }
+
+      const found = cells.some(cell => {
+        const text = cell.textContent.toLowerCase();
+        return text.includes(searchTerm);
+      });
+
+      if (found) {
+        row.style.display = '';
+        cells.forEach(cell => {
+          const text = cell.textContent;
+          // Solo resaltar el texto exacto que se busca
+          if (text.toLowerCase().includes(searchTerm)) {
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
+            cell.innerHTML = highlightedText;
+          } else {
+            cell.innerHTML = text;
+          }
+        });
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  // Botón para limpiar la búsqueda
+  const searchContainer = searchInput.parentElement;
+  const clearButton = document.createElement('button');
+  clearButton.className = 'btn btn-outline-secondary';
+  clearButton.innerHTML = '<i class="fa fa-times"></i>';
+  clearButton.style.display = 'none';
+  searchContainer.appendChild(clearButton);
+
+  clearButton.addEventListener('click', () => {
+    searchInput.value = '';
+    filterTable('');
+    clearButton.style.display = 'none';
+  });
+
+  searchInput.addEventListener('input', (e) => {
+    filterTable(e.target.value);
+    clearButton.style.display = e.target.value ? '' : 'none';
+  });
+});
   </script>
 </body>
 

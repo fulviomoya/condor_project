@@ -12,10 +12,11 @@ if ($conexion->connect_error) {
 
 // Modificar la consulta para usar id_acta_nacimiento
 $sql = "SELECT id_acta_nacimiento as id, nombre, apellido, segundo_apellido, 
-        sector, localidad, estado, 
-        acta_nacimiento_pdf as acta_nacimiento
+        sector, localidad, estado, nombre_padres, direccion_actual as direccion, 
+        escuela_anterior, fecha_nacimiento, ocupacion_padres, tipo_familia, 
+        telefono_padres as telefono, correo_electronico as correo, 
+        acta_nacimiento_pdf, record_calificaciones
         FROM datos_estudiantes 
-        WHERE estado = 'Aprobado' 
         ORDER BY id_acta_nacimiento DESC";
 $resultado = $conexion->query($sql);
 

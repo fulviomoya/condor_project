@@ -9,7 +9,7 @@ verificarSesion();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solicitudes Aceptadas</title>
+  <title>Panel de Admisiones</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -21,6 +21,7 @@ verificarSesion();
 
 <body>
   <div class="d-flex">
+    <!-- Mantenemos el sidebar exactamente igual -->
     <div class="sidebar p-4 vh-100">
       <h4 class="text-center">
         <img src="IMG/LOGO.png" alt="Logo" class="img-fluid">
@@ -78,7 +79,7 @@ verificarSesion();
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-danger" href="#">
+            <a class="nav-link text-danger" href="cerrar_sesion.php">
               <i class="fa-sharp-duotone fa-solid fa-right-from-bracket"></i> Cerrar sesión
             </a>
           </li>
@@ -101,36 +102,47 @@ verificarSesion();
       </div>
 
       <div class="table-container">
-        <table class="table table-striped table-hover" id="tablaUsuarios1">
-          <thead>
-            <tr>
-              <th>ID de Plazo</th>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Segundo Apellido</th>
-              <th>Nombre de los padres</th>
-              <th>Localidad</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="table table-striped table-hover" id="tablaUsuarios1">
+            <thead>
+              <tr>
+                <th>ID de plaza</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Segundo Apellido</th>
+                <th>Nombre de los padres</th>
+                <th>Localidad</th>
+                <th>Sector</th>
+                <th>Dirección Actual</th>
+                <th>Escuela Anterior</th>
+                <th>Fecha de nacimiento</th>
+                <th>Ocupación de los padres</th>
+                <th>Tipo de Familia</th>
+                <th>Teléfono de contacto</th>
+                <th>Correo Electrónico</th>
+                <th>Acta de nacimiento</th>
+                <th>Record de notas</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- El contenido se llenará dinámicamente con JavaScript -->
+            </tbody>
+          </table>
+        </div>
 
         <nav>
           <ul class="pagination justify-content-end">
             <li class="page-item"><a class="page-link" href="#">1</a></li>
             <li class="page-item"><a class="page-link" href="#">2</a></li>
             <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+            <li class="page-item"><a class="page-link" href="#">Siguientes</a></li>
           </ul>
         </nav>
       </div>
     </div>
   </div>
+
 
 
 
@@ -162,8 +174,32 @@ verificarSesion();
                     <td>${usuario.nombre}</td>
                     <td>${usuario.apellido}</td>
                     <td>${usuario.segundo_apellido || ''}</td>
-                    <td>${usuario.sector || ''}</td>
+                    <td>${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
                     <td>${usuario.localidad || ''}</td>
+                    <td>${usuario.sector || ''}</td>
+                    <td>${usuario.direccion || ''}</td>
+                    <td>${usuario.escuela_anterior || ''}</td>
+                    <td>${usuario.fecha_nacimiento || ''}</td>
+                    <td>${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+                    <td>${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+                    <td>${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+                    <td>${usuario.correo ? usuario.correo : 'No registrado'}</td>
+                    <td>
+    ${usuario.acta_nacimiento_pdf ?
+                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
+        onclick="return confirm('¿Desea abrir el PDF?')">
+        <i class="fas fa-file-pdf"></i> Ver Acta
+    </a>`
+                : 'No disponible'}
+</td>
+        <td>
+    ${usuario.record_calificaciones ?
+                `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
+        onclick="return confirm('¿Desea abrir el PDF?')">
+        <i class="fas fa-file-pdf"></i> Ver Record
+    </a>`
+                : 'No disponible'}
+</td>
                     <td class="align-middle text-success fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">${usuario.estado || 'Pendiente'}</td>
 
                 `;
