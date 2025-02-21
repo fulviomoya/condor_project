@@ -1,68 +1,72 @@
 <?php
-require_once 'verificar_sesion.php';
-verificarSesion();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$host = "localhost";
-$usuario = "root";
-$contrasena = "";
-$base_datos = "RegistroEstudiantes";
-
-$conexion = new mysqli($host, $usuario, $contrasena, $base_datos);
-
-if ($conexion->connect_error) {
-    die("Error de conexión: " . $conexion->connect_error);
-}
-
+// Verificar que se recibieron los parámetros necesarios
 if (!isset($_GET['tipo']) || !isset($_GET['id'])) {
-    die("Parámetros incorrectos");
+    die('Parámetros incorrectos');
 }
 
+// Incluir archivo de conexión a la base de datos
+require_once('../config.php');
+$conn = new mysqli("localhost", "root", "", "RegistroEstudiantes");
+
+if ($conn->connect_error) {
+    die("Error de conexión: " . $conn->connect_error);
+}
+
+// Obtener el tipo de documento y el ID
 $tipo = $_GET['tipo'];
 $id = $_GET['id'];
 
-// Seleccionar la columna correcta según el tipo de documento
-$columna = ($tipo === 'acta') ? 'acta_nacimiento_pdf' : 'record_calificaciones';
-
-// Preparar la consulta usando id_acta_nacimiento
-$stmt = $conexion->prepare("SELECT $columna FROM datos_estudiantes WHERE id_acta_nacimiento = ?");
-
-if (!$stmt) {
-    die("Error en la preparación de la consulta: " . $conexion->error);
+// Preparar la consulta según el tipo de documento
+if ($tipo === 'acta') {
+    $sql = "SELECT acta_nacimiento_pdf as ruta FROM datos_estudiantes WHERE id_plaza = ?";
+} else if ($tipo === 'record') {
+    $sql = "SELECT record_calificaciones as ruta FROM datos_estudiantes WHERE id_plaza = ?";
+} else {
+    die('Tipo de documento no válido');
 }
 
+// Preparar y ejecutar la consulta
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if (!$stmt->execute()) {
-    die("Error al ejecutar la consulta: " . $stmt->error);
-}
+if ($row = $result->fetch_assoc()) {
+    $ruta_archivo = $row['ruta'];
 
-$resultado = $stmt->get_result();
+    // Construir la ruta completa correcta
+    $ruta_completa = dirname(__DIR__) . "/Parte_Usuario/" . $ruta_archivo;
 
-if ($fila = $resultado->fetch_assoc()) {
-    // Modificar la construcción de la ruta para apuntar a Parte_Usuario
-    $ruta_archivo = "../Parte_Usuario/" . $fila[$columna];
-
-    // Agregar log para depuración
-    error_log("Intentando acceder al archivo: " . $ruta_archivo);
-
-    if (file_exists($ruta_archivo)) {
-        // Verificar que el archivo sea un PDF
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime_type = finfo_file($finfo, $ruta_archivo);
-        finfo_close($finfo);
-
-        if ($mime_type === 'application/pdf') {
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: inline; filename="' . basename($ruta_archivo) . '"');
-            readfile($ruta_archivo);
-            exit;
-        } else {
-            die("El archivo no es un PDF válido");
-        }
-    } else {
-        die("El archivo no existe en el servidor. Ruta: " . $ruta_archivo .
-            "\nRuta absoluta: " . realpath($ruta_archivo));
+    // Verificar que el archivo existe
+    if (!file_exists($ruta_completa)) {
+        die('El archivo no existe en la ruta: ' . $ruta_completa);
     }
+
+    // Obtener el tamaño del archivo
+    $filesize = filesize($ruta_completa);
+    if ($filesize === 0) {
+        die('El archivo está vacío (0 bytes)');
+    }
+
+    // Limpiar cualquier salida previa
+    ob_clean();
+
+    // Configurar headers para mostrar el PDF
+    header('Content-Type: application/pdf');
+    header('Content-Length: ' . $filesize);
+    header('Content-Disposition: inline; filename="' . basename($ruta_archivo) . '"');
+    header('Cache-Control: private, max-age=0, must-revalidate');
+    header('Pragma: public');
+
+    // Leer y mostrar el archivo
+    readfile($ruta_completa);
+    exit;
+} else {
+    die('Archivo no encontrado en la base de datos');
 }
+
 $stmt->close();
-$conexion->close();
+$conn->close();
