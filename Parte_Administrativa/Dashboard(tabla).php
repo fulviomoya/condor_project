@@ -143,53 +143,166 @@ verificarSesion();
     </div>
   </div>
 
-  <!-- Modal de confirmación - mantenido exactamente igual -->
-  <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmacionModalLabel">Confirmación</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Actualización del modal de confirmación -->
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmacionModalLabel">Confirmación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Contenido para Aprobar -->
+        <div id="aprobarContent" style="display: none;">
+          <p>¿Estás seguro que quieres aprobar esta solicitud?</p>
         </div>
-        <div class="modal-body">
-          ¿Estás seguro de que deseas <span id="accionConfirmacion"></span> esta solicitud?
+        
+        <!-- Contenido para Denegar -->
+        <div id="denegarContent" style="display: none;">
+          <p class="mb-3">¿Por qué deniega esta solicitud?</p>
+          <select class="form-select" id="razonDenegacion" required>
+            <option value="" disabled selected>Seleccione una razón</option>
+            <option value="localidad">Por localidad</option>
+            <option value="edad">Por edad</option>
+            <option value="historial">Por historial académico</option>
+          </select>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" id="btnConfirmarAccion">Confirmar</button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarAccion">Confirmar</button>
       </div>
     </div>
   </div>
+</div>
 
   <script src="Dashboards(tabla).js"></script>
 
 
   <script>
     let idSolicitud = null;
-    let estadoSolicitud = "";
-    let filaSeleccionada = null;
+let estadoSolicitud = "";
+let filaSeleccionada = null;
 
-    document.addEventListener("DOMContentLoaded", function() {
-      cargarDatos();
-    });
+document.addEventListener("DOMContentLoaded", function () {
+  cargarDatos();
+});
 
-    function mostrarModalConfirmacion(id, estado, fila) {
-      idSolicitud = id;
-      estadoSolicitud = estado;
-      filaSeleccionada = fila;
+function mostrarModalConfirmacion(id, estado, fila) {
+  idSolicitud = id;
+  estadoSolicitud = estado;
+  filaSeleccionada = fila;
 
-      document.getElementById("accionConfirmacion").textContent = estado.toLowerCase();
-      let modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
-      modal.show();
+  // Obtener referencias a los contenedores
+  const aprobarContent = document.getElementById("aprobarContent");
+  const denegarContent = document.getElementById("denegarContent");
+  const btnConfirmar = document.getElementById("btnConfirmarAccion");
+
+  // Configurar el modal según la acción
+  if (estado === 'Aprobado') {
+    aprobarContent.style.display = 'block';
+    denegarContent.style.display = 'none';
+    btnConfirmar.classList.remove('btn-danger');
+    btnConfirmar.classList.add('btn-success');
+  } else {
+    aprobarContent.style.display = 'none';
+    denegarContent.style.display = 'block';
+    btnConfirmar.classList.remove('btn-success');
+    btnConfirmar.classList.add('btn-danger');
+    
+    // Resetear el select
+    document.getElementById('razonDenegacion').value = '';
+  }
+
+  let modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+  modal.show();
+}
+
+document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
+  if (estadoSolicitud === 'Denegado') {
+    const razonSelect = document.getElementById('razonDenegacion');
+    if (!razonSelect.value) {
+      // Agregar clase de error al select
+      razonSelect.classList.add('is-invalid');
+      // Mostrar mensaje de error
+      if (!document.getElementById('errorRazon')) {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'errorRazon';
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.textContent = 'Por favor, seleccione una razón para denegar';
+        razonSelect.parentNode.appendChild(errorDiv);
+      }
+      return;
     }
+  }
+  
+  actualizarEstado(idSolicitud, estadoSolicitud, filaSeleccionada);
+  let modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+  modal.hide();
+});
 
-    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
-      actualizarEstado(idSolicitud, estadoSolicitud, filaSeleccionada);
-      let modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
-      modal.hide();
+// Eliminar la clase de error cuando se selecciona una opción
+document.getElementById('razonDenegacion')?.addEventListener('change', function() {
+  this.classList.remove('is-invalid');
+  const errorDiv = document.getElementById('errorRazon');
+  if (errorDiv) {
+    errorDiv.remove();
+  }
+});
+
+function actualizarEstado(id, nuevoEstado, fila) {
+  const formData = new FormData();
+  formData.append('id', id);
+  formData.append('estado', nuevoEstado);
+  
+  // Agregar razón de denegación si aplica
+  if (nuevoEstado === 'Denegado') {
+    formData.append('razon', document.getElementById('razonDenegacion').value);
+  }
+
+  fetch('filtros.php', {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const estadoCell = fila.querySelector('.estado');
+        const botonesCell = fila.querySelector('td:last-child');
+
+        estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
+        estadoCell.textContent = nuevoEstado;
+
+        // Remover los botones después de la acción
+        botonesCell.innerHTML = '';
+        
+        // Mostrar notificación de éxito
+        mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+      } else {
+        mostrarNotificacion('Error al actualizar el estado: ' + (data.message || 'Error desconocido'), 'danger');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      mostrarNotificacion('Error al actualizar el estado', 'danger');
     });
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo) {
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${tipo} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+  notification.style.zIndex = '1050';
+  notification.innerHTML = `
+    ${mensaje}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remover la notificación después de 3 segundos
+
+}
 
     function cargarDatos() {
       fetch("dash1.php")

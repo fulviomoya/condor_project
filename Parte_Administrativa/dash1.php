@@ -13,7 +13,6 @@ if ($conexion->connect_error) {
 }
 
 // Establecer codificación UTF-8
-$conexion->set_charset("utf8mb4");
 
 // Consulta sin JOIN, ya que ahora los datos de los padres están en datos_estudiantes
 $sql = "SELECT 
@@ -40,6 +39,7 @@ $sql = "SELECT
 
 $resultado = $conexion->query($sql);
 
+
 if (!$resultado) {
     echo json_encode([
         "error" => "Error en la consulta: " . $conexion->error,
@@ -60,3 +60,4 @@ header('Content-Type: application/json; charset=utf-8');
 echo json_encode($usuarios, JSON_UNESCAPED_UNICODE);
 
 $conexion->close();
+?>
