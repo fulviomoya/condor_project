@@ -64,9 +64,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $acta_nacimiento_path = "";
     $record_notas_path = "";
 
-    // Definir límite de tamaño (2MB)
-    $max_file_size = 2 * 1024 * 1024; // 2MB
-
+    // Definir límite de tamaño (50MB)
+    $max_file_size = 50 * 1024 * 1024;
     // Validar acta de nacimientoo
     if (isset($_FILES["acta_nacimiento"]) && $_FILES["acta_nacimiento"]["error"] == 0) {
         if ($_FILES["acta_nacimiento"]["size"] > $max_file_size) {
