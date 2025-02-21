@@ -64,10 +64,6 @@ ALTER TABLE `admins`
 ALTER TABLE `datos_estudiantes`
   ADD PRIMARY KEY (`id_plaza`),
   ADD KEY `id_acta_nacimiento` (`id_acta_nacimiento`);
-
-ALTER TABLE `datos_padres`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `correo_electronico` (`correo_electronico`);
  
 ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
