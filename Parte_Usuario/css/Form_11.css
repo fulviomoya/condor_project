@@ -211,10 +211,12 @@ input::placeholder {
 .acta {
     display: flex !important;
     width: 100%;
+    cursor: pointer;
 }
 
 .acta div {
     width: 50%;
+    cursor: pointer;
 }
 
 /* adjuntar acta */
