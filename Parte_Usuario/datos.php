@@ -18,10 +18,12 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     // Recoger los datos del formulario
     $nombre = trim($_POST["nombre"]);
     $apellido = trim($_POST["apellido"]);
     $segundo_apellido = trim($_POST["segundo_apellido"]);
+    $edad = intval(trim($_POST["edad"])); // Nuevo campo de edad
     $id_acta_nacimiento = trim($_POST["id_acta_nacimiento"]);
     $escuela_anterior = trim($_POST["escuela_anterior"]);
     $direccion_actual = trim($_POST["direccion_actual"]);
@@ -33,8 +35,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $correo_electronico = trim($_POST["correo_electronico"]);
     $grado_solicitado = trim($_POST["grado_solicitado"]);
 
-    // Verificar si el ID ya está registrado
-    $check_sql = "SELECT id FROM datos_estudiantes WHERE id_acta_nacimiento = ?";
+
+    // Verificar si el ID ya está registrado (modificado)
+    $check_sql = "SELECT id_acta_nacimiento FROM datos_estudiantes WHERE id_acta_nacimiento = ?";
     $stmt = $conn->prepare($check_sql);
     $stmt->bind_param("s", $id_acta_nacimiento);
     $stmt->execute();
@@ -112,14 +115,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "❌ No se recibió el récord de notas.<br>";
     }
 
-    // Insertar datos en la base de datos
+    // Modificar la consulta INSERT para usar id_acta_nacimiento como clave principal
     $stmt = $conn->prepare("INSERT INTO datos_estudiantes (
-        nombre, apellido, segundo_apellido, 
-        id_acta_nacimiento, acta_nacimiento_pdf, record_calificaciones, 
+        id_acta_nacimiento, nombre, apellido, segundo_apellido, edad,
+        acta_nacimiento_pdf, record_calificaciones, 
         escuela_anterior, direccion_actual, sector, localidad, 
         fecha_nacimiento, lugar_nacimiento, nacionalidad, 
         correo_electronico, grado_solicitado, estado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
 
     if (!$stmt) {
         die("Error en la consulta: " . $conn->error);
@@ -132,12 +135,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("No se pueden agregar más estudiantes, el límite de 300 ha sido alcanzado.");
     }
 
+    // Modificar el orden de los parámetros en bind_param
     $stmt->bind_param(
-        "sssssssssssssss",
+        "ssssisssssssssss",
+        $id_acta_nacimiento,
         $nombre,
         $apellido,
         $segundo_apellido,
-        $id_acta_nacimiento,
+        $edad,
         $acta_nacimiento_path,
         $record_notas_path,
         $escuela_anterior,
@@ -152,13 +157,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     );
 
     if ($stmt->execute()) {
-        // Obtener el ID insertado para usarlo en el segundo formulario
-        $estudiante_id = $conn->insert_id;
+        // Guardar todos los datos del estudiante en la sesión
+        $_SESSION['estudiante_id'] = $id_acta_nacimiento;
+        $_SESSION['estudiante_nombre'] = $nombre;
+        $_SESSION['estudiante_apellido'] = $apellido;
+        $_SESSION['estudiante_segundo_apellido'] = $segundo_apellido;
 
-        // Guardar el ID en la sesión para el segundo formulario
-        $_SESSION['estudiante_id'] = $estudiante_id;
-
-        // Redirigir al segundo formulario
         header("Location: Form2.php");
         exit();
     } else {
@@ -168,5 +172,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
     $conn->close();
 }
-
-?>

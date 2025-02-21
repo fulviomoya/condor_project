@@ -49,6 +49,11 @@
                   required>
               </div>
 
+              <div>
+                <label for="edad">Edad del estudiante:</label>
+                <input id="edad" name="edad" type="number" min="5" max="25" placeholder="Edad" required>
+              </div>
+
               <button>Siguiente</button>
             </div>
 
@@ -63,7 +68,8 @@
 
                   <label for="Acta_de_nacimiento" class="label_acta">
                     Adjuntar Acta de nacimiento
-                    <input type="file" id="Acta_de_nacimiento" name="acta_nacimiento" class="acta_input" accept=".pdf" required>
+                    <input type="file" id="Acta_de_nacimiento" name="acta_nacimiento" class="acta_input" accept=".pdf"
+                      required>
                   </label>
                 </div>
               </div>
@@ -82,11 +88,7 @@
                   required>
               </div>
 
-              <div>
-                <label for="direccion_actual">Dirección Actual del estudiante</label>
-                <input id="direccion_actual" name="direccion_actual" type="text" placeholder="Dirección actual"
-                  required>
-              </div>
+
 
               <button>Siguiente</button>
             </div>
@@ -109,6 +111,11 @@
               </div>
 
               <div>
+                <label for="direccion_actual">Dirección Actual del estudiante</label>
+                <input id="direccion_actual" name="direccion_actual" type="text" placeholder="Dirección actual"
+                  required>
+              </div>
+              <div>
                 <div class="field">
                   <label for="fecha_nacimiento">Fecha de Nacimiento</label>
                   <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" required>
@@ -120,7 +127,6 @@
 
             <!-- Fourth section -->
             <div class="fourth_section">
-
               <div>
                 <label for="lugar_nacimiento">Lugar de Nacimiento</label>
                 <input id="lugar_nacimiento" name="lugar_nacimiento" type="text" placeholder="Lugar de Nacimiento"
@@ -129,13 +135,20 @@
 
               <div>
                 <label for="nacionalidad">Nacionalidad</label>
-                <input id="nacionalidad" name="nacionalidad" type="text" placeholder="Nacionalidad" required>
+                <select id="nacionalidad_select" name="nacionalidad_select" required
+                  onchange="toggleOtraNacionalidad()">
+                  <option value="" disabled selected>Seleccione Nacionalidad</option>
+                  <option value="Dominicano">Dominicano</option>
+                  <option value="otro">Otro</option>
+                </select>
+                <input id="otra_nacionalidad" name="nacionalidad" type="text" placeholder="Especifique Nacionalidad"
+                  style="display:none;" required disabled>
               </div>
 
               <div>
                 <label for="correo_electronico">Correo Electronico</label>
-                <input id="correo_electronico" name="correo_electronico" type="email" placeholder="Correo Electrónico"
-                  required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                <input id="correo_electronico" name="correo_electronico" type="email"
+                  placeholder="Correo Electrónico" required>
               </div>
 
               <div>
@@ -150,7 +163,6 @@
 
               <button>Enviar</button>
             </div>
-
 
           </form>
 
@@ -169,7 +181,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <script src="../Parte_Usuario\js\js_Form_oficial.js"></script>
-  
+
 </body>
 
 </html>
