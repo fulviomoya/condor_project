@@ -17,7 +17,7 @@
       <div class="izquierda">
         <div class="cont_izquierda">
           <div class="tittle_form_cont">
-            <h2 class="tittle_form">Datos personales del estudiante</h2>
+            <h2 class="tittle_form">Datos personales del estudiante y Padre</h2>
           </div>
 
           <div class="circulos">
