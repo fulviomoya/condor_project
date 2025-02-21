@@ -76,16 +76,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $file_ext = pathinfo($_FILES["acta_nacimiento"]["name"], PATHINFO_EXTENSION);
 
+        // Para el acta de nacimiento
         if (strtolower($file_ext) == 'pdf') {
             $ruta_acta = $nombre_carpeta . $id_plaza . "_acta.pdf";
             if (move_uploaded_file($_FILES["acta_nacimiento"]["tmp_name"], $ruta_acta)) {
                 $acta_nacimiento_path = $ruta_acta;
-                echo "✅ Acta guardada en: $ruta_acta <br>";
+                // Verificar que el archivo se guardó correctamente
+                if (file_exists($ruta_acta) && filesize($ruta_acta) > 0) {
+                    echo "✅ Acta guardada en: $ruta_acta <br>";
+                } else {
+                    echo "❌ Error: El archivo se movió pero está vacío o no existe.<br>";
+                }
             } else {
-                echo "❌ Error al guardar el acta de nacimiento.<br>";
+                echo "❌ Error al guardar el acta de nacimiento. Error: " . error_get_last()['message'] . "<br>";
             }
-        } else {
-            echo "❌ El acta de nacimiento debe ser un archivo PDF.<br>";
+        }
+
+        // Para el record de notas
+        if (strtolower($file_ext) == 'pdf') {
+            $ruta_record = $nombre_carpeta . $id_plaza . "_record.pdf";
+            if (move_uploaded_file($_FILES["record_notas"]["tmp_name"], $ruta_record)) {
+                $record_notas_path = $ruta_record;
+                // Verificar que el archivo se guardó correctamente
+                if (file_exists($ruta_record) && filesize($ruta_record) > 0) {
+                    echo "✅ Record guardado en: $ruta_record <br>";
+                } else {
+                    echo "❌ Error: El archivo se movió pero está vacío o no existe.<br>";
+                }
+            } else {
+                echo "❌ Error al guardar el record de notas. Error: " . error_get_last()['message'] . "<br>";
+            }
         }
     }
 
