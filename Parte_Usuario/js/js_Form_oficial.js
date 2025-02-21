@@ -502,3 +502,19 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+
+// form select nacionalidad
+function toggleOtraNacionalidad() {
+  const selectNacionalidad = document.getElementById('nacionalidad_select');
+  const inputOtraNacionalidad = document.getElementById('otra_nacionalidad');
+  
+  if (selectNacionalidad.value === 'otro') {
+    inputOtraNacionalidad.style.display = 'block';
+    inputOtraNacionalidad.disabled = false;
+  } else {
+    inputOtraNacionalidad.style.display = 'none';
+    inputOtraNacionalidad.disabled = true;
+    inputOtraNacionalidad.value = '';
+  }
+}
+
