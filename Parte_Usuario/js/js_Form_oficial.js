@@ -374,3 +374,131 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+document.addEventListener('DOMContentLoaded', function () {
+  const sections = document.querySelectorAll('.section');
+  const numbers = document.querySelectorAll('.circulos .num');
+  const lines = document.querySelectorAll('.circulos .line');
+  let currentSection = 0;
+  let completedSections = new Set([0]); // Track completed sections, starting with first section
+
+  // Add click handlers to the numbers for navigation
+  numbers.forEach((number, index) => {
+    number.addEventListener('click', () => {
+      const targetSection = index;
+      
+      // Allow moving backwards without validation
+      if (targetSection < currentSection) {
+        navigateToSection(targetSection);
+        return;
+      }
+      
+      // For forward navigation, check if all previous sections are completed
+      if (canNavigateToSection(targetSection)) {
+        navigateToSection(targetSection);
+      } else {
+        showAlert('Por favor complete la sección actual antes de avanzar', 'danger');
+      }
+    });
+  });
+
+  function canNavigateToSection(targetSection) {
+    // Check if all previous sections have been completed
+    for (let i = 0; i < targetSection; i++) {
+      if (!completedSections.has(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function navigateToSection(targetSection) {
+    // Remove active class from current section
+    sections[currentSection].classList.remove('active');
+    
+    // Add active class to target section
+    sections[targetSection].classList.add('active');
+    
+    // Update number and line styles
+    updateNavigationStyles(targetSection);
+    
+    // Update current section
+    currentSection = targetSection;
+  }
+
+  function updateNavigationStyles(targetSection) {
+    // Update numbers
+    numbers.forEach((num, index) => {
+      if (index <= targetSection || completedSections.has(index)) {
+        num.classList.add('active');
+      } else {
+        num.classList.remove('active');
+      }
+    });
+
+    // Update lines
+    lines.forEach((line, index) => {
+      if (index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))) {
+        line.classList.add('active');
+      } else {
+        line.classList.remove('active');
+      }
+    });
+  }
+
+  // Modify your existing button click handlers
+  sections.forEach((section, index) => {
+    const button = section.querySelector('button');
+    button.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const requiredFields = section.querySelectorAll('input[required], select[required]');
+      let isValid = true;
+      let hasEmptyFields = false;
+      let errorMessages = [];
+
+      // Your existing validation code...
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          isValid = false;
+          hasEmptyFields = true;
+          field.style.borderColor = 'red';
+        } else if (field.id === 'telefono') {
+          if (!/^\d{10}$/.test(field.value.trim())) {
+            isValid = false;
+            field.style.borderColor = 'red';
+            errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
+          }
+        } else if (field.id === 'correo_electronico') {
+          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!emailPattern.test(field.value.trim())) {
+            isValid = false;
+            field.style.borderColor = 'red';
+            errorMessages.push('Por favor, introduce un correo electrónico válido');
+          }
+        }
+      });
+
+      if (hasEmptyFields) {
+        errorMessages.unshift('Debe llenar los campos obligatorios');
+      }
+
+      if (!isValid) {
+        const errorMessage = errorMessages.join('<br>');
+        showAlert(errorMessage, 'danger');
+        return;
+      }
+
+      completedSections.add(index);
+
+      // Handle last section
+      if (index === sections.length - 1) {
+        return;
+      }
+
+      // Navigate to next section
+      navigateToSection(currentSection + 1);
+      showAlert('Sección completada correctamente', 'success');
+    });
+  });
+});
+
