@@ -1,4 +1,3 @@
-<!-- login.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,7 +17,7 @@
             </div>
 
             <div class="login-form">
-                <form id="loginForm" action="Validar.php" method="POST" onsubmit="return validarForm()">
+                <form id="loginForm" action="Validar.php" method="POST">
                     <div class="control-group">
                         <input type="text" class="login-field" name="username" placeholder="Nombre de usuario"
                             id="login-name">

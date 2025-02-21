@@ -224,19 +224,53 @@
                 margin-top: 20px;
                 width: 90%;
             }
+        
+            .header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        
+            .header img {
+                width: 180px; /* Logo más pequeño */
+                height: auto;
+                margin-bottom: 10px;
+            }
+        
+            .header svg {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                cursor: pointer;
+                z-index: 10;
+                transition: transform 0.3s ease;
+            }
+        
+            .header svg:hover {
+                transform: scale(1.1);
+            }
+        }
 
             h1 {
                 font-size: 1.5rem;
+                line-height: 1.2;
             }
-
+        
+            h1 span {
+                display: block; /* Hace que el texto se divida en dos líneas */
+            }
+        
             .button-container {
                 flex-direction: row;
             }
-
+        
             .btn {
                 width: 100%;
             }
-            .instructions{
+            
+            .instructions {
                 width: 100%;
+                text-align: center;
             }
-        }
+        
+        

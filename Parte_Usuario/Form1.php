@@ -83,7 +83,7 @@
               </div>
 
               <div>
-                <label for="direccion_actual">Dirección Actual</label>
+                <label for="direccion_actual">Dirección Actual del estudiante</label>
                 <input id="direccion_actual" name="direccion_actual" type="text" placeholder="Dirección actual"
                   required>
               </div>

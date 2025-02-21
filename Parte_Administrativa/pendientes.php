@@ -1,3 +1,9 @@
+<?php
+require_once 'verificar_sesion.php';
+verificarSesion();
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -73,7 +79,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-danger" href="#">
+            <a class="nav-link text-danger" href="cerrar_sesion.php">
               <i class="fa-sharp-duotone fa-solid fa-right-from-bracket"></i> Cerrar sesión
             </a>
           </li>
@@ -111,7 +117,7 @@
           </thead>
           <tbody>
             <tr>
-              
+
             </tr>
           </tbody>
         </table>
@@ -134,7 +140,7 @@
 
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       fetch("dash1.php")
         .then(response => response.json())
         .then(data => {
@@ -144,10 +150,10 @@
             return;
           }
 
-            data.forEach(usuario => {
-              if (usuario.id) { // Verifica que el usuario tiene ID válido
-                let fila = tabla.insertRow();
-                fila.innerHTML = `
+          data.forEach(usuario => {
+            if (usuario.id) { // Verifica que el usuario tiene ID válido
+              let fila = tabla.insertRow();
+              fila.innerHTML = `
                           <td>${usuario.id}</td>
                           <td>${usuario.nombre}</td>
                           <td>${usuario.apellido}</td>
@@ -163,10 +169,10 @@
                           </td>
                       `;
 
-                // Agregar eventos a los botones de la fila
-                agregarEventosBotones(fila);
-              }
-            });
+              // Agregar eventos a los botones de la fila
+              agregarEventosBotones(fila);
+            }
+          });
         })
         .catch(error => console.error("Error al obtener los usuarios: ", error));
     });
@@ -176,7 +182,7 @@
       const btnDenegar = fila.querySelector('.btn-denegar');
       const estado = fila.querySelector('.estado');
 
-      btnAprobar.addEventListener('click', function () {
+      btnAprobar.addEventListener('click', function() {
         if (estado.textContent.trim() === 'Pendiente' && confirm('¿Está seguro que desea aprobar esta solicitud?')) {
           estado.textContent = 'Aprobado';
           estado.classList.remove('estado-pendiente');
@@ -186,7 +192,7 @@
         }
       });
 
-      btnDenegar.addEventListener('click', function () {
+      btnDenegar.addEventListener('click', function() {
         if (estado.textContent.trim() === 'Pendiente' && confirm('¿Está seguro que desea denegar esta solicitud?')) {
           estado.textContent = 'Denegado';
           estado.classList.remove('estado-pendiente');

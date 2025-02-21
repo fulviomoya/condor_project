@@ -90,16 +90,80 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.first_section'),
     document.querySelector('.second_section')
   ];
-
   const numbers = document.querySelectorAll('.circulos .num');
   const lines = document.querySelectorAll('.circulos .line');
   let currentSection = 0;
+  let completedSections = new Set([0]); // Track completed sections, starting with first section
 
   // Initialize first section and styles
   sections[0].classList.add('section', 'active');
   sections[1].classList.add('section');
 
-  // Update all buttons to be "next" type except the last one
+  // Add click handlers to the numbers for navigation
+  numbers.forEach((number, index) => {
+    number.addEventListener('click', () => {
+      const targetSection = index;
+      
+      // Allow moving backwards without validation
+      if (targetSection < currentSection) {
+        navigateToSection(targetSection);
+        return;
+      }
+      
+      // For forward navigation, check if all previous sections are completed
+      if (canNavigateToSection(targetSection)) {
+        navigateToSection(targetSection);
+      } else {
+        showAlert('Por favor complete la sección actual antes de avanzar', 'danger');
+      }
+    });
+  });
+
+  function canNavigateToSection(targetSection) {
+    // Check if all previous sections have been completed
+    for (let i = 0; i < targetSection; i++) {
+      if (!completedSections.has(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function navigateToSection(targetSection) {
+    // Remove active class from current section
+    sections[currentSection].classList.remove('active');
+    
+    // Add active class to target section
+    sections[targetSection].classList.add('active');
+    
+    // Update number and line styles
+    updateNavigationStyles(targetSection);
+    
+    // Update current section
+    currentSection = targetSection;
+  }
+
+  function updateNavigationStyles(targetSection) {
+    // Update numbers
+    numbers.forEach((num, index) => {
+      if (index <= targetSection || completedSections.has(index)) {
+        num.classList.add('active');
+      } else {
+        num.classList.remove('active');
+      }
+    });
+
+    // Update lines
+    lines.forEach((line, index) => {
+      if (index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))) {
+        line.classList.add('active');
+      } else {
+        line.classList.remove('active');
+      }
+    });
+  }
+
+  // Update button text
   sections.forEach((section, index) => {
     const button = section.querySelector('button');
     if (index === sections.length - 1) {
@@ -107,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Handle button clicks with validation
   sections.forEach((section, index) => {
     const button = section.querySelector('button');
     button.addEventListener('click', function (e) {
@@ -123,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
           hasEmptyFields = true;
           field.style.borderColor = 'red';
         } else if (field.id === 'telefono') {
-          // Mantener solo la validación específica para teléfono
           if (!/^\d{10}$/.test(field.value.trim())) {
             isValid = false;
             field.style.borderColor = 'red';
@@ -132,7 +196,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       });
 
-      // Agregar mensaje genérico si hay campos vacíos
       if (hasEmptyFields) {
         errorMessages.unshift('Debe llenar los campos obligatorios');
       }
@@ -143,7 +206,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Si es la última sección y todos los campos son válidos, enviar el formulario
+      // Mark this section as completed
+      completedSections.add(index);
+
+      // Handle last section (form submission)
       if (index === sections.length - 1) {
         showAlert('Formulario enviado correctamente', 'success');
         setTimeout(() => {
@@ -152,17 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Si no es la última sección, continuar con la navegación normal
-      sections[currentSection].classList.remove('active');
-      if (currentSection < numbers.length - 1) {
-        numbers[currentSection + 1].classList.add('active');
-        if (lines[currentSection]) {
-          lines[currentSection].classList.add('active');
-        }
-      }
-
-      currentSection++;
-      sections[currentSection].classList.add('active');
+      // Navigate to next section
+      navigateToSection(currentSection + 1);
       showAlert('Sección completada correctamente', 'success');
     });
   });
@@ -172,7 +229,6 @@ document.addEventListener('DOMContentLoaded', function () {
     input.addEventListener('input', function () {
       this.style.borderColor = '#BABABA';
     });
-  })
-
+  });
 });
 
