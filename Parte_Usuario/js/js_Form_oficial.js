@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Función para validar el tamaño y tipo de archivo
   function validarArchivo(archivo, tipoDocumento) {
     const tiposPermitidos = ['application/pdf'];
-    const tamañoMaximo = 5 * 1024 * 1024; // 5MB en bytes
+    const tamañoMaximo = 50 * 1024 * 1024; // 50MB en bytes
 
     if (!archivo) {
       showAlert(`Por favor seleccione un archivo para ${tipoDocumento}`, 'warning');
@@ -245,23 +245,32 @@ document.addEventListener('DOMContentLoaded', function () {
     return true;
   }
 
-  // Listener para acta de nacimiento
+  // Modificar los event listeners
   actaNacimientoInput.addEventListener('change', function (e) {
+    console.log('Archivo de acta seleccionado');
     const archivo = e.target.files[0];
-    if (validarArchivo(archivo, 'Acta de Nacimiento')) {
-      showAlert('Acta de nacimiento cargada correctamente', 'success');
-    } else {
-      this.value = ''; // Limpiar el input si no es válido
+    if (archivo) {
+      if (validarArchivo(archivo, 'Acta de Nacimiento')) {
+        console.log('Acta válida');
+        showAlert('Acta de nacimiento cargada correctamente', 'success');
+      } else {
+        console.log('Acta inválida');
+        this.value = '';
+      }
     }
   });
 
-  // Listener para record de notas
   recordNotasInput.addEventListener('change', function (e) {
+    console.log('Archivo de record seleccionado');
     const archivo = e.target.files[0];
-    if (validarArchivo(archivo, 'Record de Notas')) {
-      showAlert('Record de notas cargado correctamente', 'success');
-    } else {
-      this.value = ''; // Limpiar el input si no es válido
+    if (archivo) {
+      if (validarArchivo(archivo, 'Record de Notas')) {
+        console.log('Record válido');
+        showAlert('Record de notas cargado correctamente', 'success');
+      } else {
+        console.log('Record inválido');
+        this.value = '';
+      }
     }
   });
 
