@@ -1,4 +1,5 @@
 <?php
+
 // Conexión a la base de datos
 $host = "localhost";
 $usuario = "root";
@@ -59,5 +60,3 @@ header('Content-Type: application/json; charset=utf-8');
 echo json_encode($usuarios, JSON_UNESCAPED_UNICODE);
 
 $conexion->close();
-?>
-

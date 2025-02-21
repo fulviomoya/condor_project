@@ -1,36 +1,58 @@
-// validacion.js
-function validarForm() {
-    // Usuario y contraseña predeterminados
-    const USUARIO_CORRECTO = "admin";
-    const PASS_CORRECTA = "&&6I+7q7Oh-3";
+const FORMULARIO_LOGIN = document.getElementById("loginForm");
+
+FORMULARIO_LOGIN.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    let isValid = true;
 
     // Obtener valores del formulario
     const username = document.getElementById('login-name').value.trim();
     const password = document.getElementById('login-pass').value.trim();
-    
+
     // Limpiar mensajes de error previos
     document.getElementById('username-error').textContent = '';
     document.getElementById('password-error').textContent = '';
-    
-    let esValido = true;
 
-    // Validar usuario
+    // Validaciones básicas del lado del cliente
     if (username === '') {
         document.getElementById('username-error').textContent = 'Se requiere un nombre de usuario';
-        esValido = false;
-    } else if (username !== USUARIO_CORRECTO) {
-        document.getElementById('username-error').textContent = 'Usuario incorrecto';
-        esValido = false;
+        isValid = false;
     }
 
-    // Validar contraseña
     if (password === '') {
         document.getElementById('password-error').textContent = 'Se requiere una contraseña';
-        esValido = false;
-    } else if (password !== PASS_CORRECTA) {
-        document.getElementById('password-error').textContent = 'Contraseña incorrecta';
-        esValido = false;
+        isValid = false;
     }
 
-    return esValido;
-}
+    // Solo enviar si los campos no están vacíos
+    if (isValid) {
+        try {
+            const formData = new FormData(this);
+            const response = await fetch("Validar.php", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const text = await response.text(); // Primero obtener el texto
+            console.log('Respuesta del servidor:', text); // Para depuración
+
+            try {
+                const data = JSON.parse(text);
+                if (data.success) {
+                    window.location.href = "Parte_Administrativa/Dashboard(tabla).php";
+                } else {
+                    document.getElementById('username-error').textContent = data.message;
+                }
+            } catch (e) {
+                console.error('Error al parsear JSON:', e);
+                document.getElementById('username-error').textContent = 'Error en la respuesta del servidor';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('username-error').textContent = 'Error de conexión. Por favor, intente nuevamente.';
+        }
+    }
+});

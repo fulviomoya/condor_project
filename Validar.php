@@ -1,25 +1,46 @@
 <?php
-// validar.php
+header('Content-Type: application/json');
+include 'Parte_Administrativa/conexion.php';
 session_start();
-
-// Credenciales predeterminadas
-define('USUARIO_CORRECTO', 'admin');
-define('PASS_CORRECTA', '&&6I+7q7Oh-3');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    if ($username === USUARIO_CORRECTO && $password === PASS_CORRECTA) {
-        // Login exitoso
-        $_SESSION['usuario_autenticado'] = true;
-        $_SESSION['nombre_usuario'] = $username;
-        header('Location: Parte_Administrativa/Dashboard(tabla).php ');
-        exit;
-    } else {
-        // Login fallido
-        header('Location: login.html?error=1');
-        exit;
+    try {
+        // Consulta segura usando prepared statements
+        $stmt = $conn->prepare("SELECT id, contraseña_hash FROM admins WHERE nombre_usuario = ?");
+        if (!$stmt) {
+            throw new Exception("Error en la preparación de la consulta");
+        }
+
+        $stmt->bind_param("s", $username);
+        if (!$stmt->execute()) {
+            throw new Exception("Error al ejecutar la consulta");
+        }
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $admin = $result->fetch_assoc();
+            
+            if (password_verify($password, $admin['contraseña_hash'])) {
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin_username'] = $username;
+                echo json_encode(["success" => true, "message" => "Inicio de sesión exitoso"]);
+            } else {
+                echo json_encode(["success" => false, "message" => "Contraseña incorrecta"]);
+            }
+        } else {
+            echo json_encode(["success" => false, "message" => "Usuario no encontrado"]);
+        }
+
+        $stmt->close();
+    } catch (Exception $e) {
+        echo json_encode(["success" => false, "message" => "Error del servidor: " . $e->getMessage()]);
     }
+} else {
+    echo json_encode(["success" => false, "message" => "Método no permitido"]);
 }
-?>
+
+$conn->close();

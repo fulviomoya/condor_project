@@ -1,3 +1,8 @@
+<?php
+require_once 'verificar_sesion.php';
+verificarSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -128,14 +133,13 @@
   </div>
 
 
-  
+
 
 
 
   <script>
-
     // Actualización del script.js
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       cargarDatos();
     });
 
@@ -167,14 +171,14 @@
 
           // Agregar event listeners a los botones después de crear las filas
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function() {
               const id = this.getAttribute('data-id');
               actualizarEstado(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function() {
               const id = this.getAttribute('data-id');
               actualizarEstado(id, 'Denegado', this.closest('tr'));
             });
@@ -197,9 +201,9 @@
       formData.append('estado', nuevoEstado);
 
       fetch('filtros.php', {
-        method: 'POST',
-        body: formData
-      })
+          method: 'POST',
+          body: formData
+        })
         .then(response => response.json())
         .then(data => {
           if (data.success) {

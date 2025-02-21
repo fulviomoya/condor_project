@@ -1,3 +1,8 @@
+<?php
+require_once 'verificar_sesion.php';
+verificarSesion();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -74,7 +79,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-danger" href="#">
+            <a class="nav-link text-danger" href="cerrar_sesion.php">
               <i class="fa-sharp-duotone fa-solid fa-right-from-bracket"></i> Cerrar sesión
             </a>
           </li>
@@ -166,7 +171,7 @@
     let estadoSolicitud = "";
     let filaSeleccionada = null;
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       cargarDatos();
     });
 
@@ -180,7 +185,7 @@
       modal.show();
     }
 
-    document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
+    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
       actualizarEstado(idSolicitud, estadoSolicitud, filaSeleccionada);
       let modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
       modal.hide();
@@ -238,14 +243,14 @@
           });
 
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function() {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function() {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
             });
@@ -264,9 +269,9 @@
       formData.append('estado', nuevoEstado);
 
       fetch('filtros.php', {
-        method: 'POST',
-        body: formData
-      })
+          method: 'POST',
+          body: formData
+        })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
