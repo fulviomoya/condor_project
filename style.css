@@ -249,8 +249,6 @@
             .header svg:hover {
                 transform: scale(1.1);
             }
-        }
-
             h1 {
                 font-size: 1.5rem;
                 line-height: 1.2;
@@ -272,5 +270,8 @@
                 width: 100%;
                 text-align: center;
             }
+        }
+
+            
         
         
