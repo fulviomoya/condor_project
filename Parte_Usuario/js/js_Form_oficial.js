@@ -502,3 +502,36 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+  // Existing popup HTML code remains the same
+  document.body.insertAdjacentHTML('beforeend', popupHTML);
+  
+  // Add file input listeners
+  const actaNacimiento = document.getElementById('Acta_de_nacimiento');
+  const recordNotas = document.getElementById('record_notas');
+
+  // Function to handle file selection
+  function handleFileSelect(e, documentType) {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Check if file is PDF
+      if (file.type === 'application/pdf') {
+        showAlert(`${documentType} cargado correctamente`, 'success');
+      } else {
+        showAlert(`Por favor, seleccione un archivo PDF para ${documentType}`, 'danger');
+        e.target.value = ''; // Clear the file input
+      }
+    }
+  }
+
+  // Add listeners to file inputs
+  actaNacimiento.addEventListener('change', (e) => {
+    handleFileSelect(e, 'Acta de nacimiento');
+  });
+
+  recordNotas.addEventListener('change', (e) => {
+    handleFileSelect(e, 'Record de notas');
+  });
+});
+
