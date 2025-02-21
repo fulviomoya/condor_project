@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  
+
   // Reset border color when user starts typing
   document.querySelectorAll('input[required], select[required]').forEach(input => {
     input.addEventListener('input', function () {
@@ -308,151 +308,145 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
-document.addEventListener('DOMContentLoaded', function () {
-  const sections = document.querySelectorAll('.section');
-  const numbers = document.querySelectorAll('.circulos .num');
-  const lines = document.querySelectorAll('.circulos .line');
-  let currentSection = 0;
-  let completedSections = new Set([0]); // Track completed sections, starting with first section
 
-  // Add click handlers to the numbers for navigation
-  numbers.forEach((number, index) => {
-    number.addEventListener('click', () => {
-      const targetSection = index;
 
-      // Allow moving backwards without validation
-      if (targetSection < currentSection) {
-        navigateToSection(targetSection);
-        return;
-      }
+// Add click handlers to the numbers for navigation
+numbers.forEach((number, index) => {
+  number.addEventListener('click', () => {
+    const targetSection = index;
 
-      // For forward navigation, check if all previous sections are completed
-      if (canNavigateToSection(targetSection)) {
-        navigateToSection(targetSection);
-      } else {
-        showAlert('Por favor complete la sección actual antes de avanzar', 'danger');
-      }
-    });
+    // Allow moving backwards without validation
+    if (targetSection < currentSection) {
+      navigateToSection(targetSection);
+      return;
+    }
+
+    // For forward navigation, check if all previous sections are completed
+    if (canNavigateToSection(targetSection)) {
+      navigateToSection(targetSection);
+    } else {
+      showAlert('Por favor complete la sección actual antes de avanzar', 'danger');
+    }
+  });
+});
+
+function canNavigateToSection(targetSection) {
+  // Check if all previous sections have been completed
+  for (let i = 0; i < targetSection; i++) {
+    if (!completedSections.has(i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function navigateToSection(targetSection) {
+  // Remove active class from current section
+  sections[currentSection].classList.remove('active');
+
+  // Add active class to target section
+  sections[targetSection].classList.add('active');
+
+  // Update number and line styles
+  updateNavigationStyles(targetSection);
+
+  // Update current section
+  currentSection = targetSection;
+}
+
+function updateNavigationStyles(targetSection) {
+  // Update numbers
+  numbers.forEach((num, index) => {
+    if (index <= targetSection || completedSections.has(index)) {
+      num.classList.add('active');
+    } else {
+      num.classList.remove('active');
+    }
   });
 
-  function canNavigateToSection(targetSection) {
-    // Check if all previous sections have been completed
-    for (let i = 0; i < targetSection; i++) {
-      if (!completedSections.has(i)) {
-        return false;
-      }
+  // Update lines
+  lines.forEach((line, index) => {
+    if (index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))) {
+      line.classList.add('active');
+    } else {
+      line.classList.remove('active');
     }
-    return true;
-  }
+  });
+}
 
-  function navigateToSection(targetSection) {
-    // Remove active class from current section
-    sections[currentSection].classList.remove('active');
+// Modify your existing button click handlers
+sections.forEach((section, index) => {
+  const button = section.querySelector('button');
+  button.addEventListener('click', function (e) {
+    e.preventDefault();
 
-    // Add active class to target section
-    sections[targetSection].classList.add('active');
+    const requiredFields = section.querySelectorAll('input[required], select[required]');
+    let isValid = true;
+    let hasEmptyFields = false;
+    let errorMessages = [];
 
-    // Update number and line styles
-    updateNavigationStyles(targetSection);
-
-    // Update current section
-    currentSection = targetSection;
-  }
-
-  function updateNavigationStyles(targetSection) {
-    // Update numbers
-    numbers.forEach((num, index) => {
-      if (index <= targetSection || completedSections.has(index)) {
-        num.classList.add('active');
-      } else {
-        num.classList.remove('active');
-      }
-    });
-
-    // Update lines
-    lines.forEach((line, index) => {
-      if (index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))) {
-        line.classList.add('active');
-      } else {
-        line.classList.remove('active');
-      }
-    });
-  }
-
-  // Modify your existing button click handlers
-  sections.forEach((section, index) => {
-    const button = section.querySelector('button');
-    button.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      const requiredFields = section.querySelectorAll('input[required], select[required]');
-      let isValid = true;
-      let hasEmptyFields = false;
-      let errorMessages = [];
-
-      // Your existing validation code...
-      requiredFields.forEach(field => {
-        if (!field.value.trim()) {
+    // Your existing validation code...
+    requiredFields.forEach(field => {
+      if (!field.value.trim()) {
+        isValid = false;
+        hasEmptyFields = true;
+        field.style.borderColor = 'red';
+      } else if (field.id === 'telefono') {
+        if (!/^\d{10}$/.test(field.value.trim())) {
           isValid = false;
-          hasEmptyFields = true;
           field.style.borderColor = 'red';
-        } else if (field.id === 'telefono') {
-          if (!/^\d{10}$/.test(field.value.trim())) {
-            isValid = false;
-            field.style.borderColor = 'red';
-            errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
-          }
-        } else if (field.id === 'correo_electronico') {
-          const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-          if (!emailPattern.test(field.value.trim())) {
-            isValid = false;
-            field.style.borderColor = 'red';
-            errorMessages.push('Por favor, introduce un correo electrónico válido');
-          }
+          errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
         }
-      });
-
-      if (hasEmptyFields) {
-        errorMessages.unshift('Debe llenar los campos obligatorios');
+      } else if (field.id === 'correo_electronico') {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(field.value.trim())) {
+          isValid = false;
+          field.style.borderColor = 'red';
+          errorMessages.push('Por favor, introduce un correo electrónico válido');
+        }
       }
-
-      if (!isValid) {
-        const errorMessage = errorMessages.join('<br>');
-        showAlert(errorMessage, 'danger');
-        return;
-      }
-
-      completedSections.add(index);
-
-      // Si es la última sección y todos los campos son válidos
-      // if (index === sections.length - 1) {
-      //   const nombre = document.getElementById('nombre').value || '';
-      //   const apellido = document.getElementById('apellido').value || '';
-      //   const segundoApellido = document.getElementById('segundo_apellido').value || '';
-      //   const nombreCompleto = `${nombre} ${apellido} ${segundoApellido}`.trim();
-      //   const codigoAdmision = Math.floor(Math.random() * 9000000) + 1000000;
-
-      //   document.getElementById('nombreCompleto').textContent = nombreCompleto;
-      //   document.getElementById('codigoAdmision').textContent = codigoAdmision;
-
-      //   // Mostrar el popup
-      //   document.getElementById('overlay').style.display = 'flex';
-      //   document.getElementById('successPopup').style.display = 'flex';
-
-      //   // Agregar event listener para el botón de enviar
-      //   document.getElementById('enviarFormulario').addEventListener('click', function () {
-      //     showAlert('Formulario enviado correctamente', 'success');
-      //     form.submit();
-      //   });
-
-      //   return;
-      // }
-
-
-      // Navigate to next section
-      navigateToSection(currentSection + 1);
-      showAlert('Sección completada correctamente', 'success');
     });
+
+    if (hasEmptyFields) {
+      errorMessages.unshift('Debe llenar los campos obligatorios');
+    }
+
+    if (!isValid) {
+      const errorMessage = errorMessages.join('<br>');
+      showAlert(errorMessage, 'danger');
+      return;
+    }
+
+    completedSections.add(index);
+
+    // Si es la última sección y todos los campos son válidos
+    // if (index === sections.length - 1) {
+    //   const nombre = document.getElementById('nombre').value || '';
+    //   const apellido = document.getElementById('apellido').value || '';
+    //   const segundoApellido = document.getElementById('segundo_apellido').value || '';
+    //   const nombreCompleto = `${nombre} ${apellido} ${segundoApellido}`.trim();
+    //   const codigoAdmision = Math.floor(Math.random() * 9000000) + 1000000;
+
+    //   document.getElementById('nombreCompleto').textContent = nombreCompleto;
+    //   document.getElementById('codigoAdmision').textContent = codigoAdmision;
+
+    //   // Mostrar el popup
+    //   document.getElementById('overlay').style.display = 'flex';
+    //   document.getElementById('successPopup').style.display = 'flex';
+
+    //   // Agregar event listener para el botón de enviar
+    //   document.getElementById('enviarFormulario').addEventListener('click', function () {
+    //     showAlert('Formulario enviado correctamente', 'success');
+    //     form.submit();
+    //   });
+
+    //   return;
+    // }
+
+
+    // Navigate to next section
+    navigateToSection(currentSection + 1);
+    showAlert('Sección completada correctamente', 'success');
   });
 });
 
