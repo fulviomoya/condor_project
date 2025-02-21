@@ -282,17 +282,24 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      // Modifica la generación del código dentro del if (index === sections.length - 1)
+      const generarIdPlaza = () => {
+        const num = String(Math.floor(Math.random() * 9000000) + 1000000).padStart(7, '0');
+        return `PL${num}`;
+      };
+
+
       // Si es la última sección (sixth_section)
       if (index === sections.length - 1) {
         const nombreEstudiante = document.getElementById('nombre').value || '';
         const apellidoEstudiante = document.getElementById('apellido').value || '';
         const segundoApellidoEstudiante = document.getElementById('segundo_apellido').value || '';
         const nombreCompleto = `${nombreEstudiante} ${apellidoEstudiante} ${segundoApellidoEstudiante}`.trim();
-        const codigoAdmision = Math.floor(Math.random() * 9000000) + 1000000;
+        const idPlaza = generarIdPlaza();
 
         // Mostrar ventana emergente
         const popupHTML = `
-        <div class="Pop-Pup" id="successPopup">
+          <div class="Pop-Pup" id="successPopup">
           <div class="header_pop">
             <div class="logo_pop">
               <img src="./IMG/logo1.png" alt="Logo" class="logo_pop"/>
@@ -310,8 +317,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
             <div class="info_user">
               <div>
-                <span id="codigoAdmision">${codigoAdmision}</span>
-                <h3>Código de admisión</h3>
+                <span id="idPlaza">${idPlaza}</span>
+                <h3>ID de Plaza</h3>
               </div>
               <div>
                 <span id="nombreCompleto">${nombreCompleto}</span>
@@ -330,7 +337,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Configurar el envío del formulario
         document.getElementById('enviarFormulario').addEventListener('click', function () {
-          document.querySelector('form').submit();
+          const form = document.querySelector('form');
+
+          // Agregar el campo oculto con el ID de plaza
+          const idPlazaInput = document.createElement('input');
+          idPlazaInput.type = 'hidden';
+          idPlazaInput.name = 'id_plaza';
+          idPlazaInput.value = idPlaza;
+          document.querySelector('form').appendChild(idPlazaInput);
+
+          form.submit();
         });
 
         return;
