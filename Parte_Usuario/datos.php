@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = trim($_POST["nombre"]);
     $apellido = trim($_POST["apellido"]);
     $segundo_apellido = trim($_POST["segundo_apellido"]);
+    $edad = intval(trim($_POST["edad"])); // Nuevo campo de edad
     $id_acta_nacimiento = trim($_POST["id_acta_nacimiento"]);
     $escuela_anterior = trim($_POST["escuela_anterior"]);
     $direccion_actual = trim($_POST["direccion_actual"]);
@@ -33,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nacionalidad = trim($_POST["nacionalidad"]);
     $correo_electronico = trim($_POST["correo_electronico"]);
     $grado_solicitado = trim($_POST["grado_solicitado"]);
+    
 
     // Verificar si el ID ya está registrado (modificado)
     $check_sql = "SELECT id_acta_nacimiento FROM datos_estudiantes WHERE id_acta_nacimiento = ?";
@@ -115,12 +117,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Modificar la consulta INSERT para usar id_acta_nacimiento como clave principal
     $stmt = $conn->prepare("INSERT INTO datos_estudiantes (
-        id_acta_nacimiento, nombre, apellido, segundo_apellido, 
-        acta_nacimiento_pdf, record_calificaciones, 
+         id_acta_nacimiento, nombre, apellido, edad, segundo_apellido, 
+        id_acta_nacimiento, acta_nacimiento_pdf, record_calificaciones, 
         escuela_anterior, direccion_actual, sector, localidad, 
         fecha_nacimiento, lugar_nacimiento, nacionalidad, 
         correo_electronico, grado_solicitado, estado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')");
 
     if (!$stmt) {
         die("Error en la consulta: " . $conn->error);
@@ -135,11 +137,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Modificar el orden de los parámetros en bind_param
     $stmt->bind_param(
-        "sssssssssssssss",
+        "ssssisssssssssss",
         $id_acta_nacimiento, // Ahora es el primer parámetro
         $nombre,
         $apellido,
         $segundo_apellido,
+        $edad,
         $acta_nacimiento_path,
         $record_notas_path,
         $escuela_anterior,
