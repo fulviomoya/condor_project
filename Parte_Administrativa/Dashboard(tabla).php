@@ -144,8 +144,9 @@ verificarSesion();
     </div>
   </div>
 
-  <!-- Actualización del modal de confirmación -->
-  <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+  <!-- Modal de confirmación actualizado -->
+  <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -158,15 +159,23 @@ verificarSesion();
             <p>¿Estás seguro que quieres aprobar esta solicitud?</p>
           </div>
 
-          <!-- Contenido para Denegar -->
+          <!-- Contenido actualizado para Denegar -->
           <div id="denegarContent" style="display: none;">
             <p class="mb-3">¿Por qué deniega esta solicitud?</p>
             <select class="form-select" id="razonDenegacion" required>
               <option value="" disabled selected>Seleccione una razón</option>
-              <option value="localidad">Por localidad</option>
-              <option value="edad">Por edad</option>
-              <option value="historial">Por historial académico</option>
+              <option value="documentacion_incompleta">Documentación incompleta</option>
+              <option value="informacion_incorrecta">Información incorrecta</option>
+              <option value="fuera_zona">Fuera de zona de cobertura</option>
+              <option value="edad_inadecuada">Edad no corresponde al grado</option>
+              <option value="cupo_lleno">Cupo lleno</option>
+              <option value="historial_academico">Historial académico no cumple requisitos</option>
+              <option value="datos_invalidos">Datos de contacto inválidos</option>
+              <option value="otro">Otro motivo</option>
             </select>
+            <div id="otroMotivoContainer" style="display: none;" class="mt-3">
+              <textarea id="otroMotivo" class="form-control" placeholder="Especifique el motivo" rows="3"></textarea>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -181,12 +190,26 @@ verificarSesion();
 
 
   <script>
+    // Variables globales actualizadas
     let idSolicitud = null;
     let estadoSolicitud = "";
     let filaSeleccionada = null;
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       cargarDatos();
+
+      // Event listener para el cambio de razón
+      document.getElementById('razonDenegacion').addEventListener('change', function () {
+        const otroMotivoContainer = document.getElementById('otroMotivoContainer');
+        if (this.value === 'otro') {
+          otroMotivoContainer.style.display = 'block';
+        } else {
+          otroMotivoContainer.style.display = 'none';
+        }
+        this.classList.remove('is-invalid');
+        const errorDiv = document.getElementById('errorRazon');
+        if (errorDiv) errorDiv.remove();
+      });
     });
 
     function mostrarModalConfirmacion(id, estado, fila) {
@@ -194,12 +217,11 @@ verificarSesion();
       estadoSolicitud = estado;
       filaSeleccionada = fila;
 
-      // Obtener referencias a los contenedores
       const aprobarContent = document.getElementById("aprobarContent");
       const denegarContent = document.getElementById("denegarContent");
       const btnConfirmar = document.getElementById("btnConfirmarAccion");
+      const otroMotivoContainer = document.getElementById("otroMotivoContainer");
 
-      // Configurar el modal según la acción
       if (estado === 'Aprobado') {
         aprobarContent.style.display = 'block';
         denegarContent.style.display = 'none';
@@ -210,28 +232,40 @@ verificarSesion();
         denegarContent.style.display = 'block';
         btnConfirmar.classList.remove('btn-success');
         btnConfirmar.classList.add('btn-danger');
-
-        // Resetear el select
         document.getElementById('razonDenegacion').value = '';
+        otroMotivoContainer.style.display = 'none';
+        document.getElementById('otroMotivo').value = '';
       }
 
       let modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
       modal.show();
     }
 
-    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
+    document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
       if (estadoSolicitud === 'Denegado') {
         const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+
         if (!razonSelect.value) {
-          // Agregar clase de error al select
           razonSelect.classList.add('is-invalid');
-          // Mostrar mensaje de error
           if (!document.getElementById('errorRazon')) {
             const errorDiv = document.createElement('div');
             errorDiv.id = 'errorRazon';
             errorDiv.className = 'invalid-feedback';
             errorDiv.textContent = 'Por favor, seleccione una razón para denegar';
             razonSelect.parentNode.appendChild(errorDiv);
+          }
+          return;
+        }
+
+        if (razonSelect.value === 'otro' && !otroMotivo.value.trim()) {
+          otroMotivo.classList.add('is-invalid');
+          if (!document.getElementById('errorOtroMotivo')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'errorOtroMotivo';
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = 'Por favor, especifique el motivo';
+            otroMotivo.parentNode.appendChild(errorDiv);
           }
           return;
         }
@@ -242,14 +276,49 @@ verificarSesion();
       modal.hide();
     });
 
-    // Eliminar la clase de error cuando se selecciona una opción
-    document.getElementById('razonDenegacion')?.addEventListener('change', function() {
-      this.classList.remove('is-invalid');
-      const errorDiv = document.getElementById('errorRazon');
-      if (errorDiv) {
-        errorDiv.remove();
+    function actualizarEstado(id, nuevoEstado, fila) {
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('estado', nuevoEstado);
+
+      if (nuevoEstado === 'Denegado') {
+        const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+        let razonFinal = razonSelect.value;
+
+        if (razonSelect.value === 'otro') {
+          razonFinal = otroMotivo.value.trim();
+        } else {
+          razonFinal = razonSelect.options[razonSelect.selectedIndex].text;
+        }
+
+        formData.append('razon', razonFinal);
       }
-    });
+
+      fetch('filtros.php', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const estadoCell = fila.querySelector('.estado');
+            const botonesCell = fila.querySelector('td:last-child');
+
+            estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
+            estadoCell.textContent = nuevoEstado;
+            botonesCell.innerHTML = '';
+
+            mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+          } else {
+            mostrarNotificacion('Error al actualizar el estado: ' + (data.message || 'Error desconocido'), 'danger');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          mostrarNotificacion('Error al actualizar el estado', 'danger');
+        });
+    }
 
     function actualizarEstado(id, nuevoEstado, fila) {
       const formData = new FormData();
@@ -262,9 +331,9 @@ verificarSesion();
       }
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
@@ -335,21 +404,21 @@ verificarSesion();
             <td>${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
             <td>${usuario.correo ? usuario.correo : 'No registrado'}</td>
             <td>
-    ${usuario.acta_nacimiento_pdf ?
-    `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
-        onclick="return confirm('¿Desea abrir el PDF?')">
-        <i class="fas fa-file-pdf"></i> Ver Acta
-    </a>`
-    : 'No disponible'}
-</td>
-        <td>
-    ${usuario.record_calificaciones ?
-    `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
-        onclick="return confirm('¿Desea abrir el PDF?')">
-        <i class="fas fa-file-pdf"></i> Ver Record
-    </a>`
-    : 'No disponible'}
-</td>
+            ${usuario.acta_nacimiento_pdf ?
+                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
+                  onclick="return confirm('¿Desea abrir el PDF?')">
+                  <i class="fas fa-file-pdf"></i> Ver Acta
+                  </a>`
+                : 'No disponible'}
+            </td>
+            <td>
+            ${usuario.record_calificaciones ?
+                `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
+                  onclick="return confirm('¿Desea abrir el PDF?')">
+                  <i class="fas fa-file-pdf"></i> Ver Record
+                </a>`
+                     : 'No disponible'}
+            </td>
            
           
 
@@ -366,14 +435,14 @@ verificarSesion();
           });
 
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
             });
@@ -392,9 +461,9 @@ verificarSesion();
       formData.append('estado', nuevoEstado);
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
