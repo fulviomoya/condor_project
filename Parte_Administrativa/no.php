@@ -1,4 +1,7 @@
 <?php
+require_once 'verificar_sesion.php';
+verificarSesion();
+
 $host = "localhost";
 $usuario = "root";
 $contrasena = "";
@@ -29,4 +32,3 @@ header('Content-Type: application/json');
 echo json_encode($usuarios);
 
 $conexion->close();
-?>
