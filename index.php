@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="Parte_Administrativa/IMG/SUKA.png">
     <link rel="stylesheet" href="style.css">
-    <title>Inicio</title>
+    <title>Manual de usuario</title>
 </head>
 
 <body>
