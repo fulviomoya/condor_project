@@ -1,25 +1,47 @@
 <?php
-require_once 'conexion.php'; // Asegúrate de tener un archivo de conexión a la base de datos
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$response = ['success' => false, 'message' => ''];
+header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['id'];
-    $estado = $_POST['estado'];
-    $razon = isset($_POST['razon']) ? $_POST['razon'] : null;
+    // Debug
+    error_log("POST data recibida: " . print_r($_POST, true));
 
-    $query = "UPDATE datos_estudiantes SET estado = ?, motivo_denegacion = ? WHERE id_acta_nacimiento = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('sss', $estado, $razon, $id);
+    $id = trim($_POST['id'] ?? '');
+    $estado = $_POST['estado'] ?? '';
+    $razon = $_POST['razon'] ?? null;
+
+    if (empty($id) || empty($estado)) {
+        echo json_encode(['success' => false, 'message' => 'Faltan parámetros requeridos']);
+        exit;
+    }
+
+    $conn = new mysqli("localhost", "root", "", "RegistroEstudiantes");
+
+    if ($conn->connect_error) {
+        echo json_encode(['success' => false, 'message' => 'Error de conexión: ' . $conn->connect_error]);
+        exit;
+    }
+
+    // Debug
+    error_log("Buscando registro con ID: $id");
+
+    $sql = "UPDATE datos_estudiantes SET estado = ?, motivo_denegacion = ? WHERE id_plaza = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sss", $estado, $razon, $id);
 
     if ($stmt->execute()) {
-        $response['success'] = true;
+        if ($stmt->affected_rows > 0) {
+            echo json_encode(['success' => true, 'message' => 'Estado actualizado correctamente']);
+        } else {
+            error_log("No se actualizó ningún registro. ID: $id, Estado: $estado");
+            echo json_encode(['success' => false, 'message' => 'No se encontró el registro o no hubo cambios']);
+        }
     } else {
-        $response['message'] = 'Error al actualizar el estado';
+        echo json_encode(['success' => false, 'message' => 'Error al actualizar: ' . $stmt->error]);
     }
 
     $stmt->close();
+    $conn->close();
 }
-
-echo json_encode($response);
-?>

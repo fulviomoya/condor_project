@@ -11,7 +11,7 @@ if ($conexion->connect_error) {
 }
 
 // Consulta para todas las solicitudes
-$sql = "SELECT id_plaza as id, nombre, apellido, segundo_apellido, 
+$sql = "SELECT id_plaza, nombre, apellido, segundo_apellido, 
         sector, localidad, estado, nombre_padres, direccion_actual as direccion, 
         escuela_anterior, fecha_nacimiento, ocupacion_padres, tipo_familia, 
         telefono_padres as telefono, correo_electronico as correo, 
