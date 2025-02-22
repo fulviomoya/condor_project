@@ -377,6 +377,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('overlay').style.display = 'flex';
         document.getElementById('successPopup').style.display = 'flex';
 
+        // Configurar cierre del popup al hacer clic en la "X"
+        document.getElementById('closePopup').addEventListener('click', function () {
+          document.getElementById('successPopup').style.display = 'none';
+          document.getElementById('overlay').style.display = 'none';
+        });
+        
         // Configurar envío final
         document.getElementById('enviarFormulario').addEventListener('click', function () {
           const idPlazaInput = document.createElement('input');
