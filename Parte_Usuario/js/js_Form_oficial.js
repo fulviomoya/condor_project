@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Función para validar archivos
   function validarArchivo(archivo, tipoDocumento) {
-    const tiposPermitidos = ['application/pdf'];
+    const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
     const tamañoMaximo = 50 * 1024 * 1024; // 50MB en bytes
 
     if (!archivo) {
@@ -232,12 +232,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (!tiposPermitidos.includes(archivo.type)) {
-      showAlert(`El archivo de ${tipoDocumento} debe ser PDF`, 'danger');
+      showAlert(`El archivo de ${tipoDocumento} debe ser PDF o una imagen`, 'danger');
       return false;
     }
 
     if (archivo.size > tamañoMaximo) {
-      showAlert(`El archivo de ${tipoDocumento} no debe exceder 5MB`, 'danger');
+      showAlert(`El archivo de ${tipoDocumento} no debe exceder los 50MB`, 'danger');
       return false;
     }
 
@@ -485,3 +485,121 @@ const additionalStyles = `
 styleSheet.textContent = styles + additionalStyles;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+// Importar jsPDF desde CDN (agregar al HTML)
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+class ImageToPDFConverter {
+  constructor(fileInput, acceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']) {
+    this.fileInput = fileInput;
+    this.acceptedTypes = acceptedTypes;
+    this.setupFileInput();
+  }
+
+  setupFileInput() {
+    // Modificar el accept attribute para permitir imágenes y PDF
+    this.fileInput.accept = '.pdf,.jpg,.jpeg,.png,.gif';
+    
+    this.fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const convertedFile = await this.handleFile(file);
+        // Reemplazar el archivo en el input con el PDF convertido
+        const container = new DataTransfer();
+        container.items.add(convertedFile);
+        this.fileInput.files = container.files;
+        
+        showAlert('Archivo procesado correctamente', 'success');
+      } catch (error) {
+        showAlert('Error al procesar el archivo: ' + error.message, 'danger');
+        this.fileInput.value = '';
+      }
+    });
+  }
+
+  async handleFile(file) {
+    // Si ya es PDF, retornar el archivo
+    if (file.type === 'application/pdf') {
+      return file;
+    }
+
+    // Validar si es una imagen aceptada
+    if (!this.acceptedTypes.includes(file.type)) {
+      throw new Error('Tipo de archivo no soportado');
+    }
+
+    // Convertir imagen a PDF
+    return await this.convertImageToPDF(file);
+  }
+
+  async convertImageToPDF(imageFile) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const img = new Image();
+          img.src = e.target.result;
+          
+          await new Promise(resolve => img.onload = resolve);
+
+          // Crear PDF con dimensiones proporcionales a la imagen
+          const pdf = new jspdf.jsPDF({
+            orientation: img.width > img.height ? 'l' : 'p',
+            unit: 'px',
+            format: [img.width, img.height]
+          });
+
+          // Agregar la imagen al PDF
+          pdf.addImage(
+            img.src,
+            'JPEG',
+            0,
+            0,
+            img.width,
+            img.height
+          );
+
+          // Convertir a Blob
+          const pdfBlob = pdf.output('blob');
+          
+          // Crear archivo PDF
+          const pdfFile = new File(
+            [pdfBlob],
+            imageFile.name.replace(/\.[^/.]+$/, '.pdf'),
+            { type: 'application/pdf' }
+          );
+
+          resolve(pdfFile);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('Error al leer el archivo'));
+      reader.readAsDataURL(imageFile);
+    });
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar convertidores para ambos inputs de archivo
+  const actaConverter = new ImageToPDFConverter(
+    document.getElementById('Acta_de_nacimiento')
+  );
+  const notasConverter = new ImageToPDFConverter(
+    document.getElementById('record_notas')
+  );
+});

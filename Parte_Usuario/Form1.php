@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Formulario Estudiante</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="icon" type="image/png" href="IMG/SUKA2.png">
   <link rel="stylesheet" href="css/Form_11.css">
@@ -72,7 +73,7 @@
 
                   <label for="Acta_de_nacimiento" class="label_acta">
                     Adjuntar Acta de nacimiento
-                    <input type="file" id="Acta_de_nacimiento" name="acta_nacimiento" class="acta_input" accept=".pdf"
+                    <input type="file" id="Acta_de_nacimiento" name="acta_nacimiento" class="acta_input" accept=".pdf,.jpg,.jpeg,.png,.gif"
                       required>
                   </label>
                 </div>
@@ -82,7 +83,7 @@
                 <label for="RecordDeNotas">Record de notas</label>
                 <label class="label_Notas">
                   Adjuntar record de notas
-                  <input type="file" id="record_notas" name="record_notas" class="Notas_input" accept=".pdf" required>
+                  <input type="file" id="record_notas" name="record_notas" class="Notas_input" accept=".pdf,.jpg,.jpeg,.png,.gif" required>
                 </label>
               </div>
 
