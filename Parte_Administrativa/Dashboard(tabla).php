@@ -165,14 +165,10 @@ verificarSesion();
             <p class="mb-3">¿Por qué deniega esta solicitud?</p>
             <select class="form-select" id="razonDenegacion" required>
               <option value="" disabled selected>Seleccione una razón</option>
-              <option value="documentacion_incompleta">Documentación incompleta</option>
-              <option value="informacion_incorrecta">Información incorrecta</option>
-              <option value="fuera_zona">Fuera de zona de cobertura</option>
-              <option value="edad_inadecuada">Edad no corresponde al grado</option>
-              <option value="cupo_lleno">Cupo lleno</option>
-              <option value="historial_academico">Historial académico no cumple requisitos</option>
-              <option value="datos_invalidos">Datos de contacto inválidos</option>
-              <option value="otro">Otro motivo</option>
+              <option value="localidad">Por la Localidad</option>
+              <option value="edad">Por la Edad</option>
+              <option value="historial_academico">Por el Historial Academico</option>
+              <option value="otro">Otra Razon</option>
             </select>
             <div id="otroMotivoContainer" style="display: none;" class="mt-3">
               <textarea id="otroMotivo" class="form-control" placeholder="Especifique el motivo" rows="3"></textarea>
@@ -191,14 +187,15 @@ verificarSesion();
 
 
   <script>
+
     // Variables globales actualizadas
     let idSolicitud = null;
     let estadoSolicitud = "";
     let filaSeleccionada = null;
-
+  
     document.addEventListener("DOMContentLoaded", function () {
       cargarDatos();
-
+  
       // Event listener para el cambio de razón
       document.getElementById('razonDenegacion').addEventListener('change', function () {
         const otroMotivoContainer = document.getElementById('otroMotivoContainer');
@@ -212,17 +209,17 @@ verificarSesion();
         if (errorDiv) errorDiv.remove();
       });
     });
-
+  
     function mostrarModalConfirmacion(id, estado, fila) {
       idSolicitud = id;
       estadoSolicitud = estado;
       filaSeleccionada = fila;
-
+  
       const aprobarContent = document.getElementById("aprobarContent");
       const denegarContent = document.getElementById("denegarContent");
       const btnConfirmar = document.getElementById("btnConfirmarAccion");
       const otroMotivoContainer = document.getElementById("otroMotivoContainer");
-
+  
       if (estado === 'Aprobado') {
         aprobarContent.style.display = 'block';
         denegarContent.style.display = 'none';
@@ -237,16 +234,16 @@ verificarSesion();
         otroMotivoContainer.style.display = 'none';
         document.getElementById('otroMotivo').value = '';
       }
-
+  
       let modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
       modal.show();
     }
-
+  
     document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
       if (estadoSolicitud === 'Denegado') {
         const razonSelect = document.getElementById('razonDenegacion');
         const otroMotivo = document.getElementById('otroMotivo');
-
+  
         if (!razonSelect.value) {
           razonSelect.classList.add('is-invalid');
           if (!document.getElementById('errorRazon')) {
@@ -258,7 +255,7 @@ verificarSesion();
           }
           return;
         }
-
+  
         if (razonSelect.value === 'otro' && !otroMotivo.value.trim()) {
           otroMotivo.classList.add('is-invalid');
           if (!document.getElementById('errorOtroMotivo')) {
@@ -271,31 +268,31 @@ verificarSesion();
           return;
         }
       }
-
+  
       actualizarEstado(idSolicitud, estadoSolicitud, filaSeleccionada);
       let modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
       modal.hide();
     });
-
+  
     function actualizarEstado(id, nuevoEstado, fila) {
       const formData = new FormData();
       formData.append('id', id);
       formData.append('estado', nuevoEstado);
-
+  
       if (nuevoEstado === 'Denegado') {
         const razonSelect = document.getElementById('razonDenegacion');
         const otroMotivo = document.getElementById('otroMotivo');
         let razonFinal = razonSelect.value;
-
+  
         if (razonSelect.value === 'otro') {
           razonFinal = otroMotivo.value.trim();
         } else {
           razonFinal = razonSelect.options[razonSelect.selectedIndex].text;
         }
-
+  
         formData.append('razon', razonFinal);
       }
-
+  
       fetch('filtros.php', {
         method: 'POST',
         body: formData
@@ -305,11 +302,11 @@ verificarSesion();
           if (data.success) {
             const estadoCell = fila.querySelector('.estado');
             const botonesCell = fila.querySelector('td:last-child');
-
+  
             estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
             estadoCell.textContent = nuevoEstado;
             botonesCell.innerHTML = '';
-
+  
             mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
           } else {
             mostrarNotificacion('Error al actualizar el estado: ' + (data.message || 'Error desconocido'), 'danger');
@@ -320,128 +317,87 @@ verificarSesion();
           mostrarNotificacion('Error al actualizar el estado', 'danger');
         });
     }
-
-    function actualizarEstado(id, nuevoEstado, fila) {
-      const formData = new FormData();
-      formData.append('id', id);
-      formData.append('estado', nuevoEstado);
-
-      // Agregar razón de denegación si aplica
-      if (nuevoEstado === 'Denegado') {
-        formData.append('razon', document.getElementById('razonDenegacion').value);
-      }
-
-      fetch('filtros.php', {
-        method: 'POST',
-        body: formData
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            const estadoCell = fila.querySelector('.estado');
-            const botonesCell = fila.querySelector('td:last-child');
-
-            estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
-            estadoCell.textContent = nuevoEstado;
-
-            // Remover los botones después de la acción
-            botonesCell.innerHTML = '';
-
-            // Mostrar notificación de éxito
-            mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
-          } else {
-            mostrarNotificacion('Error al actualizar el estado: ' + (data.message || 'Error desconocido'), 'danger');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          mostrarNotificacion('Error al actualizar el estado', 'danger');
-        });
-    }
-
-    // Función para mostrar notificaciones
+  
     function mostrarNotificacion(mensaje, tipo) {
       const notification = document.createElement('div');
       notification.className = `alert alert-${tipo} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
       notification.style.zIndex = '1050';
       notification.innerHTML = `
-    ${mensaje}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  `;
-
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+  
       document.body.appendChild(notification);
-
-      // Remover la notificación después de 3 segundos
-
+  
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
     }
-
+  
     function cargarDatos() {
       fetch("dash1.php")
         .then(response => response.json())
         .then(data => {
           let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '';
-
+  
           if (!Array.isArray(data) || data.length === 0) {
             tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
             return;
           }
-
+  
           data.forEach(usuario => {
             let fila = tabla.insertRow();
             fila.innerHTML = `
-             <td>${usuario.id}</td>
-            <td>${usuario.nombre}</td>
-            <td>${usuario.apellido}</td>
-            <td>${usuario.segundo_apellido || ''}</td>
-            <td>${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
-            <td>${usuario.localidad || ''}</td>
-            <td>${usuario.sector || ''}</td>
-            <td>${usuario.direccion || ''}</td>
-            <td>${usuario.escuela_anterior || ''}</td>
-            <td>${usuario.fecha_nacimiento || ''}</td>
-            <td>${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
-            <td>${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
-            <td>${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
-            <td>${usuario.correo ? usuario.correo : 'No registrado'}</td>
-            <td>
-            ${usuario.acta_nacimiento_pdf ?
-                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
-                  onclick="return confirm('¿Desea abrir el PDF?')">
-                  <i class="fas fa-file-pdf"></i> Ver Acta
+              <td>${usuario.id}</td>
+              <td>${usuario.nombre}</td>
+              <td>${usuario.apellido}</td>
+              <td>${usuario.segundo_apellido || ''}</td>
+              <td>${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+              <td>${usuario.localidad || ''}</td>
+              <td>${usuario.sector || ''}</td>
+              <td>${usuario.direccion || ''}</td>
+              <td>${usuario.escuela_anterior || ''}</td>
+              <td>${usuario.fecha_nacimiento || ''}</td>
+              <td>${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+              <td>${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+              <td>${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+              <td>${usuario.correo ? usuario.correo : 'No registrado'}</td>
+              <td>
+                ${usuario.acta_nacimiento_pdf ?
+                  `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
+                    onclick="return confirm('¿Desea abrir el PDF?')">
+                    <i class="fas fa-file-pdf"></i> Ver Acta
                   </a>`
-                : 'No disponible'}
-            </td>
-            <td>
-            ${usuario.record_calificaciones ?
-                `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
-                  onclick="return confirm('¿Desea abrir el PDF?')">
-                  <i class="fas fa-file-pdf"></i> Ver Record
-                </a>`
-                     : 'No disponible'}
-            </td>
-           
-          
-
-        <td class="estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
-            ${usuario.estado || 'Pendiente'}
-        </td>
-        <td class="align-middle">
-    <div class="d-flex flex-column gap-2">
-        <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_acta_nacimiento}">Aprobar</button>
-        <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_acta_nacimiento}">Denegar</button>
-    </div>
-</td>
-    `;
+                  : 'No disponible'}
+              </td>
+              <td>
+                ${usuario.record_calificaciones ?
+                  `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
+                    onclick="return confirm('¿Desea abrir el PDF?')">
+                    <i class="fas fa-file-pdf"></i> Ver Record
+                  </a>`
+                  : 'No disponible'}
+              </td>
+              <td class="estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
+                ${usuario.estado || 'Pendiente'}
+              </td>
+              <td class="align-middle">
+                <div class="d-flex flex-column gap-2">
+                  <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_acta_nacimiento}">Aprobar</button>
+                  <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_acta_nacimiento}">Denegar</button>
+                </div>
+              </td>
+            `;
           });
-
+  
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
             btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
             });
           });
-
+  
           document.querySelectorAll('.btn-denegar').forEach(btn => {
             btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
@@ -455,6 +411,7 @@ verificarSesion();
           tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
         });
     }
+    
 
     function actualizarEstado(id, nuevoEstado, fila) {
       const formData = new FormData();
