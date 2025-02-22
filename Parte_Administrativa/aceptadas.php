@@ -227,44 +227,7 @@ verificarSesion();
         });
     }
 
-    function actualizarEstado(id, nuevoEstado, fila) {
-      if (!confirm(`¿Está seguro que desea ${nuevoEstado === 'Aprobado' ? 'aprobar' : 'denegar'} esta solicitud?`)) {
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('id', id);
-      formData.append('estado', nuevoEstado);
-
-      fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Actualizar la UI
-            const estadoCell = fila.querySelector('.estado');
-            const botonesCell = fila.querySelector('td:last-child');
-
-            // Actualizar la clase y texto del estado
-            estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
-            estadoCell.textContent = nuevoEstado;
-
-            // Remover los botones
-            botonesCell.innerHTML = '';
-
-            // Opcional: Recargar todos los datos
-            // cargarDatos();
-          } else {
-            alert('Error al actualizar el estado: ' + (data.message || 'Error desconocido'));
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Error al actualizar el estado');
-        });
-    }
+    
   </script>
 </body>
 

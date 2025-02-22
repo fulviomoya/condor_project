@@ -109,8 +109,8 @@
                   <option value="" disabled selected>Seleccione una opción</option>
                   <option value="Santo Domingo Este">Santo Domingo Este</option>
                   <option value="Distrito Nacional">Distrito Nacional</option>
-                  <option value="Oeste">Santo Domingo Oeste</option>
-                  <option value="Norte">Santo Domingo Norte</option>
+                  <option value="Santo Domingo Oeste">Santo Domingo Oeste</option>
+                  <option value="Santo Domingo Norte">Santo Domingo Norte</option>
                 </select>
               </div>
 
