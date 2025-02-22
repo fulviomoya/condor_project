@@ -390,88 +390,102 @@
         /* Breakpoints para diferentes dispositivos */
         
         /* Dispositivos muy pequeños (iPhone SE, Galaxy Fold, etc) */
-        @media screen and (max-width: 320px) {
-            .modal-content {
-                margin: 5% auto;
-                width: 95%;
-                padding: 1rem;
-            }
-        
-            .modal-header h2 {
-                font-size: 1.2rem;
-            }
-        
-            .close-button {
-                right: 0.8rem;
-                top: 0.8rem;
-                width: 1.5rem;
-                height: 1.5rem;
-            }
-        
-            .modal-body {
-                padding: 0.5rem 0;
-            }
-        }
-        
-        /* Smartphones pequeños */
-        @media screen and (min-width: 321px) and (max-width: 375px) {
-            .modal-content {
-                margin: 8% auto;
-                width: 95%;
-                padding: 1.2rem;
-            }
-        
-            .modal-header h2 {
-                font-size: 1.3rem;
-            }
-        }
-        
-        /* Smartphones medianos */
-        @media screen and (min-width: 376px) and (max-width: 425px) {
-            .modal-content {
-                margin: 10% auto;
-                width: 92%;
-                padding: 1.5rem;
-            }
-        }
-        
-        /* Smartphones grandes */
-        @media screen and (min-width: 426px) and (max-width: 767px) {
-            .modal-content {
-                margin: 12% auto;
-                width: 90%;
-                padding: 1.8rem;
-            }
-        }
-        
-        /* Tablets */
-        @media screen and (min-width: 768px) and (max-width: 1024px) {
-            .modal-content {
-                margin: 15% auto;
-                max-width: 600px;
-            }
-        }
-        
-        /* Orientación landscape para móviles */
-        @media screen and (max-height: 450px) and (orientation: landscape) {
-            .modal-content {
-                margin: 2% auto;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-        
-            .modal-body img {
-                max-height: 60vh;
-                object-fit: contain;
-            }
-        }
-        
-        /* Ajustes para dispositivos con notch */
-        @supports (padding: env(safe-area-inset-top)) {
-            .modal-content {
-                padding-top: calc(2rem + env(safe-area-inset-top));
-                padding-left: calc(2rem + env(safe-area-inset-left));
-                padding-right: calc(2rem + env(safe-area-inset-right));
-            }
-        }
-        
+@media screen and (max-width: 320px) {
+    .modal-content {
+        margin: 2% auto;
+        width: 85%; /* Reducido de 95% para dar espacio en los lados */
+        padding: 1rem;
+        max-width: 280px; /* Asegura espacio en los laterales */
+    }
+
+    .modal-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .close-button {
+        right: 0.8rem;
+        top: 0.8rem;
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 0.5rem 0;
+    }
+}
+
+/* Smartphones pequeños */
+@media screen and (min-width: 321px) and (max-width: 375px) {
+    .modal-content {
+        margin: 8% auto;
+        width: 85%;
+        padding: 1.2rem;
+        max-width: 320px;
+    }
+
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Smartphones medianos */
+@media screen and (min-width: 376px) and (max-width: 425px) {
+    .modal-content {
+        margin: 10% auto;
+        width: 85%;
+        padding: 1.5rem;
+        max-width: 360px;
+    }
+}
+
+/* Smartphones grandes */
+@media screen and (min-width: 426px) and (max-width: 767px) {
+    .modal-content {
+        margin: 6% auto;
+        width: 85%;
+        padding: 1.8rem;
+        max-width: 400px;
+    }
+}
+
+/* Tablets */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .modal-content {
+        margin: 15% auto;
+        width: 80%;
+        max-width: 600px;
+    }
+}
+
+/* Orientación landscape para móviles */
+@media screen and (max-height: 450px) and (orientation: landscape) {
+    .modal-content {
+        margin: 2% auto;
+        width: 85%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-body img {
+        max-height: 60vh;
+        object-fit: contain;
+    }
+}
+
+/* Para asegurar que el contenido del modal no se pegue a los bordes */
+.modal-body {
+    position: relative;
+    padding: 1rem;
+}
+
+.modal-body img {
+    width: 100%;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+/* Añadimos un contenedor interior para mejor control del espacio */
+.modal-inner {
+    padding: 0.5rem;
+}
