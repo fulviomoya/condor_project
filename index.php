@@ -49,6 +49,27 @@
                             alumno (O también llamada cédula) sin espacios ni guiones. </span>
                     </li>
                     <li>
+                        <span class="field-name">Acta de Nacimiento:</span>
+                        <span class="field-description">
+                            Adjuntar un documento o foto del acta de nacimiento del estudiante.
+                            <span class="ejemplo" onclick="openModal()">Ejemplo</span>
+                        </span>
+
+                        <!-- Modal -->
+                        <div id="myModal" class="modal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2>Ejemplo de Acta de Nacimiento</h2>
+                                    <button class="close-button" onclick="closeModal()"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <img src="Parte_Usuario/IMG/Captura.jpg"
+                                        alt="Ejemplo de Acta de Nacimiento">
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
                         <span class="field-name">Escuela Anterior:</span>
                         <span class="field-description">Nombre del recinto donde el alumno está cursando
                             actualmente.</span>
@@ -145,8 +166,8 @@
         </div>
     </div>
 
-
     <script src="js.js"></script>
+    <script src="js_ventana.js"></script>
 
 </body>
 
