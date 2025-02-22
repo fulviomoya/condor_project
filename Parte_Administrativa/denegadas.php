@@ -120,10 +120,10 @@ verificarSesion();
                 <th>Tipo de Familia</th>
                 <th>Teléfono de contacto</th>
                 <th>Correo Electrónico</th>
-                <th>Motivo de Denegacion</th>
                 <th>Acta de nacimiento</th>
                 <th>Record de notas</th>
                 <th>Estado</th>
+                <th>Motivo de Denegacion</th>
               </tr>
             </thead>
             <tbody>
@@ -179,9 +179,6 @@ verificarSesion();
                     <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
                     <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
                     <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
-                      <td class="align-middle">
-                      ${usuario.motivo_denegacion ? usuario.motivo_denegacion : 'No especificado'}
-                    </td>
                     <td class="align-middle">
                     ${usuario.acta_nacimiento_pdf ?
                                 `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
@@ -200,7 +197,9 @@ verificarSesion();
                     </td>
                   
                     <td class="align-middle text-success fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">${usuario.estado || 'Pendiente'}</td>
-
+                    <td class="align-middle">
+                      ${usuario.motivo_denegacion ? usuario.motivo_denegacion : 'No especificado'}
+                    </td>
                     `;
           });
 
