@@ -120,9 +120,9 @@ verificarSesion();
                 <th>Tipo de Familia</th>
                 <th>Teléfono de contacto</th>
                 <th>Correo Electrónico</th>
+                <th>Motivo de Denegacion</th>
                 <th>Acta de nacimiento</th>
                 <th>Record de notas</th>
-                <th>Motivo de Denegacion</th>
                 <th>Estado</th>
               </tr>
             </thead>
@@ -146,7 +146,7 @@ verificarSesion();
 
   <script>
     // Actualización del script.js
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
       cargarDatos();
     });
 
@@ -154,7 +154,7 @@ verificarSesion();
       fetch("no.php")
         .then(response => response.json())
         .then(data => {
-          let tabla = document.getElementById("tablaUsuarios2").getElementsByTagName("tbody")[0];
+          let tabla = document.getElementById("tablaUsuarios1").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '';
 
           if (!Array.isArray(data) || data.length === 0) {
@@ -165,51 +165,55 @@ verificarSesion();
           data.forEach(usuario => {
             let fila = tabla.insertRow();
             fila.innerHTML = `
-                    <td>${usuario.id}</td>
-                    <td>${usuario.nombre}</td>
-                    <td>${usuario.apellido}</td>
-                    <td>${usuario.segundo_apellido || ''}</td>
-                    <td>${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
-                    <td>${usuario.localidad || ''}</td>
-                    <td>${usuario.sector || ''}</td>
-                    <td>${usuario.direccion || ''}</td>
-                    <td>${usuario.escuela_anterior || ''}</td>
-                    <td>${usuario.fecha_nacimiento || ''}</td>
-                    <td>${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
-                    <td>${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
-                    <td>${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
-                    <td>${usuario.correo ? usuario.correo : 'No registrado'}</td>
-                    <td>
-    ${usuario.acta_nacimiento_pdf ?
-                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id}" class="btn btn-sm btn-danger" target="_blank" 
-        onclick="return confirm('¿Desea abrir el PDF?')">
-        <i class="fas fa-file-pdf"></i> Ver Acta
-    </a>`
-                : 'No disponible'}
-</td>
-        <td>
-    ${usuario.record_calificaciones ?
-                `<a href="ver_pdf.php?tipo=record&id=${usuario.id}" class="btn btn-sm btn-primary" target="_blank" 
-        onclick="return confirm('¿Desea abrir el PDF?')">
-        <i class="fas fa-file-pdf"></i> Ver Record
-    </a>`
-                : 'No disponible'}
-</td>
+                    <td class="align-middle">${usuario.id_plaza}</td>
+                    <td class="align-middle">${usuario.nombre}</td>
+                    <td class="align-middle">${usuario.apellido}</td>
+                    <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+                    <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+                    <td class="align-middle">${usuario.localidad || ''}</td>
+                    <td class="align-middle">${usuario.sector || ''}</td>
+                    <td class="align-middle">${usuario.direccion || ''}</td>
+                    <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+                    <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+                    <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+                    <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+                    <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+                    <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+                      <td class="align-middle">
+                      ${usuario.motivo_denegacion ? usuario.motivo_denegacion : 'No especificado'}
+                    </td>
+                    <td class="align-middle">
+                    ${usuario.acta_nacimiento_pdf ?
+                                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                        onclick="return confirm('¿Desea abrir el PDF?')">
+                        <i class="fas fa-file-pdf"></i> Ver Acta
+                    </a>`
+                                : 'No disponible'}
+                    </td>
+                    <td class="align-middle">
+                        ${usuario.record_calificaciones ?
+                                    `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                            onclick="return confirm('¿Desea abrir el PDF?')">
+                            <i class="fas fa-file-pdf"></i> Ver Record
+                        </a>`
+                                    : 'No disponible'}
+                    </td>
+                  
                     <td class="align-middle text-success fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">${usuario.estado || 'Pendiente'}</td>
 
-                `;
+                    `;
           });
 
           // Agregar event listeners a los botones después de crear las filas
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function() {
               const id = this.getAttribute('data-id');
               actualizarEstado(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function() {
               const id = this.getAttribute('data-id');
               actualizarEstado(id, 'Denegado', this.closest('tr'));
             });
@@ -222,194 +226,244 @@ verificarSesion();
         });
     }
 
-        
-    // Función para buscar en la tabla
-document.addEventListener('DOMContentLoaded', function() {
-  const searchInput = document.querySelector('.input-group input[type="text"]');
-  const table = document.getElementById('tablaUsuarios1'); // Cambiado a tablaUsuarios1
-  const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    function actualizarEstado(id, nuevoEstado, fila) {
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('estado', nuevoEstado);
 
-  function filterTable(searchTerm) {
-    searchTerm = searchTerm.toLowerCase().trim();
+      fetch('filtros.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Actualizar la interfaz
+            const estadoCell = fila.querySelector('.estado');
+            estadoCell.textContent = nuevoEstado;
+            estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
 
-    Array.from(rows).forEach(row => {
-      const cells = Array.from(row.getElementsByTagName('td'));
-      
-      // Si no hay término de búsqueda, mostrar todas las filas
-      if (searchTerm === '') {
-        row.style.display = '';
-        cells.forEach(cell => {
-          cell.innerHTML = cell.textContent;
-        });
-        return;
-      }
+            // Recargar los datos
+            cargarDatos();
 
-      const found = cells.some(cell => {
-        const text = cell.textContent.toLowerCase();
-        return text.includes(searchTerm);
-      });
-
-      if (found) {
-        row.style.display = '';
-        cells.forEach(cell => {
-          const text = cell.textContent;
-          // Solo resaltar el texto exacto que se busca
-          if (text.toLowerCase().includes(searchTerm)) {
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
-            cell.innerHTML = highlightedText;
+            // Mostrar mensaje de éxito
+            alert(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`);
           } else {
-            cell.innerHTML = text;
+            alert('Error al actualizar el estado: ' + (data.message || 'Error desconocido'));
           }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error al actualizar el estado');
         });
-      } else {
-        row.style.display = 'none';
-      }
-    });
-  }
-
-  // Botón para limpiar la búsqueda
-  const searchContainer = searchInput.parentElement;
-  const clearButton = document.createElement('button');
-  clearButton.className = 'btn btn-outline-secondary';
-  clearButton.innerHTML = '<i class="fa fa-times"></i>';
-  clearButton.style.display = 'none';
-  searchContainer.appendChild(clearButton);
-
-  clearButton.addEventListener('click', () => {
-    searchInput.value = '';
-    filterTable('');
-    clearButton.style.display = 'none';
-  });
-
-  searchInput.addEventListener('input', (e) => {
-    filterTable(e.target.value);
-    clearButton.style.display = e.target.value ? '' : 'none';
-  });
-});
-
-// Función para agregar el botón de Excel y exportar
-document.addEventListener('DOMContentLoaded', function() {
-  function downloadExcel() {
-    const table = document.getElementById('tablaUsuarios1');
-    const rows = Array.from(table.querySelectorAll('tr'));
-    
-    const headerMapping = {
-        'ID de plaza': 'ID de plaza',
-        'Nombre': 'Nombre del Estudiante',
-        'Apellido': 'Primer Apellido',
-        'Segundo Apellido': 'Segundo Apellido',
-        'Nombre de los padres': 'Nombre de los Tutores',
-        'Localidad': 'Localidad de Residencia',
-        'Sector': 'Sector',
-        'Dirección Actual': 'Domicilio Actual',
-        'Escuela Anterior': 'Centro Educativo Anterior',
-        'Fecha de nacimiento': 'Fecha de Nacimiento',
-        'Ocupación de los padres': 'Ocupación de los Tutores',
-        'Tipo de Familia': 'Tipo de familia',
-        'Teléfono de contacto': 'Teléfono para Contacto',
-        'Correo Electrónico': 'Correo Electrónico de Contacto',
-        'Acta de nacimiento': 'Acta de nacimiento',
-        'Estado': 'Estado de la Solicitud'
-    };
-
-    const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
-        .map(th => th.textContent.trim());
-
-    const newHeaders = originalHeaders.map(header => 
-        headerMapping[header] || header
-    );
-
-    const workbookData = [newHeaders];
-
-    rows.slice(1).forEach(row => {
-        const rowData = Array.from(row.querySelectorAll('td'))
-            .map((cell, index) => {
-                let value = cell.textContent.trim();
-                
-                if (index === 9 && value) {
-                    const date = new Date(value);
-                    if (!isNaN(date)) {
-                        value = date.toLocaleDateString('es-ES');
-                    }
-                }
-                
-                if (index === 14) {
-                    const pdfLink = cell.querySelector('a');
-                    value = pdfLink ? 'Disponible' : 'No disponible';
-                }
-
-                if (index === 16) {
-                    return value || 'Pendiente';
-                }
-
-                return value || '';
-            });
-        workbookData.push(rowData);
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(workbookData);
-
-    const columnWidths = newHeaders.map(header => ({
-        wch: Math.max(header.length, 15)
-    }));
-    ws['!cols'] = columnWidths;
-
-    for (let i = 0; i < workbookData.length; i++) {
-        for (let j = 0; j < workbookData[i].length; j++) {
-            const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
-            
-            if (i === 0) {
-                ws[cellRef].s = {
-                    font: { bold: true, color: { rgb: "FFFFFF" } },
-                    fill: { fgColor: { rgb: "4472C4" } },
-                    alignment: { horizontal: "center", vertical: "center" }
-                };
-            }
-            
-            if (j === 16 && i > 0) {
-                const estado = workbookData[i][j].toLowerCase();
-                let fillColor = "FFFFFF";
-                
-                if (estado === 'aprobado') fillColor = "C6EFCE";
-                else if (estado === 'denegado') fillColor = "FFC7CE";
-                else if (estado === 'pendiente') fillColor = "FFEB9C";
-                
-                ws[cellRef].s = {
-                    fill: { fgColor: { rgb: fillColor } }
-                };
-            }
-        }
     }
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
+    // Función para buscar en la tabla
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.querySelector('.input-group input[type="text"]');
+      const table = document.getElementById('tablaUsuarios1'); // Cambiado a tablaUsuarios1
+      const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 
-    const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
-    const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-  }
+      function filterTable(searchTerm) {
+        searchTerm = searchTerm.toLowerCase().trim();
 
-  // Agregar el botón de Excel
-  const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
-  
-  // Crear el nuevo elemento para el botón de Excel
-  const excelButton = document.createElement('li');
-  excelButton.className = 'nav-item';
-  excelButton.innerHTML = `
+        Array.from(rows).forEach(row => {
+          const cells = Array.from(row.getElementsByTagName('td'));
+
+          // Si no hay término de búsqueda, mostrar todas las filas
+          if (searchTerm === '') {
+            row.style.display = '';
+            cells.forEach(cell => {
+              cell.innerHTML = cell.textContent;
+            });
+            return;
+          }
+
+          const found = cells.some(cell => {
+            const text = cell.textContent.toLowerCase();
+            return text.includes(searchTerm);
+          });
+
+          if (found) {
+            row.style.display = '';
+            cells.forEach(cell => {
+              const text = cell.textContent;
+              // Solo resaltar el texto exacto que se busca
+              if (text.toLowerCase().includes(searchTerm)) {
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
+                cell.innerHTML = highlightedText;
+              } else {
+                cell.innerHTML = text;
+              }
+            });
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+
+      // Botón para limpiar la búsqueda
+      const searchContainer = searchInput.parentElement;
+      const clearButton = document.createElement('button');
+      clearButton.className = 'btn btn-outline-secondary';
+      clearButton.innerHTML = '<i class="fa fa-times"></i>';
+      clearButton.style.display = 'none';
+      searchContainer.appendChild(clearButton);
+
+      clearButton.addEventListener('click', () => {
+        searchInput.value = '';
+        filterTable('');
+        clearButton.style.display = 'none';
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        filterTable(e.target.value);
+        clearButton.style.display = e.target.value ? '' : 'none';
+      });
+    });
+
+    // Función para agregar el botón de Excel y exportar
+    document.addEventListener('DOMContentLoaded', function() {
+      function downloadExcel() {
+        const table = document.getElementById('tablaUsuarios1');
+        const rows = Array.from(table.querySelectorAll('tr'));
+
+        const headerMapping = {
+          'ID de plaza': 'ID de plaza',
+          'Nombre': 'Nombre del Estudiante',
+          'Apellido': 'Primer Apellido',
+          'Segundo Apellido': 'Segundo Apellido',
+          'Nombre de los padres': 'Nombre de los Tutores',
+          'Localidad': 'Localidad de Residencia',
+          'Sector': 'Sector',
+          'Dirección Actual': 'Domicilio Actual',
+          'Escuela Anterior': 'Centro Educativo Anterior',
+          'Fecha de nacimiento': 'Fecha de Nacimiento',
+          'Ocupación de los padres': 'Ocupación de los Tutores',
+          'Tipo de Familia': 'Tipo de familia',
+          'Teléfono de contacto': 'Teléfono para Contacto',
+          'Correo Electrónico': 'Correo Electrónico de Contacto',
+          'Acta de nacimiento': 'Acta de nacimiento',
+          'Estado': 'Estado de la Solicitud'
+        };
+
+        const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
+          .map(th => th.textContent.trim());
+
+        const newHeaders = originalHeaders.map(header =>
+          headerMapping[header] || header
+        );
+
+        const workbookData = [newHeaders];
+
+        rows.slice(1).forEach(row => {
+          const rowData = Array.from(row.querySelectorAll('td'))
+            .map((cell, index) => {
+              let value = cell.textContent.trim();
+
+              if (index === 9 && value) {
+                const date = new Date(value);
+                if (!isNaN(date)) {
+                  value = date.toLocaleDateString('es-ES');
+                }
+              }
+
+              if (index === 14) {
+                const pdfLink = cell.querySelector('a');
+                value = pdfLink ? 'Disponible' : 'No disponible';
+              }
+
+              if (index === 16) {
+                return value || 'Pendiente';
+              }
+
+              return value || '';
+            });
+          workbookData.push(rowData);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(workbookData);
+
+        const columnWidths = newHeaders.map(header => ({
+          wch: Math.max(header.length, 15)
+        }));
+        ws['!cols'] = columnWidths;
+
+        for (let i = 0; i < workbookData.length; i++) {
+          for (let j = 0; j < workbookData[i].length; j++) {
+            const cellRef = XLSX.utils.encode_cell({
+              r: i,
+              c: j
+            });
+
+            if (i === 0) {
+              ws[cellRef].s = {
+                font: {
+                  bold: true,
+                  color: {
+                    rgb: "FFFFFF"
+                  }
+                },
+                fill: {
+                  fgColor: {
+                    rgb: "4472C4"
+                  }
+                },
+                alignment: {
+                  horizontal: "center",
+                  vertical: "center"
+                }
+              };
+            }
+
+            if (j === 16 && i > 0) {
+              const estado = workbookData[i][j].toLowerCase();
+              let fillColor = "FFFFFF";
+
+              if (estado === 'aprobado') fillColor = "C6EFCE";
+              else if (estado === 'denegado') fillColor = "FFC7CE";
+              else if (estado === 'pendiente') fillColor = "FFEB9C";
+
+              ws[cellRef].s = {
+                fill: {
+                  fgColor: {
+                    rgb: fillColor
+                  }
+                }
+              };
+            }
+          }
+        }
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
+
+        const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+        const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+      }
+
+      // Agregar el botón de Excel
+      const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
+
+      // Crear el nuevo elemento para el botón de Excel
+      const excelButton = document.createElement('li');
+      excelButton.className = 'nav-item';
+      excelButton.innerHTML = `
       <a class="nav-link text-dark" href="#" onclick="downloadExcel(); return false;">
           <i class="fas fa-file-excel" style="color: #217346;"></i> Exportar Excel
       </a>
   `;
-  
-  // Insertar el botón después del elemento "Reporte de datos"
-  if (reporteLink) {
-      reporteLink.parentNode.insertBefore(excelButton, reporteLink.nextSibling);
-  }
 
-  // Hacer la función downloadExcel disponible globalmente
-  window.downloadExcel = downloadExcel;
-});
+      // Insertar el botón después del elemento "Reporte de datos"
+      if (reporteLink) {
+        reporteLink.parentNode.insertBefore(excelButton, reporteLink.nextSibling);
+      }
+
+      // Hacer la función downloadExcel disponible globalmente
+      window.downloadExcel = downloadExcel;
+    });
   </script>
 </body>
 

@@ -3,20 +3,21 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: #f8f9fa;
 }
+
 .sidebar {
     width: 280px;
     background-color: #fff;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    position: fixed; 
-    height: 100vh;   
+    position: fixed;
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
 .sidebar ul {
-    flex: 1;          
-    display: flex;    
-    flex-direction: column; 
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .nav-link {
@@ -28,24 +29,24 @@ body {
 }
 
 .nav-link i {
-    width: 25px; 
+    width: 25px;
     margin-right: 10px;
 }
 
 .nav-item.dropdown {
-    position: relative; 
+    position: relative;
 }
 
 #solicitudesSubmenu .nav-link {
-    padding-left: 35px; 
+    padding-left: 35px;
 }
 
-.img-fluid{
+.img-fluid {
     height: 80px;
     width: auto;
 }
 
-.basic{
+.basic {
     position: relative;
     margin-top: auto;
     margin-bottom: 20px;
@@ -53,24 +54,24 @@ body {
 
 }
 
-.advance{
+.advance {
     margin-top: 55px;
     padding: 0;
 }
 
-.fa-home{ 
+.fa-home {
     color: #ffa500;
 }
 
-.fa-user{
+.fa-user {
     color: #7d7d7d;
 }
 
-.fa-clipboard{
+.fa-clipboard {
     color: #7d7d7d;
 }
 
-.fa-clock{
+.fa-clock {
     color: #fff007;
 }
 
@@ -108,69 +109,89 @@ body {
 .estado-aprobado {
     color: green;
     font-weight: bold;
-  }
-  .estado-denegado {
+}
+
+.estado-denegado {
     color: red;
     font-weight: bold;
-  }
-  .estado-pendiente {
+}
+
+.estado-pendiente {
     color: #6c757d;
     font-weight: bold;
-  }
-  .content {
+}
+
+.content {
     flex: 1;
     padding: 20px;
-    margin-left: 280px; 
-    overflow-x: hidden; 
-  }
-  .top-bar {
+    margin-left: 280px;
+    overflow-x: hidden;
+}
+
+.top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    position: sticky; /* Mantiene la barra superior fija */
+    position: sticky;
+    /* Mantiene la barra superior fija */
     left: 0;
-    z-index: 1; /* Asegura que esté por encima de la tabla */
-    background-color: #f8f9fa; /* Mismo color que el fondo */
-    padding-right: 20px; /* Espacio para el scroll */
-  }
-  .table-container {
+    z-index: 1;
+    /* Asegura que esté por encima de la tabla */
+    background-color: #f8f9fa;
+    /* Mismo color que el fondo */
+    padding-right: 20px;
+    /* Espacio para el scroll */
+}
+
+.table-container {
     background-color: #fff;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 1rem;
-    position: relative; /* Añadido */
+    position: relative;
+    /* Añadido */
     width: 100%;
-  }
-  /* Contenedor interno para la tabla con scroll */
+}
+
+/* Contenedor interno para la tabla con scroll */
 .table-wrapper {
     overflow-x: auto;
-    margin-bottom: 1rem; /* Espacio para la paginación */
+    margin-bottom: 1rem;
+    /* Espacio para la paginación */
     padding-right: 2px;
 }
+
 /* Estiliza la barra de desplazamiento */
 .table-wrapper::-webkit-scrollbar {
-    height: 8px; /* Altura de la barra */
+    height: 8px;
+    /* Altura de la barra */
 }
 
 .table-wrapper::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Color del track */
+    background: #f1f1f1;
+    /* Color del track */
     border-radius: 4px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-    background: #888; /* Color de la barra */
+    background: #888;
+    /* Color de la barra */
     border-radius: 4px;
     transition: background 0.3s ease;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #555; /* Color al hover */
+    background: #555;
+    /* Color al hover */
 }
+
 .table {
     width: 100%;
-    min-width: 30px; /* O el ancho mínimo que necesites */
-    margin-bottom: 0; /* Quita el margen inferior de la tabla */
+    min-width: 30px;
+    /* O el ancho mínimo que necesites */
+    margin-bottom: 0;
+    /* Quita el margen inferior de la tabla */
     position: relative;
 }
 
@@ -181,25 +202,28 @@ body {
     left: 0;
     width: 100%;
 }
-  th{
-      white-space: nowrap;
-  }
-  .highlight {
-  background-color: #fff3cd;
-  padding: 2px;
-  border-radius: 2px;
-  }
 
-  .input-group .btn-outline-secondary {
-  border-color: #ced4da;
-  padding: 0.375rem 0.75rem;
-  }
+th {
+    white-space: nowrap;
+}
 
-  .input-group .btn-outline-secondary:hover {
-  background-color: #e9ecef;
-  }
+.highlight {
+    background-color: #fff3cd;
+    padding: 2px;
+    border-radius: 2px;
+}
 
-  .btn-aprobar, .btn-denegar {
+.input-group .btn-outline-secondary {
+    border-color: #ced4da;
+    padding: 0.375rem 0.75rem;
+}
+
+.input-group .btn-outline-secondary:hover {
+    background-color: #e9ecef;
+}
+
+.btn-aprobar,
+.btn-denegar {
     width: 100%;
     margin: 2px 0;
 }
@@ -218,7 +242,7 @@ td.align-middle .d-flex {
     width: 100%;
 }
 
-  .table-wrapper {
+.table-wrapper {
     overflow-x: auto;
     max-width: 100%;
 }
@@ -228,13 +252,22 @@ td.align-middle .d-flex {
     background-color: #fff3cd;
     padding: 2px;
     border-radius: 2px;
-  }
-  
-  .input-group .btn-outline-secondary {
+}
+
+.input-group .btn-outline-secondary {
     border-color: #ced4da;
     padding: 0.375rem 0.75rem;
-  }
-  
-  .input-group .btn-outline-secondary:hover {
+}
+
+.input-group .btn-outline-secondary:hover {
     background-color: #e9ecef;
-  }
+}
+
+/*Agregar al archivo Dashboard(tabla).css */
+.modal-backdrop {
+    opacity: 0.5;
+}
+
+.modal-open {
+    overflow: hidden;
+}
