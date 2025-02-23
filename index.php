@@ -35,7 +35,7 @@
             </div>
 
             <div id="page1" class="page active">
-                <h2>Formulario de los Alumno</h2>
+                <h2>Formulario de los Alumnos</h2>
                 <ul class="field-list">
                     <li>
                         <span class="field-name">Nombre y Apellido:</span>
