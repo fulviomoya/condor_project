@@ -63,7 +63,7 @@
                                     <button class="close-button" onclick="closeModal()"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <img src="Parte_Usuario/IMG/Captura.jpg"
+                                    <img src="Parte_Usuario/IMG/Captura.JPG"
                                         alt="Ejemplo de Acta de Nacimiento">
                                 </div>
                             </div>

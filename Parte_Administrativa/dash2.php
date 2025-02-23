@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root"; // Cambia esto si tienes otro usuario
 $password = ""; // Si tienes una contraseña, agrégala aquí
-$database = "RegistroEstudiantes"; // Cambia esto por el nombre real
+$database = "registroestudiantes"; // Cambia esto por el nombre real
 
 $conn = new mysqli($servername, $username, $password, $database);
 

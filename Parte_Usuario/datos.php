@@ -8,7 +8,7 @@ include("conexion.php");
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "RegistroEstudiantes";
+$database = "registroestudiantes";
 
 $conn = new mysqli($servername, $username, $password, $database);
 
