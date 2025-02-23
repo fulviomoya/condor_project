@@ -679,7 +679,6 @@ input[type="date"] {
   .Pop-Pup {
     width: 90%;
     padding: 14px;
-    background-color: transparent;
   }
 
   .text_pop-pup {
@@ -713,7 +712,13 @@ input[type="date"] {
   background-color: #0056b3;
 }
 
+.MSJ-pop_pup {
+    color: var(--button-color) !important;
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'popins';
 
+}
 
 /* responsive */
 @media screen and (max-width: 768px) {

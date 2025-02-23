@@ -206,7 +206,7 @@
 
               <div>
                 <label for="correo_padres">Correo electrónico:</label>
-                <input id="correo_padres" name="correo_padres" placeholder="correo del padre" type="email">
+                <input id="correo_padres" name="correo_padres" placeholder="correo del padre" type="email" required>
               </div>
 
               <div>

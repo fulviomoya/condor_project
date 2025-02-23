@@ -101,31 +101,38 @@ document.addEventListener('DOMContentLoaded', function () {
     let errorMessages = [];
 
     requiredFields.forEach(field => {
-      if (!field.value.trim()) {
-        isValid = false;
-        field.style.borderColor = 'red';
-      } else if (field.id === 'telefono') {
-        if (!/^\d{10}$/.test(field.value.trim())) {
-          isValid = false;
-          field.style.borderColor = 'red';
-          errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
+        if (!field.value.trim()) {
+            isValid = false;
+            field.style.borderColor = 'red';
+        } else if (field.id === 'telefono') {
+            if (!/^\d{10}$/.test(field.value.trim())) {
+                isValid = false;
+                field.style.borderColor = 'red';
+                errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
+            }
+        } else if (field.id === 'correo_electronico') {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(field.value.trim())) {
+                isValid = false;
+                field.style.borderColor = 'red';
+                errorMessages.push('Por favor, introduce un correo electrónico válido');
+            }
+        } else if (field.id === 'correo_padres') {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(field.value.trim())) {
+                isValid = false;
+                field.style.borderColor = 'red';
+                errorMessages.push('Por favor, introduce un correo electrónico válido para los padres');
+            }
         }
-      } else if (field.id === 'correo_electronico' || field.id === 'correo_padres') {
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(field.value.trim())) {
-          isValid = false;
-          field.style.borderColor = 'red';
-          errorMessages.push('Por favor, introduce un correo electrónico válido');
-        }
-      }
     });
 
     if (!isValid && requiredFields.length > 0) {
-      errorMessages.unshift('Debe llenar los campos obligatorios');
+        errorMessages.unshift('Debe llenar los campos obligatorios');
     }
 
     return { isValid, errorMessages };
-  }
+}
 
   // Configurar botones de cada sección
   sections.forEach((section, index) => {
@@ -183,8 +190,12 @@ document.addEventListener('DOMContentLoaded', function () {
                   <span id="nombreCompleto">${nombreCompleto}</span>
                   <h3>Nombre completo</h3>
                 </div>
+                
               </div>
               <button id="enviarFormulario" class="btn btn-primary mt-4">Enviar Formulario</button>
+              <div class="MSJ-pop_pup">
+                  <span class="MSJ-pop_pup">*Sacar captura o guardar estos datos antes de enviar*</span>
+                </div>
             </div>
           </div>
           <div class="overlay" id="overlay"></div>
