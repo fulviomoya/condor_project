@@ -538,7 +538,7 @@ function crearBotonesPaginacion(totalPaginas, paginaActual, callback) {
 }
 
 // Función modificada de cargarDatos
-function cargarDatos(paginaActual = 1, registrosPorPagina = 1) {
+function cargarDatos(paginaActual = 1, registrosPorPagina = 10) {
   fetch("no.php")
     .then(response => response.json())
     .then(data => {
@@ -609,7 +609,7 @@ function cargarDatos(paginaActual = 1, registrosPorPagina = 1) {
 
 // Iniciar la carga de datos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-  cargarDatos(1, 1); // Mostrar 10 registros por página
+  cargarDatos(1, 10); // Mostrar 10 registros por página
 });
   </script>
 </body>
