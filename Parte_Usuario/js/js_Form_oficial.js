@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (index === sections.length - 1) {
         // Lógica para la última sección
         const generarIdPlaza = () => {
-          return `PL${new Date().getMilliseconds().toString()}`;
+          return `PL${String(Math.floor(Math.random() * 9000000) + 1000000)}`  + `${new Date().getHours().toString()}` + `${new Date().getMilliseconds().toString()}`;
         };
 
         const nombreCompleto = [
