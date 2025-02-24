@@ -488,6 +488,7 @@ button {
 /* cirulos de forms */
 
 .num:nth-child(1) {
+    cursor: pointer;
     background-color: var(--principal-color);
 }
 
@@ -499,6 +500,7 @@ button {
 }
 
 .num {
+    cursor: pointer;
     width: 50px !important; /* Ajusta el tamaño según tus necesidades */
     height: 50px; /* Asegúrate de que el ancho y el alto sean iguales */
     background-color: #D9D9D9;

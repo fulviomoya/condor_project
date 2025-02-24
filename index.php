@@ -54,7 +54,6 @@
                             Adjuntar un documento o foto del acta de nacimiento del estudiante.
                             <span class="ejemplo" onclick="openModal()">Ejemplo</span>
                         </span>
-
                         <!-- Modal -->
                         <div id="myModal" class="modal">
                             <div class="modal-content">
@@ -67,6 +66,12 @@
                                 </div>
                             </div>
                         </div>
+                    </li>
+                    <li>
+                        <span class="field-name">Boletín de calificaciones:</span>
+                        <span class="field-description">
+                            Adjuntar un documento o foto del boletín de calificaciones del curso anterior del estudiante.
+                        </span>
                     </li>
                     <li>
                         <span class="field-name">Escuela Anterior:</span>
@@ -166,7 +171,8 @@
                 <div class="nota">
                     <span style="font-weight: bold; color: red;">NOTA:</span>
 
-                    Es imprecindible que los documentos enviados sean los solicitados para que se complete de manera exitosa
+                    Es imprecindible que los documentos enviados sean los solicitados para que se complete de manera
+                    exitosa
                     el
                     proceso de admisión.
                     </span>

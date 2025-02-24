@@ -80,9 +80,9 @@
               </div>
 
               <div>
-                <label for="RecordDeNotas">Record de notas</label>
+                <label for="RecordDeNotas">Boletín de calificaciones</label>
                 <label class="label_Notas">
-                  Adjuntar record de notas
+                  Adjuntar boletín de calificaciones
                   <input type="file" id="record_notas" name="record_notas" class="Notas_input" accept=".pdf,.jpg,.jpeg,.png,.gif" required>
                 </label>
               </div>

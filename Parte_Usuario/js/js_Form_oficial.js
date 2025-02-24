@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const archivo = e.target.files[0];
     if (archivo) {
       if (validarArchivo(archivo, 'Record de Notas')) {
-        showAlert('Record de notas cargado correctamente', 'success');
+        showAlert('Boletín de calificaciones cargado correctamente', 'success');
       } else {
         this.value = '';
       }
