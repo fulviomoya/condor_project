@@ -200,10 +200,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $acta_nacimiento_path  // Agregar ruta del acta
     );
 
-    // Ejecutar la consulta y manejar errores
+    // Reemplaza el header después del execute exitoso
     if ($stmt->execute()) {
-        header("Location: Form1.php");
-        echo "Registro completado exitosamente";
+        // Redirigir a index.php
+        header("Location: ../index.php");
+        exit();
     } else {
         echo "Error: " . $stmt->error;
     }

@@ -101,125 +101,79 @@ document.addEventListener('DOMContentLoaded', function () {
     let errorMessages = [];
 
     requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            isValid = false;
-            field.style.borderColor = 'red';
-        } else if (field.id === 'telefono') {
-            if (!/^\d{10}$/.test(field.value.trim())) {
-                isValid = false;
-                field.style.borderColor = 'red';
-                errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
-            }
-        } else if (field.id === 'correo_electronico') {
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(field.value.trim())) {
-                isValid = false;
-                field.style.borderColor = 'red';
-                errorMessages.push('Por favor, introduce un correo electrónico válido');
-            }
-        } else if (field.id === 'correo_padres') {
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(field.value.trim())) {
-                isValid = false;
-                field.style.borderColor = 'red';
-                errorMessages.push('Por favor, introduce un correo electrónico válido para los padres');
-            }
+      if (!field.value.trim()) {
+        isValid = false;
+        field.style.borderColor = 'red';
+      } else if (field.id === 'telefono') {
+        if (!/^\d{10}$/.test(field.value.trim())) {
+          isValid = false;
+          field.style.borderColor = 'red';
+          errorMessages.push('El teléfono debe contener 10 dígitos numéricos');
         }
+      } else if (field.id === 'correo_electronico') {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(field.value.trim())) {
+          isValid = false;
+          field.style.borderColor = 'red';
+          errorMessages.push('Por favor, introduce un correo electrónico válido');
+        }
+      } else if (field.id === 'correo_padres') {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(field.value.trim())) {
+          isValid = false;
+          field.style.borderColor = 'red';
+          errorMessages.push('Por favor, introduce un correo electrónico válido para los padres');
+        }
+      }
     });
 
     if (!isValid && requiredFields.length > 0) {
-        errorMessages.unshift('Debe llenar los campos obligatorios');
+      errorMessages.unshift('Debe llenar los campos obligatorios');
     }
 
     return { isValid, errorMessages };
-}
+  }
 
   // Configurar botones de cada sección
+  // Reemplazar la sección de configuración de botones con este código:
   sections.forEach((section, index) => {
     const button = section.querySelector('button');
-    button.textContent = index === sections.length - 1 ? 'Enviar' : 'Siguiente';
+    button.textContent = index === sections.length - 1 ? 'Finalizar' : 'Siguiente';
 
     button.addEventListener('click', function (e) {
       e.preventDefault();
 
       const { isValid, errorMessages } = validateSection(index);
-      
+
       if (!isValid) {
         showAlert(errorMessages.join('<br>'), 'danger');
         return;
       }
 
       if (index === sections.length - 1) {
-        // Lógica para la última sección
-        const generarIdPlaza = () => {
-          return `PL${String(Math.floor(Math.random() * 9000000) + 1000000)}`  + `${new Date().getHours().toString()}` + `${new Date().getMilliseconds().toString()}`;
-        };
-
+        // Generar ID de plaza antes de enviar
+        const idPlaza = generarIdPlaza();
         const nombreCompleto = [
           document.getElementById('nombre').value,
           document.getElementById('apellido').value,
           document.getElementById('segundo_apellido').value
         ].filter(Boolean).join(' ');
-        
-        const idPlaza = generarIdPlaza();
 
-        // Crear ventana emergente
-        const popupHTML = `
-          <div class="Pop-Pup" id="successPopup">
-            <div class="header_pop">
-              <div class="logo_pop">
-                <img src="./IMG/logo1.png" alt="Logo" class="logo_pop"/>
-              </div>
-              <div class="svg_x" id="closePopup">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </div>
-            </div>
-            <div class="cont_pop-pup">
-              <div class="text_pop-pup">
-                <span>¡Formulario completado exitosamente!</span>
-              </div>
-              <div class="info_user">
-                <div>
-                  <span id="idPlaza">${idPlaza}</span>
-                  <h3>ID de Plaza</h3>
-                </div>
-                <div>
-                  <span id="nombreCompleto">${nombreCompleto}</span>
-                  <h3>Nombre completo</h3>
-                </div>
-                
-              </div>
-              <button id="enviarFormulario" class="btn btn-primary mt-4">Enviar Formulario</button>
-              <div class="MSJ-pop_pup">
-                  <span class="MSJ-pop_pup">*Sacar captura o guardar estos datos antes de enviar*</span>
-                </div>
-            </div>
-          </div>
-          <div class="overlay" id="overlay"></div>
-        `;
+        // Crear input oculto para el ID de plaza
+        const idPlazaInput = document.createElement('input');
+        idPlazaInput.type = 'hidden';
+        idPlazaInput.name = 'id_plaza';
+        idPlazaInput.value = idPlaza;
+        form.appendChild(idPlazaInput);
 
-        document.body.insertAdjacentHTML('beforeend', popupHTML);
-        document.getElementById('overlay').style.display = 'flex';
-        document.getElementById('successPopup').style.display = 'flex';
+        // Guardar datos en sessionStorage para el modal
+        sessionStorage.setItem('formularioData', JSON.stringify({
+          idPlaza: idPlaza,
+          nombreCompleto: nombreCompleto
+        }));
 
-        // Configurar cierre del popup al hacer clic en la "X"
-        document.getElementById('closePopup').addEventListener('click', function () {
-          document.getElementById('successPopup').style.display = 'none';
-          document.getElementById('overlay').style.display = 'none';
-        });
-        
-        // Configurar envío final
-        document.getElementById('enviarFormulario').addEventListener('click', function () {
-          const idPlazaInput = document.createElement('input');
-          idPlazaInput.type = 'hidden';
-          idPlazaInput.name = 'id_plaza';
-          idPlazaInput.value = idPlaza;
-          form.appendChild(idPlazaInput);
-          form.submit();
-        });
+        // Enviar formulario
+        form.submit();
       } else {
         // Navegar a la siguiente sección
         completedSections.add(index);
@@ -228,6 +182,11 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // Función auxiliar para generar ID de plaza
+  function generarIdPlaza() {
+    return `PL${String(Math.floor(Math.random() * 9000000) + 1000000)}${new Date().getHours().toString()}${new Date().getMilliseconds().toString()}`;
+  }
 
   // Event listeners para los números de navegación
   numbers.forEach((number, index) => {
@@ -261,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     lines.forEach((line, index) => {
-      line.classList.toggle('active', 
+      line.classList.toggle('active',
         index < targetSection || (completedSections.has(index) && completedSections.has(index + 1))
       );
     });
@@ -305,7 +264,7 @@ class ImageToPDFConverter {
   setupFileInput() {
     // Modificar el accept attribute para permitir imágenes y PDF
     this.fileInput.accept = '.pdf,.jpg,.jpeg,.png,.gif';
-    
+
     this.fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -316,7 +275,7 @@ class ImageToPDFConverter {
         const container = new DataTransfer();
         container.items.add(convertedFile);
         this.fileInput.files = container.files;
-        
+
         showAlert('Archivo procesado correctamente', 'success');
       } catch (error) {
         showAlert('Error al procesar el archivo: ' + error.message, 'danger');
@@ -347,7 +306,7 @@ class ImageToPDFConverter {
         try {
           const img = new Image();
           img.src = e.target.result;
-          
+
           await new Promise(resolve => img.onload = resolve);
 
           // Crear PDF con dimensiones proporcionales a la imagen
@@ -369,7 +328,7 @@ class ImageToPDFConverter {
 
           // Convertir a Blob
           const pdfBlob = pdf.output('blob');
-          
+
           // Crear archivo PDF
           const pdfFile = new File(
             [pdfBlob],
@@ -389,7 +348,7 @@ class ImageToPDFConverter {
 }
 
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   // Inicializar convertidores para ambos inputs de archivo
   const actaConverter = new ImageToPDFConverter(
     document.getElementById('Acta_de_nacimiento')

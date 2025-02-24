@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="Parte_Administrativa/IMG/SUKA.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <title>Manual de usuario</title>
 </head>
@@ -191,6 +193,62 @@
             </div>
         </div>
     </div>
+
+    <!-- Agregar Bootstrap JS y Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+
+    <!-- Modal de éxito -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Politécnico ITLA</h5>
+                    <a href="https://politecnicoitla.edu.do/">
+                        <button type="button" class="btn-close"></button>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <h4>Datos de su solicitud</h4>
+                    </div>
+                    <div class="info-container">
+                        <p><strong>ID de Plaza:</strong> <span id="modalIdPlaza"></span></p>
+                        <p><strong>Nombre Completo:</strong> <span id="modalNombre"></span></p>
+                    </div>
+                    <div class="alert alert-warning mt-3">
+                        <small>*Por favor, guarde estos datos para futuras referencias*</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="https://politecnicoitla.edu.do/">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si hay datos del formulario en sessionStorage
+            const formularioData = sessionStorage.getItem('formularioData');
+            if (formularioData) {
+                const data = JSON.parse(formularioData);
+
+                // Llenar el modal con los datos
+                document.getElementById('modalIdPlaza').textContent = data.idPlaza;
+                document.getElementById('modalNombre').textContent = data.nombreCompleto;
+
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+
+                // Limpiar sessionStorage
+                sessionStorage.removeItem('formularioData');
+            }
+        });
+    </script>
 
     <script src="js.js"></script>
     <script src="js_ventana.js"></script>
