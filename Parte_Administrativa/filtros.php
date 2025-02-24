@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $conn = new mysqli("localhost", "root", "", "registroestudiantes");
+    $conn = new mysqli("localhost", "root", "qwerty", "registroestudiantes");
 
     if ($conn->connect_error) {
         echo json_encode(['success' => false, 'message' => 'Error de conexión: ' . $conn->connect_error]);

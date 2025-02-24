@@ -121,7 +121,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 40px;
-    margin-top: 50px;
+    margin-top: 20px;
 }
 
 .first_section div {
