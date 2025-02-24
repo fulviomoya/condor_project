@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $usuario = "root";
-$contrasena = "";
+$contrasena = "qwerty";
 $base_datos = "registroestudiantes";
 
 $conexion = new mysqli($host, $usuario, $contrasena, $base_datos);

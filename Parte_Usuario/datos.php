@@ -7,7 +7,7 @@ include("conexion.php");
 // Conectar a la base de datos
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "qwerty";
 $database = "registroestudiantes";
 
 $conn = new mysqli($servername, $username, $password, $database);
