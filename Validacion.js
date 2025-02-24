@@ -42,7 +42,7 @@ FORMULARIO_LOGIN.addEventListener('submit', async function (event) {
             try {
                 const data = JSON.parse(text);
                 if (data.success) {
-                    window.location.href = "Parte_Administrativa/Dashboard(tabla).php";
+                    window.location.href = "Parte_Administrativa/Dashboard.php";
                 } else {
                     document.getElementById('username-error').textContent = data.message;
                 }
