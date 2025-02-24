@@ -1,4 +1,3 @@
-
 function showAlert(message, type = 'danger') {
     const alertContainer = document.getElementById('alertContainer');
     const alertId = `alert-${Date.now()}`;
@@ -25,6 +24,15 @@ function showAlert(message, type = 'danger') {
 
 // JavaScript for handling section navigation
 document.addEventListener('DOMContentLoaded', function () {
+    const idActaNacimiento = document.getElementById('id_acta_nacimiento');
+
+    idActaNacimiento.addEventListener('input', function () {
+        if (this.value.length > 20) {
+            this.value = this.value.slice(0, 20);
+            showAlert('El ID de acta no puede exceder los 20 caracteres', 'warning');
+        }
+    });
+
     const form = document.getElementById("form");
     const sections = [
         document.querySelector('.first_section'),
@@ -104,7 +112,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!field.value.trim()) {
                 isValid = false;
                 field.style.borderColor = 'red';
-            } else if (field.id === 'telefono') {
+            } else if (field.id === 'id_acta_nacimiento' && field.value.length > 20) {
+                isValid = false;
+                field.style.borderColor = 'red';
+                errorMessages.push('El ID de acta no puede exceder los 20 caracteres');
+            }
+            else if (field.id === 'telefono') {
                 if (!/^\d{10}$/.test(field.value.trim())) {
                     isValid = false;
                     field.style.borderColor = 'red';

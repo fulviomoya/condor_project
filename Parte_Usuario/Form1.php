@@ -69,7 +69,7 @@
 
                 <div class="Adjuntar_acta">
                   <input id="id_acta_nacimiento" name="id_acta_nacimiento" type="text"
-                    placeholder="ID de acta de nacimiento" required>
+                    placeholder="ID de acta de nacimiento" maxlength="19" required>
 
                   <label for="Acta_de_nacimiento" class="label_acta">
                     Adjuntar Acta de nacimiento
