@@ -778,7 +778,7 @@ function crearBotonesPaginacion(totalPaginas, paginaActual, callback) {
 }
 
 // Función modificada de cargarDatos
-function cargarDatos(paginaActual = 1, registrosPorPagina = 10) {
+function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
   fetch("dash1.php")
     .then(response => response.json())
     .then(data => {
@@ -869,7 +869,7 @@ function cargarDatos(paginaActual = 1, registrosPorPagina = 10) {
 
 // Iniciar la carga de datos con la primera página
 document.addEventListener('DOMContentLoaded', () => {
-  cargarDatos(1, 10);
+  cargarDatos(1, 50);
 });
   </script>
 </body>
