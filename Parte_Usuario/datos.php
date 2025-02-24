@@ -166,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $resultado = $conn->query("SELECT COUNT(*) AS total FROM datos_estudiantes");
     $fila = $resultado->fetch_assoc();
 
-    if ($fila['total'] >= 7000) {
+    if ($fila['total'] >= 4800) {
         die("No se pueden agregar más estudiantes, el límite de 300 ha sido alcanzado.");
     }
 
