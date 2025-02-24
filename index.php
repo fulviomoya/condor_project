@@ -54,7 +54,6 @@
                             Adjuntar un documento o foto del acta de nacimiento del estudiante.
                             <span class="ejemplo" onclick="openModal()">Ejemplo</span>
                         </span>
-
                         <!-- Modal -->
                         <div id="myModal" class="modal">
                             <div class="modal-content">
@@ -63,11 +62,16 @@
                                     <button class="close-button" onclick="closeModal()"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <img src="Parte_Usuario/IMG/Captura.jpg"
-                                        alt="Ejemplo de Acta de Nacimiento">
+                                    <img src="Parte_Usuario/IMG/Captura.JPG" alt="Ejemplo de Acta de Nacimiento">
                                 </div>
                             </div>
                         </div>
+                    </li>
+                    <li>
+                        <span class="field-name">Boletín de calificaciones:</span>
+                        <span class="field-description">
+                            Adjuntar un documento o foto del boletín de calificaciones del curso anterior del estudiante.
+                        </span>
                     </li>
                     <li>
                         <span class="field-name">Escuela Anterior:</span>
@@ -108,8 +112,19 @@
                     </li>
                 </ul>
                 <div class="nota">
-                    <span class="nota-label">Nota:</span> Al finalizar el formulario el ID suministrado sera utilizado
-                    para dar la información si el alumno fue admitido. (Recordar ID de manera obligatoria)
+                    <span style="font-weight: bold; color: red;">NOTA:</span>
+                    <ol>
+                        <li>Al finalizar el formulario el ID
+                            suministrado sera utilizado
+                            para notificar si el alumno fue admitido. (Recordar ID de manera obligatoria).</li>
+
+                        <li>
+                            <span> Recomendamos realizar el
+                                proceso desde un
+                                computador. En caso de utilizar dispositivos móviles se recomiendan navegadores como
+                                Safari (en IOS) y Chrome (en Android).
+                        </li>
+                    </ol>
                 </div>
                 <button onclick="nextPage()" class="btn btn-next">Siguiente</button>
             </div>
@@ -150,8 +165,19 @@
                     </li>
                 </ul>
 
-                <div class="nota">
+                <!-- <div class="nota">
                     <span class="nota-label">Nota:</span> Cliquea el botón "Siguiente" para completar el formulario.
+                </div> -->
+                <div class="nota">
+                    <span style="font-weight: bold; color: red;">NOTA:</span>
+
+                    Es imprecindible que los documentos enviados sean los solicitados para que se complete de manera
+                    exitosa
+                    el
+                    proceso de admisión.
+                    </span>
+
+
                 </div>
 
                 <div class="button-container">

@@ -80,9 +80,9 @@
               </div>
 
               <div>
-                <label for="RecordDeNotas">Record de notas</label>
+                <label for="RecordDeNotas">Boletín de calificaciones</label>
                 <label class="label_Notas">
-                  Adjuntar record de notas
+                  Adjuntar boletín de calificaciones
                   <input type="file" id="record_notas" name="record_notas" class="Notas_input" accept=".pdf,.jpg,.jpeg,.png,.gif" required>
                 </label>
               </div>
@@ -206,7 +206,7 @@
 
               <div>
                 <label for="correo_padres">Correo electrónico:</label>
-                <input id="correo_padres" name="correo_padres" placeholder="correo del padre" type="email">
+                <input id="correo_padres" name="correo_padres" placeholder="correo del padre" type="email" required>
               </div>
 
               <div>
@@ -233,7 +233,7 @@
   <!-- Agregar Bootstrap JS y Popper.js -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-  <script src="../Parte_Usuario\js\js_Form_oficial.js"></script>
+  <script src="../Parte_Usuario\js\form.js"></script>
 
 </body>
 
