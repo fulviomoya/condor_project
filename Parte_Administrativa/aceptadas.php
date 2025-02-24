@@ -467,6 +467,150 @@ verificarSesion();
       // Hacer la función downloadExcel disponible globalmente
       window.downloadExcel = downloadExcel;
     });
+
+    // Función para paginar los datos
+function paginarDatos(datos, paginaActual, registrosPorPagina) {
+  const inicio = (paginaActual - 1) * registrosPorPagina;
+  const fin = inicio + registrosPorPagina;
+  return datos.slice(inicio, fin);
+}
+
+// Función para crear los botones de paginación
+function crearBotonesPaginacion(totalPaginas, paginaActual, callback) {
+  const paginacion = document.querySelector('.pagination');
+  paginacion.innerHTML = '';
+  
+  // Botón Anterior
+  const prevLi = document.createElement('li');
+  prevLi.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+  prevLi.innerHTML = `
+    <a class="page-link" href="#" data-page="prev" ${paginaActual === 1 ? 'tabindex="-1"' : ''}>
+      Anterior
+    </a>
+  `;
+  paginacion.appendChild(prevLi);
+
+  // Botones numerados
+  for (let i = 1; i <= totalPaginas; i++) {
+    const li = document.createElement('li');
+    li.className = `page-item ${paginaActual === i ? 'active' : ''}`;
+    li.innerHTML = `
+      <a class="page-link" href="#" data-page="${i}">${i}</a>
+    `;
+    paginacion.appendChild(li);
+  }
+
+  // Botón Siguiente
+  const nextLi = document.createElement('li');
+  nextLi.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+  nextLi.innerHTML = `
+    <a class="page-link" href="#" data-page="next" ${paginaActual === totalPaginas ? 'tabindex="-1"' : ''}>
+      Siguiente
+    </a>
+  `;
+  paginacion.appendChild(nextLi);
+
+  // Event listener para la paginación
+  paginacion.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (e.target.classList.contains('page-link')) {
+      const pageData = e.target.getAttribute('data-page');
+      let newPage = paginaActual;
+
+      if (pageData === 'prev' && paginaActual > 1) {
+        newPage = paginaActual - 1;
+      } else if (pageData === 'next' && paginaActual < totalPaginas) {
+        newPage = paginaActual + 1;
+      } else if (!isNaN(pageData)) {
+        newPage = parseInt(pageData);
+      }
+
+      if (newPage !== paginaActual && newPage >= 1 && newPage <= totalPaginas) {
+        // Reset scroll position before changing page
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (tableWrapper) {
+          tableWrapper.scrollLeft = 0;
+        }
+        callback(newPage);
+      }
+    }
+  });
+}
+
+// Función modificada de cargarDatos
+function cargarDatos(paginaActual = 1, registrosPorPagina = 10) {
+  fetch("no.php")
+    .then(response => response.json())
+    .then(data => {
+      const totalPaginas = Math.ceil(data.length / registrosPorPagina);
+      const datosPaginados = paginarDatos(data, paginaActual, registrosPorPagina);
+      
+      let tabla = document.getElementById("tablaUsuarios1").getElementsByTagName("tbody")[0];
+      tabla.innerHTML = '';
+
+      if (!Array.isArray(data) || data.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
+        return;
+      }
+
+      datosPaginados.forEach(usuario => {
+        let fila = tabla.insertRow();
+        fila.innerHTML = `
+          <td class="align-middle">${usuario.id_plaza}</td>
+          <td class="align-middle">${usuario.nombre}</td>
+          <td class="align-middle">${usuario.apellido}</td>
+          <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+          <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+          <td class="align-middle">${usuario.localidad || ''}</td>
+          <td class="align-middle">${usuario.sector || ''}</td>
+          <td class="align-middle">${usuario.direccion || ''}</td>
+          <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+          <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+          <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+          <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+          <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+          <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+          <td class="align-middle">
+            ${usuario.acta_nacimiento_pdf ?
+              `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                onclick="return confirm('¿Desea abrir el PDF?')">
+                <i class="fas fa-file-pdf"></i> Ver Acta
+              </a>`
+              : 'No disponible'}
+          </td>
+          <td class="align-middle">
+            ${usuario.record_calificaciones ?
+              `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                onclick="return confirm('¿Desea abrir el PDF?')">
+                <i class="fas fa-file-pdf"></i> Ver Record
+              </a>`
+              : 'No disponible'}
+          </td>
+          <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
+            ${usuario.estado || 'Pendiente'}
+          </td>
+          <td class="align-middle">
+            ${usuario.motivo_denegacion ? usuario.motivo_denegacion : 'No especificado'}
+          </td>
+        `;
+      });
+
+      // Crear los botones de paginación con callback
+      crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
+        cargarDatos(newPage, registrosPorPagina);
+      });
+    })
+    .catch(error => {
+      console.error("Error al cargar los datos:", error);
+      let tabla = document.getElementById("tablaUsuarios1").getElementsByTagName("tbody")[0];
+      tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
+    });
+}
+
+// Iniciar la carga de datos cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+  cargarDatos(1, 10); // Mostrar 10 registros por página
+});
   </script>
 </body>
 
