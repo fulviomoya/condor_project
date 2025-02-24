@@ -373,9 +373,6 @@ verificarSesion();
       const searchContainer = searchInput.parentElement;
       const clearButton = document.createElement('button');
       clearButton.className = 'btn btn-outline-secondary';
-      clearButton.innerHTML = '<i class="fa fa-times"></i>';
-      clearButton.style.display = 'none';
-      searchContainer.appendChild(clearButton);
 
       clearButton.addEventListener('click', () => {
         searchInput.value = '';
