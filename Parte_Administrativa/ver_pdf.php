@@ -9,7 +9,7 @@ if (!isset($_GET['tipo']) || !isset($_GET['id'])) {
 
 // Incluir archivo de conexión a la base de datos
 require_once('../config.php');
-$conn = new mysqli("localhost", "root", "", "RegistroEstudiantes");
+$conn = new mysqli("localhost", "root", "", "registroestudiantes");
 
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
