@@ -68,7 +68,7 @@
                 <label for="id_acta_nacimiento">ID de acta de nacimiento:</label>
 
                 <div class="Adjuntar_acta">
-                  <input id="id_acta_nacimiento" name="id_acta_nacimiento" type="text"
+                  <input id="id_acta_nacimiento" name="id_acta_nacimiento" type="number"  
                     placeholder="ID de acta de nacimiento" maxlength="19" required>
 
                   <label for="Acta_de_nacimiento" class="label_acta">
