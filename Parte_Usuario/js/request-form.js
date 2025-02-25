@@ -26,10 +26,11 @@ function showAlert(message, type = 'danger') {
 document.addEventListener('DOMContentLoaded', function () {
     const idActaNacimiento = document.getElementById('id_acta_nacimiento');
 
+    // Validacion del limite de caracteres en el ID de acta
     idActaNacimiento.addEventListener('input', function () {
-        if (this.value.length > 20) {
-            this.value = this.value.slice(0, 20);
-            showAlert('El ID de acta no puede exceder los 20 caracteres', 'warning');
+        if (this.value.length > 19) {
+            this.value = this.value.slice(0, 19);
+            showAlert('El ID de acta no puede exceder los 19 caracteres', 'warning');
         }
     });
 
@@ -148,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Configurar botones de cada sección
-    // Reemplazar la sección de configuración de botones con este código:
     sections.forEach((section, index) => {
         const button = section.querySelector('button');
         button.textContent = index === sections.length - 1 ? 'Finalizar' : 'Siguiente';
