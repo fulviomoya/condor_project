@@ -37,7 +37,7 @@
             </div>
 
             <div id="page1" class="page active">
-                <h2>Formulario de los Alumnos</h2>
+                <h2 class="manual-title">Formulario de los Alumnos</h2>
                 <ul class="field-list">
                     <li>
                         <span class="field-name">Nombre y Apellido:</span>
@@ -134,7 +134,7 @@
             <!-- segunda pagina -->
 
             <div id="page2" class="page">
-                <h2>Formulario Representante</h2>
+                <h2 class="manual-title">Formulario Representante</h2>
                 <ul class="field-list">
                     <li>
                         <span class="field-name">Ocupación:</span>

@@ -63,6 +63,10 @@ body {
     height: 100%;
 }
 
+.manual-title {
+    font-family: 'popins' !important;
+}
+
 .pri {
     display: flex;
     justify-content: center;
@@ -74,7 +78,6 @@ body {
     background-color: white;
     width: 90%;
     height: 95%;
-    padding: 2rem;
     padding-top: 0px;
     border-radius: 8px;
 }
@@ -169,9 +172,10 @@ h2 {
     border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
-    font-family: 'popinsBold', sans-serif;
+    font-family: 'popinsBold', sans-serif !important;
     text-align: center;
     min-width: 150px;
+    transition: 0.2s ease-in-out;
 }
 
 .btn-back {
@@ -191,6 +195,8 @@ h2 {
 
 .btn:hover {
     opacity: 0.9;
+    border: 1px solid #B41513;
+    color: black;
 }
 
 .page-indicator {

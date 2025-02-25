@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Validacion del limite de caracteres en el ID de acta
     idActaNacimiento.addEventListener('input', function () {
-        if (this.value.length > 19) {
+        if (this.value.length >= 19) {
             this.value = this.value.slice(0, 19);
             showAlert('El ID de acta no puede exceder los 19 caracteres', 'warning');
         }
