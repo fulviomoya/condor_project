@@ -190,6 +190,7 @@ input::placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .Adjuntar_acta {
@@ -226,6 +227,7 @@ input::placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .Notas_input {
