@@ -1,4 +1,4 @@
-<?php
+ <?php
 // Ejemplo de cómo deberían estar en config.php
 define("BASE_PATH", "C:/xampp/htdocs/Dashboard_index");
 define("UPLOAD_PATH", BASE_PATH . "uploads");
@@ -17,4 +17,4 @@ if (isset($_GET['debug'])) {
         echo "</pre>";
     }
 }
-?>
+?> 
