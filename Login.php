@@ -39,6 +39,43 @@
         </div>
     </div>
     <script src="Validacion.js"></script>
+
+    <script>
+        function verificarHorario() {
+            const ahora = new Date();
+            const hora = ahora.getHours();
+            const minutos = ahora.getMinutes();
+
+            // Si son las 4:00 PM (16:00) o más tarde
+            if (hora >= 16) {
+                window.location.href = 'mensaje.html';
+            }
+        }
+
+        // Verificar cada minuto
+        setInterval(verificarHorario, 60000);
+
+        // Verificar inmediatamente al cargar la página
+        verificarHorario();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar si hay datos del formulario en sessionStorage
+            const formularioData = sessionStorage.getItem('formularioData');
+            if (formularioData) {
+                const data = JSON.parse(formularioData);
+
+                // Llenar el modal con los datos
+                document.getElementById('modalIdPlaza').textContent = data.idPlaza;
+                document.getElementById('modalNombre').textContent = data.nombreCompleto;
+
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById('successModal'));
+                modal.show();
+
+                // Limpiar sessionStorage
+                sessionStorage.removeItem('formularioData');
+            }
+        });
+    </script>
 </body>
 
 </html>
