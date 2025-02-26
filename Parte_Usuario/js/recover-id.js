@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     resultadoBusqueda.innerHTML = `
                     <div>Nombre completo: ${data.nombreCompleto}</div>
-                    <div>Código de solicitud: ${data.idSolicitud}</div>
+                    <div>ID de plaza: ${data.idSolicitud}</div>
                 `;
                     resultadoBusqueda.style.display = 'block';
                     resultadoBusqueda.className = 'mt-2 text-success';
