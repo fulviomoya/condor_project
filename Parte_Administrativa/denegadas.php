@@ -147,10 +147,10 @@ verificarSesion();
   <script>
     // Actualización del script.js
     document.addEventListener("DOMContentLoaded", function() {
-      cargarDatos();
+      cargarDatosDenegados();
     });
 
-    function cargarDatos() {
+    function cargarDatosDenegados() {
       fetch("no.php")
         .then(response => response.json())
         .then(data => {
@@ -243,7 +243,7 @@ verificarSesion();
             estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
 
             // Recargar los datos
-            cargarDatos();
+            cargarDatosDenegados();
 
             // Mostrar mensaje de éxito
             alert(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`);
@@ -534,7 +534,7 @@ function crearBotonesPaginacion(totalPaginas, paginaActual, callback) {
 }
 
 // Función modificada de cargarDatos
-function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
+function cargarDatosAprobados(paginaActual = 1, registrosPorPagina = 50) {
   fetch("no.php")
     .then(response => response.json())
     .then(data => {
@@ -593,7 +593,7 @@ function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
 
       // Crear los botones de paginación con callback
       crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
-        cargarDatos(newPage, registrosPorPagina);
+        cargarDatosAprobados(newPage, registrosPorPagina);
       });
     })
     .catch(error => {
@@ -605,7 +605,8 @@ function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
 
 // Iniciar la carga de datos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-  cargarDatos(1, 50); // Mostrar 10 registros por página
+  cargarDatosAprobados();
+  cargarDatosDenegados(1, 50); // Mostrar 10 registros por página
 });
   </script>
 </body>

@@ -104,7 +104,7 @@ verificarSesion();
 
       <div class="table-container">
         <div class="table-wrapper">
-          <table class="table table-striped table-hover" id="tablaUsuarios">
+          <table class="table table-striped table-hover" id="tablaTodosUsuarios">
             <thead>
               <tr>
                 <th>ID de plaza</th>
@@ -194,11 +194,11 @@ verificarSesion();
     let estadoSolicitud = "";
     let filaSeleccionada = null;
 
-    document.addEventListener("DOMContentLoaded", function() {
-      cargarDatos();
+    document.addEventListener("DOMContentLoaded", function () {
+      cargarTodosLosDatos();
 
       // Event listener para el cambio de razón
-      document.getElementById('razonDenegacion').addEventListener('change', function() {
+      document.getElementById('razonDenegacion').addEventListener('change', function () {
         const otroMotivoContainer = document.getElementById('otroMotivoContainer');
         if (this.value === 'otro') {
           otroMotivoContainer.style.display = 'block';
@@ -240,7 +240,7 @@ verificarSesion();
       modal.show();
     }
 
-    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
+    document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
       if (estadoSolicitud === 'Denegado') {
         const razonSelect = document.getElementById('razonDenegacion');
         const otroMotivo = document.getElementById('otroMotivo');
@@ -276,53 +276,62 @@ verificarSesion();
     });
 
     function actualizarEstado(id, nuevoEstado, fila) {
-      // Debug para ver qué ID se está enviando
-      console.log('ID a actualizar:', id);
+  const formData = new FormData();
+  formData.append('id', id);
+  formData.append('estado', nuevoEstado);
 
-      const formData = new FormData();
-      formData.append('id', id.toString()); // Asegúrate que el ID se envíe como string
-      formData.append('estado', nuevoEstado);
+  // Agregar razón si es denegado
+  if (nuevoEstado === 'Denegado') {
+    const razonSelect = document.getElementById('razonDenegacion');
+    const otroMotivo = document.getElementById('otroMotivo');
+    let razonFinal = razonSelect.value === 'otro' ?
+      otroMotivo.value.trim() :
+      razonSelect.options[razonSelect.selectedIndex].text;
+    formData.append('razon', razonFinal);
+  }
 
-      if (nuevoEstado === 'Denegado') {
-        const razonSelect = document.getElementById('razonDenegacion');
-        const otroMotivo = document.getElementById('otroMotivo');
-        let razonFinal = razonSelect.value === 'otro' ?
-          otroMotivo.value.trim() :
-          razonSelect.options[razonSelect.selectedIndex].text;
-        formData.append('razon', razonFinal);
-      }
+  // Debug
+  console.log('Enviando datos:', {
+    id: id,
+    estado: nuevoEstado,
+    razon: formData.get('razon')
+  });
 
-      // Debug
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-
-      fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Respuesta del servidor:', data); // Debug
-          if (data.success) {
-            cargarDatos(); // Recargar la tabla
-            mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
-
-            // Cerrar el modal
-            const modalElement = document.getElementById('confirmacionModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-              modal.hide();
+  fetch('filtros.php', {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Cerrar el modal correctamente
+        const modalElement = document.getElementById('confirmacionModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+          modal.hide();
+          modalElement.addEventListener('hidden.bs.modal', function () {
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+              backdrop.remove();
             }
-          } else {
-            mostrarNotificacion('Error: ' + (data.message || 'Error desconocido'), 'danger');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          mostrarNotificacion('Error al procesar la solicitud', 'danger');
-        });
-    }
+          }, {
+            once: true
+          });
+        }
+
+        // Recargar datos y mostrar notificación
+        cargarTodosLosDatos();
+        mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+      } else {
+        mostrarNotificacion('Error: ' + (data.message || 'Error desconocido'), 'danger');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      mostrarNotificacion('Error al procesar la solicitud', 'danger');
+    });
+}
 
     function mostrarNotificacion(mensaje, tipo) {
       const notification = document.createElement('div');
@@ -339,93 +348,6 @@ verificarSesion();
         notification.remove();
       }, 3000);
     }
-
-    function cargarDatos() {
-      fetch("dash1.php")
-        .then(response => response.json())
-        .then(data => {
-          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
-          tabla.innerHTML = '';
-
-          if (!Array.isArray(data) || data.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
-            return;
-          }
-
-          data.forEach(usuario => {
-            let fila = tabla.insertRow();
-
-            // Solo mostrar botones si el estado es Pendiente
-            const botonesHTML = usuario.estado === 'Pendiente' ? `
-              <div class="d-flex gap-2">
-                  <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
-                     Aprobar
-                  </button>
-                  <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
-                      Denegar
-                  </button>
-              </div>
-          ` : '';
-
-            fila.innerHTML = `
-              <td class="align-middle">${usuario.id_plaza}</td>
-              <td class="align-middle">${usuario.nombre}</td>
-              <td class="align-middle">${usuario.apellido}</td>
-              <td class="align-middle">${usuario.segundo_apellido || ''}</td>
-              <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
-              <td class="align-middle">${usuario.localidad || ''}</td>
-              <td class="align-middle">${usuario.sector || ''}</td>
-              <td class="align-middle">${usuario.direccion || ''}</td>
-              <td class="align-middle">${usuario.escuela_anterior || ''}</td>
-              <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
-              <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
-              <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
-              <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
-              <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
-              <td class="align-middle">
-                ${usuario.acta_nacimiento_pdf ?
-                  `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
-                    onclick="return confirm('¿Desea abrir el PDF?')">
-                    <i class="fas fa-file-pdf"></i> Ver Acta
-                  </a>`
-                  : 'No disponible'}
-              </td>
-              <td class="align-middle">
-                ${usuario.record_calificaciones ?
-                  `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
-                    onclick="return confirm('¿Desea abrir el PDF?')">
-                    <i class="fas fa-file-pdf"></i> Ver Record
-                  </a>`
-                  : 'No disponible'}
-              </td>
-              <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
-                  ${usuario.estado || 'Pendiente'}
-              </td>
-               <td class="align-middle">${botonesHTML}</td>
-            `;
-          });
-
-          document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function() {
-              const id = this.getAttribute('data-id');
-              mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
-            });
-          });
-
-          document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function() {
-              const id = this.getAttribute('data-id');
-              mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
-            });
-          });
-        })
-        .catch(error => {
-          console.error("Error al cargar los datos:", error);
-          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
-          tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
-        });
-    }
-
 
     function actualizarEstado(id, nuevoEstado, fila) {
       const formData = new FormData();
@@ -450,9 +372,9 @@ verificarSesion();
       });
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
@@ -461,7 +383,7 @@ verificarSesion();
             const modal = bootstrap.Modal.getInstance(modalElement);
             if (modal) {
               modal.hide();
-              modalElement.addEventListener('hidden.bs.modal', function() {
+              modalElement.addEventListener('hidden.bs.modal', function () {
                 document.body.classList.remove('modal-open');
                 document.querySelector('.modal-backdrop').remove();
               }, {
@@ -470,7 +392,7 @@ verificarSesion();
             }
 
             // Recargar datos y mostrar notificación
-            cargarDatos();
+            cargarTodosLosDatos();
             mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
           } else {
             mostrarNotificacion('Error: ' + (data.message || 'Error desconocido'), 'danger');
@@ -623,7 +545,7 @@ verificarSesion();
     }
 
     // Código para agregar el botón de Excel
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Buscar el elemento "Reporte de datos" de manera más precisa
       const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
 
@@ -642,40 +564,30 @@ verificarSesion();
       }
     });
 
-   
+
 
     // Función modificada de cargarDatos
-    function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
-      fetch("dash1.php")
-        .then(response => response.json())
-        .then(data => {
-          const totalPaginas = Math.ceil(data.length / registrosPorPagina);
-          const datosPaginados = paginarDatos(data, paginaActual, registrosPorPagina);
+    function cargarTodosLosDatos(paginaActual = 1, registrosPorPagina = 50) {
+      fetch("todas.php")
+    .then(response => response.json())
+    .then(data => {
+      const totalPaginas = Math.ceil(data.length / registrosPorPagina);
+      const datosPaginados = paginarDatos(data, paginaActual, registrosPorPagina);
+      
+      let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
+      tabla.innerHTML = '';
 
-          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
-          tabla.innerHTML = '';
+      if (!Array.isArray(data) || data.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes disponibles</td></tr>';
+        return;
+      }
 
-          if (!Array.isArray(data) || data.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
-            return;
-          }
-
-          datosPaginados.forEach(usuario => {
-            let fila = tabla.insertRow();
-
-            // Solo mostrar botones si el estado es Pendiente
-            const botonesHTML = usuario.estado === 'Pendiente' ? `
-          <div class="d-flex gap-2">
-              <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
-                 Aprobar
-              </button>
-              <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
-                  Denegar
-              </button>
-          </div>
-        ` : '';
-
-            fila.innerHTML = `
+      datosPaginados.forEach(usuario => {
+        const estadoUsuario = usuario.estado || 'Pendiente';
+        const esPendiente = estadoUsuario === 'Pendiente';
+        
+        let fila = tabla.insertRow();
+        fila.innerHTML = `
           <td class="align-middle">${usuario.id_plaza}</td>
           <td class="align-middle">${usuario.nombre}</td>
           <td class="align-middle">${usuario.apellido}</td>
@@ -706,37 +618,55 @@ verificarSesion();
               </a>`
               : 'No disponible'}
           </td>
-          <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
-              ${usuario.estado || 'Pendiente'}
+          <td class="align-middle fw-bold estado ${estadoUsuario ? 'estado-' + estadoUsuario.toLowerCase() : 'estado-pendiente'}">
+            ${estadoUsuario}
           </td>
-          <td class="align-middle">${botonesHTML}</td>
+          <td class="align-middle">
+            ${usuario.motivo_denegacion ? usuario.motivo_denegacion : 'No especificado'}
+          </td>
+          <td class="align-middle">
+            ${esPendiente ? `
+              <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
+                <i class="fas fa-check"></i> Aprobar
+              </button>
+              <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
+                <i class="fas fa-times"></i> Denegar
+              </button>
+            ` : ''}
+          </td>
         `;
-          });
+      });
 
           // Crear los botones de paginación con callback
-          crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
-            cargarDatos(newPage, registrosPorPagina);
+            crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
+            cargarTodosLosDatos(newPage, registrosPorPagina);
+          });
+           
+          // Agregar event listeners a los botones después de crear las filas
+          document.querySelectorAll('.btn-aprobar').forEach(btn => {
+            btn.addEventListener('click', function () {
+              const id = this.getAttribute('data-id');
+              actualizarEstado(id, 'Aprobado', this.closest('tr'));
+            });
           });
 
-          // Reenlazar los event listeners para los botones de aprobar/denegar
-          document.querySelectorAll('.btn-aprobar, .btn-denegar').forEach(btn => {
-            const tipo = btn.classList.contains('btn-aprobar') ? 'Aprobado' : 'Denegado';
-            btn.addEventListener('click', function() {
+          document.querySelectorAll('.btn-denegar').forEach(btn => {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
-              mostrarModalConfirmacion(id, tipo, this.closest('tr'));
+              actualizarEstado(id, 'Denegado', this.closest('tr'));
             });
           });
         })
         .catch(error => {
           console.error("Error al cargar los datos:", error);
-          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
+          let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
         });
     }
 
     // Iniciar la carga de datos con la primera página
     document.addEventListener('DOMContentLoaded', () => {
-      cargarDatos(1, 50);
+      cargarTodosLosDatos(1, 50);
     });
   </script>
 </body>

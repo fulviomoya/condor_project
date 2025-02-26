@@ -153,10 +153,10 @@ verificarSesion();
   <script>
     // Actualización del script.js
     document.addEventListener("DOMContentLoaded", function() {
-      cargarDatos();
+      cargarDatosAprobados();
     });
 
-    function cargarDatos() {
+    function cargarDatosAprobados() {
       fetch("si.php")
         .then(response => response.json())
         .then(data => {
@@ -226,7 +226,7 @@ verificarSesion();
                   const estadoCell = fila.querySelector('.estado');
                   estadoCell.textContent = nuevoEstado;
                   estadoCell.className = `estado estado-${nuevoEstado.toLowerCase()}`;
-                  cargarDatos(); // Recargar la tabla
+                  cargarDatosAprobados(); // Recargar la tabla
                   alert(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`);
                 } else {
                   alert('Error al actualizar el estado: ' + (data.message || 'Error desconocido'));
@@ -538,7 +538,7 @@ function crearBotonesPaginacion(totalPaginas, paginaActual, callback) {
 }
 
 // Función modificada de cargarDatos
-function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
+function cargarDatosDenegados(paginaActual = 1, registrosPorPagina = 50) {
   fetch("no.php")
     .then(response => response.json())
     .then(data => {
@@ -597,7 +597,7 @@ function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
 
       // Crear los botones de paginación con callback
       crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
-        cargarDatos(newPage, registrosPorPagina);
+        cargarDatosDenegados(newPage, registrosPorPagina);
       });
     })
     .catch(error => {
@@ -608,8 +608,9 @@ function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
 }
 
 // Iniciar la carga de datos cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-  cargarDatos(1, 50); // Mostrar 10 registros por página
+document.addEventListener("DOMContentLoaded", function() {
+  cargarDatosAprobados();
+  cargarDatosDenegados(1, 50);
 });
   </script>
 </body>

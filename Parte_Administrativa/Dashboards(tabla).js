@@ -1,7 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.querySelector('.input-group input[type="text"]');
   const table = document.getElementById('tablaUsuarios');
-  const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+  
+
+  document.addEventListener('DOMContentLoaded', function() {
+  let tabla = document.getElementById('tablaTodosUsuarios');
+  if (tabla) {
+    let tbody = tabla.getElementsByTagName('tbody')[0];
+    // Your code here
+  } else {
+    console.error("El elemento con el ID 'tablaTodosUsuarios' no se encontró en el DOM.");
+  }
+});
 
   function filterTable(searchTerm) {
     searchTerm = searchTerm.toLowerCase().trim();

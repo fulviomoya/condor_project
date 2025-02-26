@@ -1,8 +1,6 @@
 <?php
 require_once 'verificar_sesion.php';
 verificarSesion();
-
-
 ?>
 
 
@@ -25,6 +23,7 @@ verificarSesion();
 
 <body>
   <div class="d-flex">
+    <!-- Mantenemos el sidebar exactamente igual -->
     <div class="sidebar p-4 vh-100">
       <h4 class="text-center">
         <img src="IMG/LOGO.png" alt="Logo" class="img-fluid">
@@ -32,7 +31,7 @@ verificarSesion();
       <ul class="nav flex-column">
         <div class="advance">
           <li class="nav-item">
-            <a class="nav-link text-dark" href="Dashboard.html">
+            <a class="nav-link text-dark" href="Dashboard.php">
               <i class="fa-solid fa-home"></i>Inicio
             </a>
           </li>
@@ -105,45 +104,244 @@ verificarSesion();
       </div>
 
       <div class="table-container">
-        <table class="table table-striped table-hover" id="tablaUsuarios">
-          <thead>
-            <tr>
-              <th>ID de acta</th>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Segundo Apellido</th>
-              <th>Nombre de los padres</th>
-              <th>Localidad</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="table table-striped table-hover" id="tablaUsuarios">
+            <thead>
+              <tr>
+                <th>ID de plaza</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Segundo Apellido</th>
+                <th>Nombre de los padres</th>
+                <th>Localidad</th>
+                <th>Sector</th>
+                <th>Dirección Actual</th>
+                <th>Escuela Anterior</th>
+                <th>Fecha de nacimiento</th>
+                <th>Ocupación de los padres</th>
+                <th>Tipo de Familia</th>
+                <th>Teléfono de contacto</th>
+                <th>Correo Electrónico</th>
+                <th>Acta de nacimiento</th>
+                <th>Record de notas</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- El contenido se llenará dinámicamente con JavaScript -->
+            </tbody>
+          </table>
+        </div>
 
         <nav>
           <ul class="pagination justify-content-end">
             <li class="page-item"><a class="page-link" href="#">1</a></li>
             <li class="page-item"><a class="page-link" href="#">2</a></li>
             <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+            <li class="page-item"><a class="page-link" href="#">Siguientes</a></li>
           </ul>
         </nav>
       </div>
     </div>
   </div>
 
+  <!-- Modal de confirmación actualizado -->
+  <div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmacionModalLabel">Confirmación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Contenido para Aprobar -->
+          <div id="aprobarContent" style="display: none;">
+            <p>¿Estás seguro que quieres aprobar esta solicitud?</p>
+          </div>
+
+          <!-- Contenido actualizado para Denegar -->
+          <div id="denegarContent" style="display: none;">
+            <p class="mb-3">¿Por qué deniega esta solicitud?</p>
+            <select class="form-select" id="razonDenegacion" required>
+              <option value="" disabled selected>Seleccione una razón</option>
+              <option value="localidad">Por la Localidad</option>
+              <option value="edad">Por la Edad</option>
+              <option value="historial_academico">Por el Historial Academico</option>
+              <option value="otro">Otra Razon</option>
+            </select>
+            <div id="otroMotivoContainer" style="display: none;" class="mt-3">
+              <textarea id="otroMotivo" class="form-control" placeholder="Especifique el motivo" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarAccion">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+
   <script src="Dashboards(tabla).js"></script>
 
 
-
-
   <script>
+    // Variables globales actualizadas
+    let idSolicitud = null;
+    let estadoSolicitud = "";
+    let filaSeleccionada = null;
+
     document.addEventListener("DOMContentLoaded", function() {
+      cargarDatos();
+
+      // Event listener para el cambio de razón
+      document.getElementById('razonDenegacion').addEventListener('change', function() {
+        const otroMotivoContainer = document.getElementById('otroMotivoContainer');
+        if (this.value === 'otro') {
+          otroMotivoContainer.style.display = 'block';
+        } else {
+          otroMotivoContainer.style.display = 'none';
+        }
+        this.classList.remove('is-invalid');
+        const errorDiv = document.getElementById('errorRazon');
+        if (errorDiv) errorDiv.remove();
+      });
+    });
+
+    function mostrarModalConfirmacion(id, estado, fila) {
+      idSolicitud = id;
+      estadoSolicitud = estado;
+      filaSeleccionada = fila;
+
+      const aprobarContent = document.getElementById("aprobarContent");
+      const denegarContent = document.getElementById("denegarContent");
+      const btnConfirmar = document.getElementById("btnConfirmarAccion");
+      const otroMotivoContainer = document.getElementById("otroMotivoContainer");
+
+      if (estado === 'Aprobado') {
+        aprobarContent.style.display = 'block';
+        denegarContent.style.display = 'none';
+        btnConfirmar.classList.remove('btn-danger');
+        btnConfirmar.classList.add('btn-success');
+      } else {
+        aprobarContent.style.display = 'none';
+        denegarContent.style.display = 'block';
+        btnConfirmar.classList.remove('btn-success');
+        btnConfirmar.classList.add('btn-danger');
+        document.getElementById('razonDenegacion').value = '';
+        otroMotivoContainer.style.display = 'none';
+        document.getElementById('otroMotivo').value = '';
+      }
+
+      let modal = new bootstrap.Modal(document.getElementById('confirmacionModal'));
+      modal.show();
+    }
+
+    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
+      if (estadoSolicitud === 'Denegado') {
+        const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+
+        if (!razonSelect.value) {
+          razonSelect.classList.add('is-invalid');
+          if (!document.getElementById('errorRazon')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'errorRazon';
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = 'Por favor, seleccione una razón para denegar';
+            razonSelect.parentNode.appendChild(errorDiv);
+          }
+          return;
+        }
+
+        if (razonSelect.value === 'otro' && !otroMotivo.value.trim()) {
+          otroMotivo.classList.add('is-invalid');
+          if (!document.getElementById('errorOtroMotivo')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'errorOtroMotivo';
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = 'Por favor, especifique el motivo';
+            otroMotivo.parentNode.appendChild(errorDiv);
+          }
+          return;
+        }
+      }
+
+      actualizarEstado(idSolicitud, estadoSolicitud, filaSeleccionada);
+      let modal = bootstrap.Modal.getInstance(document.getElementById('confirmacionModal'));
+      modal.hide();
+    });
+
+    function actualizarEstado(id, nuevoEstado, fila) {
+      // Debug para ver qué ID se está enviando
+      console.log('ID a actualizar:', id);
+
+      const formData = new FormData();
+      formData.append('id', id.toString()); // Asegúrate que el ID se envíe como string
+      formData.append('estado', nuevoEstado);
+
+      if (nuevoEstado === 'Denegado') {
+        const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+        let razonFinal = razonSelect.value === 'otro' ?
+          otroMotivo.value.trim() :
+          razonSelect.options[razonSelect.selectedIndex].text;
+        formData.append('razon', razonFinal);
+      }
+
+      // Debug
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
+      fetch('filtros.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Respuesta del servidor:', data); // Debug
+          if (data.success) {
+            cargarDatos(); // Recargar la tabla
+            mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+
+            // Cerrar el modal
+            const modalElement = document.getElementById('confirmacionModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+              modal.hide();
+            }
+          } else {
+            mostrarNotificacion('Error: ' + (data.message || 'Error desconocido'), 'danger');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          mostrarNotificacion('Error al procesar la solicitud', 'danger');
+        });
+    }
+
+    function mostrarNotificacion(mensaje, tipo) {
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${tipo} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+      notification.style.zIndex = '1050';
+      notification.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    function cargarDatos() {
       fetch("dash1.php")
         .then(response => response.json())
         .then(data => {
@@ -151,117 +349,221 @@ verificarSesion();
           tabla.innerHTML = '';
 
           if (!Array.isArray(data) || data.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="8" class="text-center">No hay solicitudes pendientes</td></tr>';
+            tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
             return;
           }
 
           data.forEach(usuario => {
-            if (usuario.id_plaza) { // Verifica que el usuario tiene ID válido
-              let fila = tabla.insertRow();
-              fila.innerHTML = `
-                        <td>${usuario.id_plaza}</td>
-                        <td>${usuario.nombre}</td>
-                        <td>${usuario.apellido}</td>
-                        <td>${usuario.segundo_apellido || ''}</td>
-                        <td>${usuario.nombre_padres || 'No registrado'}</td>
-                        <td>${usuario.localidad || ''}</td>
-                        <td class="estado estado-pendiente">Pendiente</td>
-                        <td class="align-middle">
-                            <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-success btn-sm btn-aprobar">Aprobar</button>
-                                <button class="btn btn-danger btn-sm btn-denegar">Denegar</button>
-                            </div>
-                        </td>
-                    `;
+            let fila = tabla.insertRow();
 
-              // Agregar eventos a los botones de la fila
-              agregarEventosBotones(fila);
-            }
+            // Solo mostrar botones si el estado es Pendiente
+            const botonesHTML = usuario.estado === 'Pendiente' ? `
+              <div class="d-flex gap-2">
+                  <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
+                     Aprobar
+                  </button>
+                  <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
+                      Denegar
+                  </button>
+              </div>
+          ` : '';
+
+            fila.innerHTML = `
+              <td class="align-middle">${usuario.id_plaza}</td>
+              <td class="align-middle">${usuario.nombre}</td>
+              <td class="align-middle">${usuario.apellido}</td>
+              <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+              <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+              <td class="align-middle">${usuario.localidad || ''}</td>
+              <td class="align-middle">${usuario.sector || ''}</td>
+              <td class="align-middle">${usuario.direccion || ''}</td>
+              <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+              <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+              <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+              <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+              <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+              <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+              <td class="align-middle">
+                ${usuario.acta_nacimiento_pdf ?
+                  `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                    onclick="return confirm('¿Desea abrir el PDF?')">
+                    <i class="fas fa-file-pdf"></i> Ver Acta
+                  </a>`
+                  : 'No disponible'}
+              </td>
+              <td class="align-middle">
+                ${usuario.record_calificaciones ?
+                  `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                    onclick="return confirm('¿Desea abrir el PDF?')">
+                    <i class="fas fa-file-pdf"></i> Ver Record
+                  </a>`
+                  : 'No disponible'}
+              </td>
+              <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
+                  ${usuario.estado || 'Pendiente'}
+              </td>
+               <td class="align-middle">${botonesHTML}</td>
+            `;
+          });
+
+          document.querySelectorAll('.btn-aprobar').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
+            });
+          });
+
+          document.querySelectorAll('.btn-denegar').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
+            });
           });
         })
-        .catch(error => console.error("Error al obtener los usuarios: ", error));
-    });
-
-    function agregarEventosBotones(fila) {
-      const btnAprobar = fila.querySelector('.btn-aprobar');
-      const btnDenegar = fila.querySelector('.btn-denegar');
-      const estado = fila.querySelector('.estado');
-
-      btnAprobar.addEventListener('click', function() {
-        if (estado.textContent.trim() === 'Pendiente' && confirm('¿Está seguro que desea aprobar esta solicitud?')) {
-          estado.textContent = 'Aprobado';
-          estado.classList.remove('estado-pendiente');
-          estado.classList.add('estado-aprobado');
-          btnAprobar.style.display = 'none';
-          btnDenegar.style.display = 'none';
-        }
-      });
-
-      btnDenegar.addEventListener('click', function() {
-        if (estado.textContent.trim() === 'Pendiente' && confirm('¿Está seguro que desea denegar esta solicitud?')) {
-          estado.textContent = 'Denegado';
-          estado.classList.remove('estado-pendiente');
-          estado.classList.add('estado-denegado');
-          btnAprobar.style.display = 'none';
-          btnDenegar.style.display = 'none';
-        }
-      });
+        .catch(error => {
+          console.error("Error al cargar los datos:", error);
+          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
+          tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
+        });
     }
 
-    // Función para agregar el botón de Excel
-    document.addEventListener('DOMContentLoaded', function() {
-      // Encontrar el elemento de "Reporte de datos" en el sidebar
-      const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').parentElement;
 
-      // Crear el botón de Excel
-      const excelButton = document.createElement('li');
-      excelButton.className = 'nav-item';
-      excelButton.innerHTML = `
-    <a class="nav-link text-dark" href="#" id="btnExportExcel">
-      <i class="fas fa-file-excel" style="color: #217346;"></i> Exportar Excel
-    </a>
-  `;
+    function actualizarEstado(id, nuevoEstado, fila) {
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('estado', nuevoEstado);
 
-      // Insertar el botón después del elemento "Reporte de datos"
-      reporteLink.parentNode.insertBefore(excelButton, reporteLink.nextSibling);
+      // Agregar razón si es denegado
+      if (nuevoEstado === 'Denegado') {
+        const razonSelect = document.getElementById('razonDenegacion');
+        const otroMotivo = document.getElementById('otroMotivo');
+        let razonFinal = razonSelect.value === 'otro' ?
+          otroMotivo.value.trim() :
+          razonSelect.options[razonSelect.selectedIndex].text;
+        formData.append('razon', razonFinal);
+      }
 
-      // Agregar el evento click al botón
-      document.getElementById('btnExportExcel').addEventListener('click', function(e) {
-        e.preventDefault();
-        downloadExcel();
+      // Debug
+      console.log('Enviando datos:', {
+        id: id,
+        estado: nuevoEstado,
+        razon: formData.get('razon')
       });
-    });
 
-    // Función para exportar a Excel
+      fetch('filtros.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Cerrar el modal correctamente
+            const modalElement = document.getElementById('confirmacionModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+              modal.hide();
+              modalElement.addEventListener('hidden.bs.modal', function() {
+                document.body.classList.remove('modal-open');
+                document.querySelector('.modal-backdrop').remove();
+              }, {
+                once: true
+              });
+            }
+
+            // Recargar datos y mostrar notificación
+            cargarDatos();
+            mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+          } else {
+            mostrarNotificacion('Error: ' + (data.message || 'Error desconocido'), 'danger');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          mostrarNotificacion('Error al procesar la solicitud', 'danger');
+        });
+    }
+
+
     function downloadExcel() {
       const table = document.getElementById('tablaUsuarios');
       const rows = Array.from(table.querySelectorAll('tr'));
 
-      // Filtrar los encabezados excluyendo la columna de Acciones
-      const headers = Array.from(rows[0].querySelectorAll('th'))
-        .map(th => th.textContent.trim())
-        .filter(header => header !== 'Acciones');
+      // Mapeo correcto basado en los encabezados reales de tu tabla
+      const headerMapping = {
+        'ID de plaza': 'ID de plaza',
+        'Nombre': 'Nombre del Estudiante',
+        'Apellido': 'Primer Apellido',
+        'Segundo Apellido': 'Segundo Apellido',
+        'Nombre de los padres': 'Nombre de los Tutores',
+        'Localidad': 'Localidad de Residencia',
+        'Sector': 'Sector',
+        'Dirección Actual': 'Domicilio Actual',
+        'Escuela Anterior': 'Centro Educativo Anterior',
+        'Fecha de nacimiento': 'Fecha de Nacimiento',
+        'Ocupación de los padres': 'Ocupación de los Tutores',
+        'Tipo de Familia': 'Tipo de familia',
+        'Teléfono de contacto': 'Teléfono para Contacto',
+        'Correo Electrónico': 'Correo Electrónico de Contacto',
+        'Acta de nacimiento': 'Acta de nacimiento',
+        'Estado': 'Estado de la Solicitud'
+      };
 
-      const workbookData = [headers];
+      // Obtener los encabezados originales
+      const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
+        .slice(0, -1) // Excluir la columna de Acciones
+        .map(th => th.textContent.trim());
 
-      // Obtener los datos de las filas
+      // Transformar los encabezados usando el mapeo
+      const newHeaders = originalHeaders.map(header =>
+        headerMapping[header] || header // Si no existe en el mapeo, mantiene el original
+      );
+
+      // Preparar los datos para Excel con los nuevos headers
+      const workbookData = [
+        newHeaders
+      ];
+
+      // Datos de las filas
       rows.slice(1).forEach(row => {
-        const cells = Array.from(row.querySelectorAll('td'));
-        // Excluir la última columna (Acciones)
-        const rowData = cells.slice(0, -1).map(cell => cell.textContent.trim());
+        const rowData = Array.from(row.querySelectorAll('td'))
+          .slice(0, -1) // Excluir la columna de Acciones
+          .map((cell, index) => {
+            let value = cell.textContent.trim();
+
+            // Si es la columna de fecha de nacimiento (índice 9)
+            if (index === 9 && value) {
+              const date = new Date(value);
+              if (!isNaN(date)) {
+                value = date.toLocaleDateString('es-ES');
+              }
+            }
+
+            // Si es la columna de acta de nacimiento (índice 14)
+            if (index === 14) {
+              const pdfLink = cell.querySelector('a');
+              value = pdfLink ? 'Disponible' : 'No disponible';
+            }
+
+            // Si es la columna de estado (índice 15)
+            if (index === 15) {
+              return value || 'Pendiente';
+            }
+
+            return value || '';
+          });
         workbookData.push(rowData);
       });
 
-      // Crear la hoja de Excel
+      // Crear libro de trabajo
       const ws = XLSX.utils.aoa_to_sheet(workbookData);
 
       // Establecer anchos de columna
-      const columnWidths = headers.map(header => ({
+      const columnWidths = newHeaders.map(header => ({
         wch: Math.max(header.length, 15)
       }));
       ws['!cols'] = columnWidths;
 
-      // Aplicar estilos
+      // Dar formato a las celdas
       for (let i = 0; i < workbookData.length; i++) {
         for (let j = 0; j < workbookData[i].length; j++) {
           const cellRef = XLSX.utils.encode_cell({
@@ -269,8 +571,8 @@ verificarSesion();
             c: j
           });
 
+          // Dar formato al encabezado
           if (i === 0) {
-            // Estilo para encabezados
             ws[cellRef].s = {
               font: {
                 bold: true,
@@ -290,14 +592,14 @@ verificarSesion();
             };
           }
 
-          // Estilo para la columna de Estado
-          if (j === 6 && i > 0) {
+          // Dar formato a las celdas de estado
+          if (j === 15 && i > 0) {
             const estado = workbookData[i][j].toLowerCase();
             let fillColor = "FFFFFF";
 
-            if (estado === 'aprobado') fillColor = "C6EFCE";
-            else if (estado === 'denegado') fillColor = "FFC7CE";
-            else if (estado === 'pendiente') fillColor = "FFEB9C";
+            if (estado === 'Aprobado') fillColor = "C6EFCE";
+            else if (estado === 'Denegado') fillColor = "FFC7CE";
+            else if (estado === 'Pendiente') fillColor = "FFEB9C";
 
             ws[cellRef].s = {
               fill: {
@@ -310,80 +612,132 @@ verificarSesion();
         }
       }
 
-      // Crear y descargar el archivo
+      // Crear libro y agregar la hoja
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
 
+      // Generar el archivo
       const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
       const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
-
       XLSX.writeFile(wb, fileName);
+
     }
 
-    // Función de búsqueda
+    // Código para agregar el botón de Excel
     document.addEventListener('DOMContentLoaded', function() {
-      const searchInput = document.querySelector('.input-group input[type="text"]');
-      const table = document.getElementById('tablaUsuarios');
-      const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+      // Buscar el elemento "Reporte de datos" de manera más precisa
+      const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
 
-      function filterTable(searchTerm) {
-        searchTerm = searchTerm.toLowerCase().trim();
+      // Crear el nuevo elemento para el botón de Excel
+      const excelButton = document.createElement('li');
+      excelButton.className = 'nav-item';
+      excelButton.innerHTML = `
+        <a class="nav-link text-dark" href="#" onclick="downloadExcel(); return false;">
+            <i class="fas fa-file-excel" style="color: #217346;"></i> Exportar Excel
+        </a>
+    `;
 
-        Array.from(rows).forEach(row => {
-          const cells = Array.from(row.getElementsByTagName('td'));
+      // Insertar el botón después del elemento "Reporte de datos"
+      if (reporteLink) {
+        reporteLink.parentNode.insertBefore(excelButton, reporteLink.nextSibling);
+      }
+    });
 
-          if (searchTerm === '') {
-            row.style.display = '';
-            cells.forEach(cell => {
-              // No restaurar el HTML de la celda si contiene botones
-              if (!cell.querySelector('.btn')) {
-                cell.innerHTML = cell.textContent;
-              }
-            });
+   
+
+    // Función modificada de cargarDatos
+    function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
+      fetch("dash1.php")
+        .then(response => response.json())
+        .then(data => {
+          const totalPaginas = Math.ceil(data.length / registrosPorPagina);
+          const datosPaginados = paginarDatos(data, paginaActual, registrosPorPagina);
+
+          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
+          tabla.innerHTML = '';
+
+          if (!Array.isArray(data) || data.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
             return;
           }
 
-          const found = cells.some(cell => {
-            const text = cell.textContent.toLowerCase();
-            return text.includes(searchTerm);
+          datosPaginados.forEach(usuario => {
+            let fila = tabla.insertRow();
+
+            // Solo mostrar botones si el estado es Pendiente
+            const botonesHTML = usuario.estado === 'Pendiente' ? `
+          <div class="d-flex gap-2">
+              <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
+                 Aprobar
+              </button>
+              <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
+                  Denegar
+              </button>
+          </div>
+        ` : '';
+
+            fila.innerHTML = `
+          <td class="align-middle">${usuario.id_plaza}</td>
+          <td class="align-middle">${usuario.nombre}</td>
+          <td class="align-middle">${usuario.apellido}</td>
+          <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+          <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+          <td class="align-middle">${usuario.localidad || ''}</td>
+          <td class="align-middle">${usuario.sector || ''}</td>
+          <td class="align-middle">${usuario.direccion || ''}</td>
+          <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+          <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+          <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+          <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+          <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+          <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+          <td class="align-middle">
+            ${usuario.acta_nacimiento_pdf ?
+              `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                onclick="return confirm('¿Desea abrir el PDF?')">
+                <i class="fas fa-file-pdf"></i> Ver Acta
+              </a>`
+              : 'No disponible'}
+          </td>
+          <td class="align-middle">
+            ${usuario.record_calificaciones ?
+              `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                onclick="return confirm('¿Desea abrir el PDF?')">
+                <i class="fas fa-file-pdf"></i> Ver Record
+              </a>`
+              : 'No disponible'}
+          </td>
+          <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
+              ${usuario.estado || 'Pendiente'}
+          </td>
+          <td class="align-middle">${botonesHTML}</td>
+        `;
           });
 
-          if (found) {
-            row.style.display = '';
-            cells.forEach(cell => {
-              // Si la celda contiene botones, no modificar su HTML
-              if (!cell.querySelector('.btn')) {
-                const text = cell.textContent;
-                if (text.toLowerCase().includes(searchTerm)) {
-                  const regex = new RegExp(`(${searchTerm})`, 'gi');
-                  const highlightedText = text.replace(regex, '<span class="highlight">$1</span>');
-                  cell.innerHTML = highlightedText;
-                } else {
-                  cell.innerHTML = text;
-                }
-              }
+          // Crear los botones de paginación con callback
+          crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
+            cargarDatos(newPage, registrosPorPagina);
+          });
+
+          // Reenlazar los event listeners para los botones de aprobar/denegar
+          document.querySelectorAll('.btn-aprobar, .btn-denegar').forEach(btn => {
+            const tipo = btn.classList.contains('btn-aprobar') ? 'Aprobado' : 'Denegado';
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              mostrarModalConfirmacion(id, tipo, this.closest('tr'));
             });
-          } else {
-            row.style.display = 'none';
-          }
+          });
+        })
+        .catch(error => {
+          console.error("Error al cargar los datos:", error);
+          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
+          tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
         });
-      }
+    }
 
-      // Agregar el botón de limpiar búsqueda
-      const searchContainer = searchInput.parentElement;
-      const clearButton = document.createElement('button');
-      clearButton.className = 'btn btn-outline-secondary';
-
-      clearButton.addEventListener('click', () => {
-        searchInput.value = '';
-        filterTable('');
-        clearButton.style.display = 'none';
-      });
-
-      searchInput.addEventListener('input', (e) => {
-        filterTable(e.target.value);
-        clearButton.style.display = e.target.value ? '' : 'none';
-      });
+    // Iniciar la carga de datos con la primera página
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarDatos(1, 50);
     });
   </script>
 </body>
