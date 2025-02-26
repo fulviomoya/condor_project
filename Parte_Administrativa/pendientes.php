@@ -611,7 +611,7 @@ verificarSesion();
    
 
     // Función modificada de cargarDatos
-    function cargarDatos(paginaActual = 1, registrosPorPagina = 1) {
+    function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
       fetch("dash1.php")
         .then(response => response.json())
         .then(data => {
@@ -702,7 +702,7 @@ verificarSesion();
 
     // Iniciar la carga de datos con la primera página
     document.addEventListener('DOMContentLoaded', () => {
-      cargarDatos(1, 1);
+      cargarDatos(1, 50);
     });
   </script>
 </body>
