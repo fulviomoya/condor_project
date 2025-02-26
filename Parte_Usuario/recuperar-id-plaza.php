@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             Recuperar ID de Plaza
                         </h2>
                         <div class="recuperar-desc">
-                            <small>Al ingresar el ID de acta de nacimiento de su hijo se consultará en nuestros sistemas para recuperar el código de la solicitud correspondiente.</small>
+                            <small>Las inscripcciones han finalizado. Al ingresar el ID de acta de nacimiento de su hijo se consultará en nuestros sistemas para recuperar el código de la solicitud correspondiente.</small>
                         </div>
                     </div>
                     <div class="campos">

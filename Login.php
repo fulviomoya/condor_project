@@ -41,22 +41,22 @@
     <script src="Validacion.js"></script>
 
     <script>
-        function verificarHorario() {
-            const ahora = new Date();
-            const hora = ahora.getHours();
-            const minutos = ahora.getMinutes();
+        // function verificarHorario() {
+        //     const ahora = new Date();
+        //     const hora = ahora.getHours();
+        //     const minutos = ahora.getMinutes();
 
-            // Si son las 4:00 PM (16:00) o más tarde
-            if (hora >= 16) {
-                window.location.href = 'mensaje.html';
-            }
-        }
+        //     // Si son las 4:00 PM (16:00) o más tarde
+        //     if (hora >= 16) {
+        //         window.location.href = 'mensaje.html';
+        //     }
+        // }
 
-        // Verificar cada minuto
-        setInterval(verificarHorario, 60000);
+        // // Verificar cada minuto
+        // setInterval(verificarHorario, 60000);
 
-        // Verificar inmediatamente al cargar la página
-        verificarHorario();
+        // // Verificar inmediatamente al cargar la página
+        // verificarHorario();
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar si hay datos del formulario en sessionStorage
             const formularioData = sessionStorage.getItem('formularioData');

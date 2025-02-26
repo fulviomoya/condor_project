@@ -1,3 +1,10 @@
+<?php
+// Añadir al principio de Form1.php e index.php
+session_start();
+header("Location: Parte_Usuario/recuperar-id-plaza.php");
+exit();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -184,7 +191,7 @@
 
                 <div class="button-container">
                     <button onclick="previousPage()" class="btn btn-back">Volver</button>
-                    <a href="Parte_Usuario/Form1.php" class="btn btn-form">Ir al formulario</a>
+                    <a href="Parte_Usuario/recuperar-id-plaza.php">Recuperar ID de Plaza</a>
                 </div>
             </div>
 
@@ -230,22 +237,14 @@
     </div>
 
     <script>
-        // function verificarHorario() {
-        //     const ahora = new Date();
-        //     const hora = ahora.getHours();
-        //     const minutos = ahora.getMinutes();
+        function verificarHorario() {
+            // Redirigir directamente a la página de recuperación de ID
+            window.location.href = 'Parte_Usuario/recuperar-id-plaza.php';
+        }
 
-        //     // Si son las 4:00 PM (16:00) o más tarde
-        //     if (hora >= 16) {
-        //         window.location.href = 'mensaje.html';
-        //     }
-        // }
+        // Verificar inmediatamente al cargar la página
+        verificarHorario();
 
-        // // Verificar cada minuto
-        // setInterval(verificarHorario, 60000);
-
-        // // Verificar inmediatamente al cargar la página
-        // verificarHorario();
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar si hay datos del formulario en sessionStorage
             const formularioData = sessionStorage.getItem('formularioData');
