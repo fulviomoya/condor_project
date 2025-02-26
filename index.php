@@ -246,7 +246,7 @@ exit();
         verificarHorario();
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar si hay datos del formulario en sessionStorage
+             //Verificar si hay datos del formulario en sessionStorage
             const formularioData = sessionStorage.getItem('formularioData');
             if (formularioData) {
                 const data = JSON.parse(formularioData);
