@@ -538,7 +538,7 @@ function crearBotonesPaginacion(totalPaginas, paginaActual, callback) {
 }
 
 // Función modificada de cargarDatos
-function cargarDatosDenegados(paginaActual = 1, registrosPorPagina = 50) {
+function cargarDatosDenegados(paginaActual = 1, registroPorPagina = 50) {
   fetch("no.php")
     .then(response => response.json())
     .then(data => {

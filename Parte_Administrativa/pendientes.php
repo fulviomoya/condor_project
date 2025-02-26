@@ -485,10 +485,11 @@ verificarSesion();
 
 
     function downloadExcel() {
-      const table = document.getElementById('tablaUsuarios');
-      const rows = Array.from(table.querySelectorAll('tr'));
-
-      // Mapeo correcto basado en los encabezados reales de tu tabla
+  // Se obtiene la información completa desde el servidor
+  fetch("dash1.php")
+    .then(response => response.json())
+    .then(data => {
+      // Mapeo de encabezados para el Excel
       const headerMapping = {
         'ID de plaza': 'ID de plaza',
         'Nombre': 'Nombre del Estudiante',
@@ -508,120 +509,84 @@ verificarSesion();
         'Estado': 'Estado de la Solicitud'
       };
 
-      // Obtener los encabezados originales
-      const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
-        .slice(0, -1) // Excluir la columna de Acciones
-        .map(th => th.textContent.trim());
+      // Se crean los encabezados basándose en el mapeo
+      const newHeaders = Object.values(headerMapping);
+      const workbookData = [newHeaders];
 
-      // Transformar los encabezados usando el mapeo
-      const newHeaders = originalHeaders.map(header =>
-        headerMapping[header] || header // Si no existe en el mapeo, mantiene el original
-      );
-
-      // Preparar los datos para Excel con los nuevos headers
-      const workbookData = [
-        newHeaders
-      ];
-
-      // Datos de las filas
-      rows.slice(1).forEach(row => {
-        const rowData = Array.from(row.querySelectorAll('td'))
-          .slice(0, -1) // Excluir la columna de Acciones
-          .map((cell, index) => {
-            let value = cell.textContent.trim();
-
-            // Si es la columna de fecha de nacimiento (índice 9)
-            if (index === 9 && value) {
-              const date = new Date(value);
-              if (!isNaN(date)) {
-                value = date.toLocaleDateString('es-ES');
-              }
-            }
-
-            // Si es la columna de acta de nacimiento (índice 14)
-            if (index === 14) {
-              const pdfLink = cell.querySelector('a');
-              value = pdfLink ? 'Disponible' : 'No disponible';
-            }
-
-            // Si es la columna de estado (índice 15)
-            if (index === 15) {
-              return value || 'Pendiente';
-            }
-
-            return value || '';
-          });
+      // Se recorre cada registro obtenido
+      data.forEach(usuario => {
+        const rowData = [
+          usuario.id_plaza,
+          usuario.nombre,
+          usuario.apellido,
+          usuario.segundo_apellido || '',
+          usuario.nombre_padres ? usuario.nombre_padres : 'No registrado',
+          usuario.localidad || '',
+          usuario.sector || '',
+          usuario.direccion || '',
+          usuario.escuela_anterior || '',
+          usuario.fecha_nacimiento || '',
+          usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado',
+          usuario.tipo_familia ? usuario.tipo_familia : 'No registrado',
+          usuario.telefono ? usuario.telefono : 'No registrado',
+          usuario.correo ? usuario.correo : 'No registrado',
+          usuario.acta_nacimiento_pdf ? 'Disponible' : 'No disponible',
+          usuario.estado || 'Pendiente'
+        ];
         workbookData.push(rowData);
       });
 
-      // Crear libro de trabajo
+      // Crear la hoja de Excel a partir de los datos
       const ws = XLSX.utils.aoa_to_sheet(workbookData);
 
-      // Establecer anchos de columna
+      // Configurar anchos de columna
       const columnWidths = newHeaders.map(header => ({
         wch: Math.max(header.length, 15)
       }));
       ws['!cols'] = columnWidths;
 
-      // Dar formato a las celdas
+      // Dar formato a las celdas (encabezados y celda de estado)
       for (let i = 0; i < workbookData.length; i++) {
         for (let j = 0; j < workbookData[i].length; j++) {
-          const cellRef = XLSX.utils.encode_cell({
-            r: i,
-            c: j
-          });
+          const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
 
-          // Dar formato al encabezado
+          // Formato para el encabezado
           if (i === 0) {
             ws[cellRef].s = {
-              font: {
-                bold: true,
-                color: {
-                  rgb: "FFFFFF"
-                }
-              },
-              fill: {
-                fgColor: {
-                  rgb: "4472C4"
-                }
-              },
-              alignment: {
-                horizontal: "center",
-                vertical: "center"
-              }
+              font: { bold: true, color: { rgb: "FFFFFF" } },
+              fill: { fgColor: { rgb: "4472C4" } },
+              alignment: { horizontal: "center", vertical: "center" }
             };
           }
 
-          // Dar formato a las celdas de estado
+          // Dar formato a la celda de estado (columna 15, índice 15)
           if (j === 15 && i > 0) {
-            const estado = workbookData[i][j].toLowerCase();
+            const estado = String(workbookData[i][j]).toLowerCase();
             let fillColor = "FFFFFF";
-
-            if (estado === 'Aprobado') fillColor = "C6EFCE";
-            else if (estado === 'Denegado') fillColor = "FFC7CE";
-            else if (estado === 'Pendiente') fillColor = "FFEB9C";
+            if (estado === 'aprobado') fillColor = "C6EFCE";
+            else if (estado === 'denegado') fillColor = "FFC7CE";
+            else if (estado === 'pendiente') fillColor = "FFEB9C";
 
             ws[cellRef].s = {
-              fill: {
-                fgColor: {
-                  rgb: fillColor
-                }
-              }
+              fill: { fgColor: { rgb: fillColor } }
             };
           }
         }
       }
 
-      // Crear libro y agregar la hoja
+      // Crear el libro y agregar la hoja
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
 
-      // Generar el archivo
+      // Generar el archivo Excel con un nombre basado en la fecha actual
       const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
       const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
       XLSX.writeFile(wb, fileName);
-
-    }
+    })
+    .catch(error => {
+      console.error("Error al descargar Excel:", error);
+    });
+}
 
     // Código para agregar el botón de Excel
     document.addEventListener('DOMContentLoaded', function() {
@@ -646,7 +611,7 @@ verificarSesion();
    
 
     // Función modificada de cargarDatos
-    function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
+    function cargarDatos(paginaActual = 1, registrosPorPagina = 1) {
       fetch("dash1.php")
         .then(response => response.json())
         .then(data => {
@@ -737,7 +702,7 @@ verificarSesion();
 
     // Iniciar la carga de datos con la primera página
     document.addEventListener('DOMContentLoaded', () => {
-      cargarDatos(1, 50);
+      cargarDatos(1, 1);
     });
   </script>
 </body>

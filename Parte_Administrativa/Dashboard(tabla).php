@@ -406,10 +406,19 @@ verificarSesion();
 
 
     function downloadExcel() {
-      const table = document.getElementById('tablaUsuarios');
-      const rows = Array.from(table.querySelectorAll('tr'));
-
-      // Mapeo correcto basado en los encabezados reales de tu tabla
+  // Mostrar un indicador de carga
+  mostrarNotificacion('Preparando la exportación de datos...', 'info');
+  
+  // Obtener todos los datos del servidor
+  fetch("todas.php")
+    .then(response => response.json())
+    .then(data => {
+      if (!Array.isArray(data) || data.length === 0) {
+        mostrarNotificacion('No hay datos para exportar', 'warning');
+        return;
+      }
+      
+      // Definir mapeo de encabezados para Excel
       const headerMapping = {
         'ID de plaza': 'ID de plaza',
         'Nombre': 'Nombre del Estudiante',
@@ -426,124 +435,122 @@ verificarSesion();
         'Teléfono de contacto': 'Teléfono para Contacto',
         'Correo Electrónico': 'Correo Electrónico de Contacto',
         'Acta de nacimiento': 'Acta de nacimiento',
-        'Estado': 'Estado de la Solicitud'
+        'Record de notas': 'Record de Calificaciones',
+        'Estado': 'Estado de la Solicitud',
+        'Motivo': 'Motivo de Denegación'
       };
-
-      // Obtener los encabezados originales
-      const originalHeaders = Array.from(rows[0].querySelectorAll('th'))
+      
+      // Obtener los encabezados de la tabla
+      const table = document.getElementById('tablaTodosUsuarios');
+      const originalHeaders = Array.from(table.querySelectorAll('thead th'))
         .slice(0, -1) // Excluir la columna de Acciones
         .map(th => th.textContent.trim());
-
+      
       // Transformar los encabezados usando el mapeo
       const newHeaders = originalHeaders.map(header =>
-        headerMapping[header] || header // Si no existe en el mapeo, mantiene el original
+        headerMapping[header] || header
       );
-
-      // Preparar los datos para Excel con los nuevos headers
-      const workbookData = [
-        newHeaders
-      ];
-
-      // Datos de las filas
-      rows.slice(1).forEach(row => {
-        const rowData = Array.from(row.querySelectorAll('td'))
-          .slice(0, -1) // Excluir la columna de Acciones
-          .map((cell, index) => {
-            let value = cell.textContent.trim();
-
-            // Si es la columna de fecha de nacimiento (índice 9)
-            if (index === 9 && value) {
-              const date = new Date(value);
-              if (!isNaN(date)) {
-                value = date.toLocaleDateString('es-ES');
-              }
-            }
-
-            // Si es la columna de acta de nacimiento (índice 14)
-            if (index === 14) {
-              const pdfLink = cell.querySelector('a');
-              value = pdfLink ? 'Disponible' : 'No disponible';
-            }
-
-            // Si es la columna de estado (índice 15)
-            if (index === 15) {
-              return value || 'Pendiente';
-            }
-
-            return value || '';
-          });
+      
+      // Preparar los datos para Excel
+      const workbookData = [newHeaders];
+      
+      // Procesar todos los datos recuperados del servidor
+      data.forEach(usuario => {
+        const rowData = [];
+        
+        // Agregar cada valor en el orden correcto
+        rowData.push(usuario.id_plaza || '');
+        rowData.push(usuario.nombre || '');
+        rowData.push(usuario.apellido || '');
+        rowData.push(usuario.segundo_apellido || '');
+        rowData.push(usuario.nombre_padres || 'No registrado');
+        rowData.push(usuario.localidad || '');
+        rowData.push(usuario.sector || '');
+        rowData.push(usuario.direccion || '');
+        rowData.push(usuario.escuela_anterior || '');
+        
+        // Formatear fecha si existe
+        let fechaNacimiento = usuario.fecha_nacimiento || '';
+        if (fechaNacimiento) {
+          const date = new Date(fechaNacimiento);
+          if (!isNaN(date)) {
+            fechaNacimiento = date.toLocaleDateString('es-ES');
+          }
+        }
+        rowData.push(fechaNacimiento);
+        
+        rowData.push(usuario.ocupacion_padres || 'No registrado');
+        rowData.push(usuario.tipo_familia || 'No registrado');
+        rowData.push(usuario.telefono || 'No registrado');
+        rowData.push(usuario.correo || 'No registrado');
+        rowData.push(usuario.acta_nacimiento_pdf ? 'Disponible' : 'No disponible');
+        rowData.push(usuario.record_calificaciones ? 'Disponible' : 'No disponible');
+        rowData.push(usuario.estado || 'Pendiente');
+        rowData.push(usuario.motivo_denegacion || '');
+        
         workbookData.push(rowData);
       });
-
-      // Crear libro de trabajo
+      
+      // Crear hoja de trabajo
       const ws = XLSX.utils.aoa_to_sheet(workbookData);
-
+      
       // Establecer anchos de columna
       const columnWidths = newHeaders.map(header => ({
         wch: Math.max(header.length, 15)
       }));
       ws['!cols'] = columnWidths;
-
+      
       // Dar formato a las celdas
       for (let i = 0; i < workbookData.length; i++) {
         for (let j = 0; j < workbookData[i].length; j++) {
-          const cellRef = XLSX.utils.encode_cell({
-            r: i,
-            c: j
-          });
-
-          // Dar formato al encabezado
+          const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
+          
+          // Crear el objeto de celda si no existe
+          if (!ws[cellRef]) {
+            ws[cellRef] = { v: workbookData[i][j] };
+          }
+          
+          // Formato para encabezados
           if (i === 0) {
             ws[cellRef].s = {
-              font: {
-                bold: true,
-                color: {
-                  rgb: "FFFFFF"
-                }
-              },
-              fill: {
-                fgColor: {
-                  rgb: "4472C4"
-                }
-              },
-              alignment: {
-                horizontal: "center",
-                vertical: "center"
-              }
+              font: { bold: true, color: { rgb: "FFFFFF" } },
+              fill: { fgColor: { rgb: "4472C4" } },
+              alignment: { horizontal: "center", vertical: "center" }
             };
           }
-
-          // Dar formato a las celdas de estado
-          if (j === 15 && i > 0) {
-            const estado = workbookData[i][j].toLowerCase();
+          
+          // Formato para estado
+          if (j === 16 && i > 0) { // Columna de Estado
+            const estado = (workbookData[i][j] || '').toLowerCase();
             let fillColor = "FFFFFF";
-
-            if (estado === 'Aprobado') fillColor = "C6EFCE";
-            else if (estado === 'Denegado') fillColor = "FFC7CE";
-            else if (estado === 'Pendiente') fillColor = "FFEB9C";
-
+            
+            if (estado === 'aprobado') fillColor = "C6EFCE";
+            else if (estado === 'denegado') fillColor = "FFC7CE";
+            else if (estado === 'pendiente') fillColor = "FFEB9C";
+            
             ws[cellRef].s = {
-              fill: {
-                fgColor: {
-                  rgb: fillColor
-                }
-              }
+              fill: { fgColor: { rgb: fillColor } }
             };
           }
         }
       }
-
+      
       // Crear libro y agregar la hoja
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
-
+      
       // Generar el archivo
       const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
-      const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
+      const fileName = `Reporte_Admisiones_Completo_${timestamp}.xlsx`;
+      
       XLSX.writeFile(wb, fileName);
-
-    }
-
+      mostrarNotificacion('Exportación completada con éxito', 'success');
+    })
+    .catch(error => {
+      console.error('Error al exportar datos:', error);
+      mostrarNotificacion('Error al exportar datos', 'danger');
+    });
+}
     // Código para agregar el botón de Excel
     document.addEventListener('DOMContentLoaded', function () {
       // Buscar el elemento "Reporte de datos" de manera más precisa
@@ -566,108 +573,453 @@ verificarSesion();
 
 
 
-    // Función modificada de cargarDatos
-    function cargarTodosLosDatos(paginaActual = 1, registrosPorPagina = 50) {
-      fetch("todas.php")
+    // Variables globales
+let datosCompletos = []; // Para almacenar todos los datos recuperados del servidor
+let datosFiltrados = []; // Para almacenar resultados de búsqueda
+let paginaActual = 1;
+let registrosPorPagina = 50;
+
+document.addEventListener("DOMContentLoaded", function () {
+  cargarDatosCompletos();
+  
+  // Configurar el evento de búsqueda
+  const searchInput = document.querySelector('.form-control[placeholder="Buscar"]');
+  searchInput.addEventListener('input', function() {
+    paginaActual = 1; // Resetear a la primera página al buscar
+    buscarRegistros(this.value);
+  });
+  
+  // Event listener para el cambio de razón
+  document.getElementById('razonDenegacion').addEventListener('change', function () {
+    const otroMotivoContainer = document.getElementById('otroMotivoContainer');
+    if (this.value === 'otro') {
+      otroMotivoContainer.style.display = 'block';
+    } else {
+      otroMotivoContainer.style.display = 'none';
+    }
+    this.classList.remove('is-invalid');
+    const errorDiv = document.getElementById('errorRazon');
+    if (errorDiv) errorDiv.remove();
+  });
+});
+
+// Función para cargar todos los datos
+function cargarDatosCompletos() {
+  mostrarNotificacion('Cargando datos...', 'info');
+  
+  fetch("todas.php")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error en la respuesta del servidor: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      datosCompletos = data;
+      datosFiltrados = [...data]; // Inicialmente, los datos filtrados son todos los datos
+      mostrarDatosPaginados(paginaActual);
+    })
+    .catch(error => {
+      console.error("Error al cargar los datos completos:", error);
+      mostrarNotificacion('Error al cargar los datos: ' + error.message, 'danger');
+    });
+}
+
+// Función para buscar registros
+function buscarRegistros(termino) {
+  if (!termino.trim()) {
+    // Si el término de búsqueda está vacío, mostrar todos los datos
+    datosFiltrados = [...datosCompletos];
+  } else {
+    // Convertir el término a minúsculas para búsqueda sin distinción de mayúsculas
+    termino = termino.toLowerCase();
+    
+    // Filtrar los datos según el término de búsqueda
+    datosFiltrados = datosCompletos.filter(usuario => {
+      // Buscar en todos los campos relevantes
+      return Object.keys(usuario).some(key => {
+        // Verificar que el valor existe y es una cadena o número antes de buscar
+        const valor = usuario[key];
+        if (valor !== null && valor !== undefined) {
+          return String(valor).toLowerCase().includes(termino);
+        }
+        return false;
+      });
+    });
+  }
+  
+  // Actualizar la paginación con los resultados filtrados
+  mostrarDatosPaginados(1); // Siempre volver a la primera página después de una búsqueda
+}
+
+// Función para mostrar datos paginados
+function mostrarDatosPaginados(pagina) {
+  paginaActual = pagina; // Actualizar la variable global
+  
+  const totalPaginas = Math.ceil(datosFiltrados.length / registrosPorPagina);
+  // Asegurar que la página actual es válida
+  if (paginaActual < 1) paginaActual = 1;
+  if (paginaActual > totalPaginas && totalPaginas > 0) paginaActual = totalPaginas;
+  
+  const inicio = (paginaActual - 1) * registrosPorPagina;
+  const fin = Math.min(inicio + registrosPorPagina, datosFiltrados.length);
+  const datosPagina = datosFiltrados.slice(inicio, fin);
+  
+  actualizarTabla(datosPagina);
+  actualizarPaginacion(totalPaginas, paginaActual);
+}
+
+// Función para actualizar la tabla con los datos proporcionados
+function actualizarTabla(datos) {
+  let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
+  tabla.innerHTML = '';
+
+  if (!Array.isArray(datos) || datos.length === 0) {
+    tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes que coincidan con la búsqueda</td></tr>';
+    return;
+  }
+
+  datos.forEach(usuario => {
+    const estadoUsuario = usuario.estado || 'Pendiente';
+    const esPendiente = estadoUsuario === 'Pendiente';
+    
+    let fila = tabla.insertRow();
+    fila.innerHTML = `
+      <td class="align-middle">${usuario.id_plaza || ''}</td>
+      <td class="align-middle">${usuario.nombre || ''}</td>
+      <td class="align-middle">${usuario.apellido || ''}</td>
+      <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+      <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+      <td class="align-middle">${usuario.localidad || ''}</td>
+      <td class="align-middle">${usuario.sector || ''}</td>
+      <td class="align-middle">${usuario.direccion || ''}</td>
+      <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+      <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+      <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+      <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+      <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+      <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+      <td class="align-middle">
+        ${usuario.acta_nacimiento_pdf ?
+          `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+            onclick="return confirm('¿Desea abrir el PDF?')">
+            <i class="fas fa-file-pdf"></i> Ver Acta
+          </a>`
+          : 'No disponible'}
+      </td>
+      <td class="align-middle">
+        ${usuario.record_calificaciones ?
+          `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+            onclick="return confirm('¿Desea abrir el PDF?')">
+            <i class="fas fa-file-pdf"></i> Ver Record
+          </a>`
+          : 'No disponible'}
+      </td>
+      <td class="align-middle fw-bold estado ${estadoUsuario ? 'estado-' + estadoUsuario.toLowerCase() : 'estado-pendiente'}">
+        ${estadoUsuario}
+      </td>
+      <td class="align-middle">
+        ${usuario.motivo_denegacion ? usuario.motivo_denegacion : ''}
+      </td>
+      
+    `;
+  });
+}
+
+// Función para actualizar la paginación
+function actualizarPaginacion(totalPaginas, paginaActual) {
+  const paginacion = document.querySelector('.pagination');
+  paginacion.innerHTML = '';
+  
+  // No mostrar paginación si no hay páginas
+  if (totalPaginas === 0) return;
+  
+  // Botón anterior
+  const prevLi = document.createElement('li');
+  prevLi.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+  const prevA = document.createElement('a');
+  prevA.className = 'page-link';
+  prevA.href = '#';
+  prevA.innerHTML = '&laquo; Anterior';
+  prevA.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (paginaActual > 1) {
+      mostrarDatosPaginados(paginaActual - 1);
+    }
+  });
+  prevLi.appendChild(prevA);
+  paginacion.appendChild(prevLi);
+  
+  // Determinar rango de páginas a mostrar
+  let startPage = Math.max(1, paginaActual - 2);
+  let endPage = Math.min(totalPaginas, startPage + 4);
+  
+  if (endPage - startPage < 4 && totalPaginas > 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+  
+  // Páginas numéricas
+  for (let i = startPage; i <= endPage; i++) {
+    const li = document.createElement('li');
+    li.className = `page-item ${i === paginaActual ? 'active' : ''}`;
+    const a = document.createElement('a');
+    a.className = 'page-link';
+    a.href = '#';
+    a.textContent = i;
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      mostrarDatosPaginados(i);
+    });
+    li.appendChild(a);
+    paginacion.appendChild(li);
+  }
+  
+  // Botón siguiente
+  const nextLi = document.createElement('li');
+  nextLi.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+  const nextA = document.createElement('a');
+  nextA.className = 'page-link';
+  nextA.href = '#';
+  nextA.innerHTML = 'Siguiente &raquo;';
+  nextA.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (paginaActual < totalPaginas) {
+      mostrarDatosPaginados(paginaActual + 1);
+    }
+  });
+  nextLi.appendChild(nextA);
+  paginacion.appendChild(nextLi);
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo) {
+  const notification = document.createElement('div');
+  notification.className = `alert alert-${tipo} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+  notification.style.zIndex = '1050';
+  notification.innerHTML = `
+    ${mensaje}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+
+// Función actualizada para procesar actualizaciones de estado
+function actualizarEstado(id, nuevoEstado, fila) {
+  const formData = new FormData();
+  formData.append('id', id);
+  formData.append('estado', nuevoEstado);
+
+  // Agregar razón si es denegado
+  if (nuevoEstado === 'Denegado') {
+    const razonSelect = document.getElementById('razonDenegacion');
+    const otroMotivo = document.getElementById('otroMotivo');
+    
+    if (!razonSelect.value) {
+      mostrarNotificacion('Por favor seleccione una razón para denegar', 'warning');
+      return;
+    }
+    
+    let razonFinal = razonSelect.value === 'otro' ?
+      otroMotivo.value.trim() :
+      razonSelect.options[razonSelect.selectedIndex].text;
+      
+    if (razonSelect.value === 'otro' && !razonFinal) {
+      mostrarNotificacion('Por favor especifique el motivo', 'warning');
+      return;
+    }
+    
+    formData.append('razon', razonFinal);
+  }
+
+  fetch('filtros.php', {
+    method: 'POST',
+    body: formData
+  })
     .then(response => response.json())
     .then(data => {
-      const totalPaginas = Math.ceil(data.length / registrosPorPagina);
-      const datosPaginados = paginarDatos(data, paginaActual, registrosPorPagina);
-      
-      let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
-      tabla.innerHTML = '';
+      if (data.success) {
+        // Cerrar el modal correctamente
+        const modalElement = document.getElementById('confirmacionModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+          modal.hide();
+          modalElement.addEventListener('hidden.bs.modal', function () {
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+          }, { once: true });
+        }
 
+        // Recargar datos completos para mantener sincronizado
+        cargarDatosCompletos();
+        mostrarNotificacion(`Solicitud ${nuevoEstado.toLowerCase()} exitosamente`, 'success');
+      } else {
+        mostrarNotificacion('Error: ' + (data.message || 'Error desconocido'), 'danger');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      mostrarNotificacion('Error al procesar la solicitud', 'danger');
+    });
+}
+
+// Función para exportar a Excel
+function downloadExcel() {
+  // Mostrar un indicador de carga
+  mostrarNotificacion('Preparando la exportación de datos...', 'info');
+  
+  // Obtener todos los datos del servidor
+  fetch("todas.php")
+    .then(response => response.json())
+    .then(data => {
       if (!Array.isArray(data) || data.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes disponibles</td></tr>';
+        mostrarNotificacion('No hay datos para exportar', 'warning');
         return;
       }
-
-      datosPaginados.forEach(usuario => {
-        const estadoUsuario = usuario.estado || 'Pendiente';
-        const esPendiente = estadoUsuario === 'Pendiente';
+      
+      // Definir mapeo de encabezados para Excel
+      const headerMapping = {
+        'ID de plaza': 'ID de plaza',
+        'Nombre': 'Nombre del Estudiante',
+        'Apellido': 'Primer Apellido',
+        'Segundo Apellido': 'Segundo Apellido',
+        'Nombre de los padres': 'Nombre de los Tutores',
+        'Localidad': 'Localidad de Residencia',
+        'Sector': 'Sector',
+        'Dirección Actual': 'Domicilio Actual',
+        'Escuela Anterior': 'Centro Educativo Anterior',
+        'Fecha de nacimiento': 'Fecha de Nacimiento',
+        'Ocupación de los padres': 'Ocupación de los Tutores',
+        'Tipo de Familia': 'Tipo de familia',
+        'Teléfono de contacto': 'Teléfono para Contacto',
+        'Correo Electrónico': 'Correo Electrónico de Contacto',
+        'Acta de nacimiento': 'Acta de nacimiento',
+        'Record de notas': 'Record de Calificaciones',
+        'Estado': 'Estado de la Solicitud',
+        'Motivo': 'Motivo de Denegación'
+      };
+      
+      // Obtener los encabezados de la tabla
+      const table = document.getElementById('tablaTodosUsuarios');
+      const originalHeaders = Array.from(table.querySelectorAll('thead th'))
+        .slice(0, -1) // Excluir la columna de Acciones
+        .map(th => th.textContent.trim());
+      
+      // Transformar los encabezados usando el mapeo
+      const newHeaders = originalHeaders.map(header =>
+        headerMapping[header] || header
+      );
+      
+      // Preparar los datos para Excel
+      const workbookData = [newHeaders];
+      
+      // Procesar todos los datos recuperados del servidor
+      data.forEach(usuario => {
+        const rowData = [];
         
-        let fila = tabla.insertRow();
-        fila.innerHTML = `
-          <td class="align-middle">${usuario.id_plaza}</td>
-          <td class="align-middle">${usuario.nombre}</td>
-          <td class="align-middle">${usuario.apellido}</td>
-          <td class="align-middle">${usuario.segundo_apellido || ''}</td>
-          <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
-          <td class="align-middle">${usuario.localidad || ''}</td>
-          <td class="align-middle">${usuario.sector || ''}</td>
-          <td class="align-middle">${usuario.direccion || ''}</td>
-          <td class="align-middle">${usuario.escuela_anterior || ''}</td>
-          <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
-          <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
-          <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
-          <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
-          <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
-          <td class="align-middle">
-            ${usuario.acta_nacimiento_pdf ?
-              `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
-                onclick="return confirm('¿Desea abrir el PDF?')">
-                <i class="fas fa-file-pdf"></i> Ver Acta
-              </a>`
-              : 'No disponible'}
-          </td>
-          <td class="align-middle">
-            ${usuario.record_calificaciones ?
-              `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
-                onclick="return confirm('¿Desea abrir el PDF?')">
-                <i class="fas fa-file-pdf"></i> Ver Record
-              </a>`
-              : 'No disponible'}
-          </td>
-          <td class="align-middle fw-bold estado ${estadoUsuario ? 'estado-' + estadoUsuario.toLowerCase() : 'estado-pendiente'}">
-            ${estadoUsuario}
-          </td>
-          <td class="align-middle">
-            ${usuario.motivo_denegacion ? usuario.motivo_denegacion : 'No especificado'}
-          </td>
-          <td class="align-middle">
-            ${esPendiente ? `
-              <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
-                <i class="fas fa-check"></i> Aprobar
-              </button>
-              <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
-                <i class="fas fa-times"></i> Denegar
-              </button>
-            ` : ''}
-          </td>
-        `;
+        // Agregar cada valor en el orden correcto
+        rowData.push(usuario.id_plaza || '');
+        rowData.push(usuario.nombre || '');
+        rowData.push(usuario.apellido || '');
+        rowData.push(usuario.segundo_apellido || '');
+        rowData.push(usuario.nombre_padres || 'No registrado');
+        rowData.push(usuario.localidad || '');
+        rowData.push(usuario.sector || '');
+        rowData.push(usuario.direccion || '');
+        rowData.push(usuario.escuela_anterior || '');
+        
+        // Formatear fecha si existe
+        let fechaNacimiento = usuario.fecha_nacimiento || '';
+        if (fechaNacimiento) {
+          const date = new Date(fechaNacimiento);
+          if (!isNaN(date)) {
+            fechaNacimiento = date.toLocaleDateString('es-ES');
+          }
+        }
+        rowData.push(fechaNacimiento);
+        
+        rowData.push(usuario.ocupacion_padres || 'No registrado');
+        rowData.push(usuario.tipo_familia || 'No registrado');
+        rowData.push(usuario.telefono || 'No registrado');
+        rowData.push(usuario.correo || 'No registrado');
+        rowData.push(usuario.acta_nacimiento_pdf ? 'Disponible' : 'No disponible');
+        rowData.push(usuario.record_calificaciones ? 'Disponible' : 'No disponible');
+        rowData.push(usuario.estado || 'Pendiente');
+        rowData.push(usuario.motivo_denegacion || '');
+        
+        workbookData.push(rowData);
       });
-
-          // Crear los botones de paginación con callback
-            crearBotonesPaginacion(totalPaginas, paginaActual, (newPage) => {
-            cargarTodosLosDatos(newPage, registrosPorPagina);
-          });
-           
-          // Agregar event listeners a los botones después de crear las filas
-          document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function () {
-              const id = this.getAttribute('data-id');
-              actualizarEstado(id, 'Aprobado', this.closest('tr'));
-            });
-          });
-
-          document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function () {
-              const id = this.getAttribute('data-id');
-              actualizarEstado(id, 'Denegado', this.closest('tr'));
-            });
-          });
-        })
-        .catch(error => {
-          console.error("Error al cargar los datos:", error);
-          let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
-          tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
-        });
-    }
-
-    // Iniciar la carga de datos con la primera página
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarTodosLosDatos(1, 50);
+      
+      // Crear hoja de trabajo
+      const ws = XLSX.utils.aoa_to_sheet(workbookData);
+      
+      // Establecer anchos de columna
+      const columnWidths = newHeaders.map(header => ({
+        wch: Math.max(header.length, 15)
+      }));
+      ws['!cols'] = columnWidths;
+      
+      // Dar formato a las celdas
+      for (let i = 0; i < workbookData.length; i++) {
+        for (let j = 0; j < workbookData[i].length; j++) {
+          const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
+          
+          // Crear el objeto de celda si no existe
+          if (!ws[cellRef]) {
+            ws[cellRef] = { v: workbookData[i][j] };
+          }
+          
+          // Formato para encabezados
+          if (i === 0) {
+            ws[cellRef].s = {
+              font: { bold: true, color: { rgb: "FFFFFF" } },
+              fill: { fgColor: { rgb: "4472C4" } },
+              alignment: { horizontal: "center", vertical: "center" }
+            };
+          }
+          
+          // Formato para estado
+          if (j === 16 && i > 0) { // Columna de Estado
+            const estado = (workbookData[i][j] || '').toLowerCase();
+            let fillColor = "FFFFFF";
+            
+            if (estado === 'aprobado') fillColor = "C6EFCE";
+            else if (estado === 'denegado') fillColor = "FFC7CE";
+            else if (estado === 'pendiente') fillColor = "FFEB9C";
+            
+            ws[cellRef].s = {
+              fill: { fgColor: { rgb: fillColor } }
+            };
+          }
+        }
+      }
+      
+      // Crear libro y agregar la hoja
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
+      
+      // Generar el archivo
+      const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+      const fileName = `Reporte_Admisiones_Completo_${timestamp}.xlsx`;
+      
+      XLSX.writeFile(wb, fileName);
+      mostrarNotificacion('Exportación completada con éxito', 'success');
+    })
+    .catch(error => {
+      console.error('Error al exportar datos:', error);
+      mostrarNotificacion('Error al exportar datos', 'danger');
     });
+}
+
+// Alias para mantener compatibilidad con llamadas existentes
+function cargarTodosLosDatos() {
+  cargarDatosCompletos();
+}
   </script>
 </body>
 
