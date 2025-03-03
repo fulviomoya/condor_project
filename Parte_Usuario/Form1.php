@@ -1,7 +1,7 @@
 <?php
 // Añadir al principio de Form1.php e index.php
 session_start();
-header("Location: recuperar-id-plaza.php");
+header("Location: Form1.php");
 exit();
 ?>
 <!DOCTYPE html>

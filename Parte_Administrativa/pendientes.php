@@ -115,6 +115,8 @@ verificarSesion();
                 <th>Nombre de los padres</th>
                 <th>Localidad</th>
                 <th>Sector</th>
+                <th>Nacionalidad</th>
+                <th>Grado Solicitado</th>
                 <th>Dirección Actual</th>
                 <th>Escuela Anterior</th>
                 <th>Fecha de nacimiento</th>
@@ -376,6 +378,8 @@ verificarSesion();
               <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
               <td class="align-middle">${usuario.localidad || ''}</td>
               <td class="align-middle">${usuario.sector || ''}</td>
+              <td class="align-middle">${usuario.nacionalidad || ''}</td>
+              <td class="align-middle">${usuario.grado_solicitado || ''}</td>
               <td class="align-middle">${usuario.direccion || ''}</td>
               <td class="align-middle">${usuario.escuela_anterior || ''}</td>
               <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
@@ -498,6 +502,8 @@ verificarSesion();
         'Nombre de los padres': 'Nombre de los Tutores',
         'Localidad': 'Localidad de Residencia',
         'Sector': 'Sector',
+        'nacionalidad': 'Nacionalidad',
+        'grado_solicitado'  : 'Grado Solicitado',
         'Dirección Actual': 'Domicilio Actual',
         'Escuela Anterior': 'Centro Educativo Anterior',
         'Fecha de nacimiento': 'Fecha de Nacimiento',
@@ -523,6 +529,8 @@ verificarSesion();
           usuario.nombre_padres ? usuario.nombre_padres : 'No registrado',
           usuario.localidad || '',
           usuario.sector || '',
+          usuario.nacionalidad || '',
+          usuario.grado_solicitado || '',
           usuario.direccion || '',
           usuario.escuela_anterior || '',
           usuario.fecha_nacimiento || '',
@@ -649,6 +657,8 @@ verificarSesion();
           <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
           <td class="align-middle">${usuario.localidad || ''}</td>
           <td class="align-middle">${usuario.sector || ''}</td>
+          <td class="align-middle">${usuario.nacionalidad || ''}</td>
+          <td class="align-middle">${usuario.grado_solicitado || ''}</td>
           <td class="align-middle">${usuario.direccion || ''}</td>
           <td class="align-middle">${usuario.escuela_anterior || ''}</td>
           <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>

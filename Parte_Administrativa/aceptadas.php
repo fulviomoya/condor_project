@@ -114,6 +114,8 @@ verificarSesion();
                 <th>Nombre de los padres</th>
                 <th>Localidad</th>
                 <th>Sector</th>
+                <th>Nacionalida</th>
+                <th>Grado Solicitado</th>
                 <th>Dirección Actual</th>
                 <th>Escuela Anterior</th>
                 <th>Fecha de nacimiento</th>
@@ -178,6 +180,8 @@ verificarSesion();
                     <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
                     <td class="align-middle">${usuario.localidad || ''}</td>
                     <td class="align-middle">${usuario.sector || ''}</td>
+                    <td class="align-middle">${usuario.nacionalidad || ''}</td>
+                    <td class="align-middle">${usuario.grado_solicitado || ''}</td>
                     <td class="align-middle">${usuario.direccion || ''}</td>
                     <td class="align-middle">${usuario.escuela_anterior || ''}</td>
                     <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
@@ -563,6 +567,8 @@ function cargarDatosDenegados(paginaActual = 1, registroPorPagina = 50) {
           <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
           <td class="align-middle">${usuario.localidad || ''}</td>
           <td class="align-middle">${usuario.sector || ''}</td>
+          <td class="align-middle">${usuario.nacionalidad || ''}</td>
+          <td class="align-middle">${usuario.grado_solicitado || ''}</td>
           <td class="align-middle">${usuario.direccion || ''}</td>
           <td class="align-middle">${usuario.escuela_anterior || ''}</td>
           <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>

@@ -114,6 +114,8 @@ verificarSesion();
                 <th>Nombre de los padres</th>
                 <th>Localidad</th>
                 <th>Sector</th>
+                <th>Nacionalidad</th>
+                <th>grado_solicitado</th>
                 <th>Dirección Actual</th>
                 <th>Escuela Anterior</th>
                 <th>Fecha de nacimiento</th>
@@ -124,7 +126,7 @@ verificarSesion();
                 <th>Acta de nacimiento</th>
                 <th>Record de notas</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+                <th>Motivo de Negación</th>
               </tr>
             </thead>
             <tbody>
@@ -427,6 +429,8 @@ verificarSesion();
         'Nombre de los padres': 'Nombre de los Tutores',
         'Localidad': 'Localidad de Residencia',
         'Sector': 'Sector',
+        'nacionalidad': 'Nacionalidad',
+        'grado_solicitado'  : 'Grado Solicitado',
         'Dirección Actual': 'Domicilio Actual',
         'Escuela Anterior': 'Centro Educativo Anterior',
         'Fecha de nacimiento': 'Fecha de Nacimiento',
@@ -466,6 +470,8 @@ verificarSesion();
         rowData.push(usuario.nombre_padres || 'No registrado');
         rowData.push(usuario.localidad || '');
         rowData.push(usuario.sector || '');
+        rowData.push(usuario.nacionalidad || '');
+        rowData.push(usuario.grado_solicitado || '');
         rowData.push(usuario.direccion || '');
         rowData.push(usuario.escuela_anterior || '');
         
@@ -692,6 +698,8 @@ function actualizarTabla(datos) {
       <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
       <td class="align-middle">${usuario.localidad || ''}</td>
       <td class="align-middle">${usuario.sector || ''}</td>
+      <td class="align-middle">${usuario.nacionalidad || ''}</td>
+      <td class="align-middle">${usuario.grado_solicitado || ''}</td>
       <td class="align-middle">${usuario.direccion || ''}</td>
       <td class="align-middle">${usuario.escuela_anterior || ''}</td>
       <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
@@ -891,6 +899,8 @@ function downloadExcel() {
         'Nombre de los padres': 'Nombre de los Tutores',
         'Localidad': 'Localidad de Residencia',
         'Sector': 'Sector',
+        'nacionalidad': 'Nacionalidad',
+        'grado_solicitado'  : 'Grado Solicitado',
         'Dirección Actual': 'Domicilio Actual',
         'Escuela Anterior': 'Centro Educativo Anterior',
         'Fecha de nacimiento': 'Fecha de Nacimiento',
@@ -930,6 +940,8 @@ function downloadExcel() {
         rowData.push(usuario.nombre_padres || 'No registrado');
         rowData.push(usuario.localidad || '');
         rowData.push(usuario.sector || '');
+        rowData.push(usuario.nacionalidad || '');
+        rowData.push(usuario.grado_solicitado || '');
         rowData.push(usuario.direccion || '');
         rowData.push(usuario.escuela_anterior || '');
         
