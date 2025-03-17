@@ -489,48 +489,65 @@ function actualizarTabla(datos) {
               </div>
           ` : '';
     
-    fila.innerHTML = `
-      <td class="align-middle">${usuario.id_plaza || ''}</td>
-      <td class="align-middle">${usuario.nombre || ''}</td>
-      <td class="align-middle">${usuario.apellido || ''}</td>
-      <td class="align-middle">${usuario.segundo_apellido || ''}</td>
-      <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
-      <td class="align-middle">${usuario.localidad || ''}</td>
-      <td class="align-middle">${usuario.sector || ''}</td>
-      <td class="align-middle">${usuario.nacionalidad || ''}</td>
-      <td class="align-middle">${usuario.grado_solicitado || ''}</td>
-      <td class="align-middle">${usuario.direccion || ''}</td>
-      <td class="align-middle">${usuario.escuela_anterior || ''}</td>
-      <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
-      <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
-      <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
-      <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
-      <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
-      <td class="align-middle">
-        ${usuario.acta_nacimiento_pdf ?
-          `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
-            onclick="return confirm('¿Desea abrir el PDF?')">
-            <i class="fas fa-file-pdf"></i> Ver Acta
-          </a>`
-          : 'No disponible'}
-      </td>
-      <td class="align-middle">
-        ${usuario.record_calificaciones ?
-          `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
-            onclick="return confirm('¿Desea abrir el PDF?')">
-            <i class="fas fa-file-pdf"></i> Ver Record
-          </a>`
-          : 'No disponible'}
-      </td>
-      <td class="align-middle fw-bold estado ${estadoUsuario ? 'estado-' + estadoUsuario.toLowerCase() : 'estado-pendiente'}">
-        ${estadoUsuario}
-      </td>
-      <td class="align-middle">
-        ${usuario.motivo_denegacion ? usuario.motivo_denegacion : ''}
-      </td>
-      
-    `;
-  });
+      fila.innerHTML = `
+              <td class="align-middle">${usuario.id_plaza}</td>
+              <td class="align-middle">${usuario.nombre}</td>
+              <td class="align-middle">${usuario.apellido}</td>
+              <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+              <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+              <td class="align-middle">${usuario.localidad || ''}</td>
+              <td class="align-middle">${usuario.sector || ''}</td>
+              <td class="align-middle">${usuario.nacionalidad || ''}</td>
+              <td class="align-middle">${usuario.grado_solicitado || ''}</td>
+              <td class="align-middle">${usuario.direccion || ''}</td>
+              <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+              <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+              <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+              <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+              <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+              <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+              <td class="align-middle">
+                ${usuario.acta_nacimiento_pdf ?
+                  `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                    onclick="return confirm('¿Desea abrir el PDF?')">
+                    <i class="fas fa-file-pdf"></i> Ver Acta
+                  </a>`
+                  : 'No disponible'}
+              </td>
+              <td class="align-middle">
+                ${usuario.record_calificaciones ?
+                  `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                    onclick="return confirm('¿Desea abrir el PDF?')">
+                    <i class="fas fa-file-pdf"></i> Ver Record
+                  </a>`
+                  : 'No disponible'}
+              </td>
+              <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
+                  ${usuario.estado || 'Pendiente'}
+              </td>
+               <td class="align-middle">${botonesHTML}</td>
+            `;
+          });
+
+          document.querySelectorAll('.btn-aprobar').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
+            });
+          });
+
+          document.querySelectorAll('.btn-denegar').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-id');
+              mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
+            });
+          });
+        })
+        .catch(error => {
+          console.error("Error al cargar los datos:", error);
+          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
+          tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
+        });
 }
 
     function cargarDatos() {
