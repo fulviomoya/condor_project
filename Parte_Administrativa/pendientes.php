@@ -548,7 +548,7 @@ function actualizarTabla(datos) {
           let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
         });
-}
+
 
     function cargarDatos() {
       fetch("dash1.php")
