@@ -380,6 +380,22 @@ verificarSesion();
       }, 3000);
     }
 
+    function mostrarDatosPaginados(pagina) {
+        paginaActual = pagina; // Actualizar la variable global
+        
+        const totalPaginas = Math.ceil(datosFiltrados.length / registrosPorPagina);
+        // Asegurar que la página actual es válida
+        if (paginaActual < 1) paginaActual = 1;
+        if (paginaActual > totalPaginas && totalPaginas > 0) paginaActual = totalPaginas;
+        
+        const inicio = (paginaActual - 1) * registrosPorPagina;
+        const fin = Math.min(inicio + registrosPorPagina, datosFiltrados.length);
+        const datosPagina = datosFiltrados.slice(inicio, fin);
+        
+        actualizarTabla(datosPagina);
+        actualizarPaginacion(totalPaginas, paginaActual);
+    }
+
     function cargarDatos() {
       fetch("dash1.php")
         .then(response => response.json())
