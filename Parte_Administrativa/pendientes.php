@@ -397,6 +397,76 @@ verificarSesion();
         actualizarPaginacion(totalPaginas, paginaActual);
     }
 
+    // Función para actualizar la tabla con los datos proporcionados
+function actualizarTabla(datos) {
+  let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
+  tabla.innerHTML = '';
+
+  if (!Array.isArray(datos) || datos.length === 0) {
+    tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes que coincidan con la búsqueda</td></tr>';
+    return;
+  }
+
+  datos.forEach(usuario => {
+    const estadoUsuario = usuario.estado || 'Pendiente';
+    const esPendiente = estadoUsuario === 'Pendiente';
+
+     const botonesHTML = usuario.estado === 'Pendiente' ? `
+              <div class="d-flex gap-2">
+                  <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
+                     Aprobar
+                  </button>
+                  <button class="btn btn-danger btn-sm btn-denegar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Denegado', this.closest('tr'))">
+                      Denegar
+                  </button>
+              </div>
+          ` : '';
+    
+    let fila = tabla.insertRow();
+    fila.innerHTML = `
+      <td class="align-middle">${usuario.id_plaza || ''}</td>
+      <td class="align-middle">${usuario.nombre || ''}</td>
+      <td class="align-middle">${usuario.apellido || ''}</td>
+      <td class="align-middle">${usuario.segundo_apellido || ''}</td>
+      <td class="align-middle">${usuario.nombre_padres ? usuario.nombre_padres : 'No registrado'}</td>
+      <td class="align-middle">${usuario.localidad || ''}</td>
+      <td class="align-middle">${usuario.sector || ''}</td>
+      <td class="align-middle">${usuario.nacionalidad || ''}</td>
+      <td class="align-middle">${usuario.grado_solicitado || ''}</td>
+      <td class="align-middle">${usuario.direccion || ''}</td>
+      <td class="align-middle">${usuario.escuela_anterior || ''}</td>
+      <td class="align-middle">${usuario.fecha_nacimiento || ''}</td>
+      <td class="align-middle">${usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado'}</td>
+      <td class="align-middle">${usuario.tipo_familia ? usuario.tipo_familia : 'No registrado'}</td>
+      <td class="align-middle">${usuario.telefono ? usuario.telefono : 'No registrado'}</td>
+      <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
+      <td class="align-middle">
+        ${usuario.acta_nacimiento_pdf ?
+          `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+            onclick="return confirm('¿Desea abrir el PDF?')">
+            <i class="fas fa-file-pdf"></i> Ver Acta
+          </a>`
+          : 'No disponible'}
+      </td>
+      <td class="align-middle">
+        ${usuario.record_calificaciones ?
+          `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+            onclick="return confirm('¿Desea abrir el PDF?')">
+            <i class="fas fa-file-pdf"></i> Ver Record
+          </a>`
+          : 'No disponible'}
+      </td>
+      <td class="align-middle fw-bold estado ${estadoUsuario ? 'estado-' + estadoUsuario.toLowerCase() : 'estado-pendiente'}">
+        ${estadoUsuario}
+      </td>
+      <td class="align-middle">
+        ${usuario.motivo_denegacion ? usuario.motivo_denegacion : ''}
+      </td>
+      
+    `;
+  });
+}
+
     function cargarDatos() {
       fetch("dash1.php")
         .then(response => response.json())
