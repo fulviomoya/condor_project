@@ -199,6 +199,7 @@ verificarSesion();
   
     let datosCompletos = []; // Para almacenar todos los datos recuperados del servidor
     let datosFiltrados = []; // Para almacenar resultados de búsqueda
+    let registrosPorPagina = 50;
 
     document.addEventListener("DOMContentLoaded", function() {
       cargarDatos();
