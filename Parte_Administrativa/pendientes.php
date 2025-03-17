@@ -818,6 +818,9 @@ function actualizarTabla(datos) {
           const totalPaginas = Math.ceil(data.length / registrosPorPagina);
           const datosPaginados = paginarDatos(data, paginaActual, registrosPorPagina);
 
+          datosCompletos = datosPaginados;
+          datosFiltrados = [...datosPaginados]; // Inicialmente, los datos filtrados son todos los datos
+          
           let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '';
 
