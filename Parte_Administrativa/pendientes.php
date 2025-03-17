@@ -476,6 +476,8 @@ function actualizarTabla(datos) {
     const estadoUsuario = usuario.estado || 'Pendiente';
     const esPendiente = estadoUsuario === 'Pendiente';
 
+    let fila = tabla.insertRow();
+    
      const botonesHTML = usuario.estado === 'Pendiente' ? `
               <div class="d-flex gap-2">
                   <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
@@ -487,7 +489,6 @@ function actualizarTabla(datos) {
               </div>
           ` : '';
     
-    let fila = tabla.insertRow();
     fila.innerHTML = `
       <td class="align-middle">${usuario.id_plaza || ''}</td>
       <td class="align-middle">${usuario.nombre || ''}</td>
