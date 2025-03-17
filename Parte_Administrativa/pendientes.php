@@ -196,23 +196,23 @@ verificarSesion();
     let idSolicitud = null;
     let estadoSolicitud = "";
     let filaSeleccionada = null;
-  
+
     let datosCompletos = []; // Para almacenar todos los datos recuperados del servidor
     let datosFiltrados = []; // Para almacenar resultados de búsqueda
     let registrosPorPagina = 50;
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
       cargarDatos();
 
       // Configurar el evento de búsqueda
       const searchInput = document.querySelector('.form-control[placeholder="Buscar"]');
-      searchInput.addEventListener('input', function() {
+      searchInput.addEventListener('input', function () {
         paginaActual = 1; // Resetear a la primera página al buscar
         buscarRegistros(this.value);
       });
-      
+
       // Event listener para el cambio de razón
-      document.getElementById('razonDenegacion').addEventListener('change', function() {
+      document.getElementById('razonDenegacion').addEventListener('change', function () {
         const otroMotivoContainer = document.getElementById('otroMotivoContainer');
         if (this.value === 'otro') {
           otroMotivoContainer.style.display = 'block';
@@ -224,7 +224,7 @@ verificarSesion();
         if (errorDiv) errorDiv.remove();
       });
     });
-    
+
     // Función para buscar registros
     function buscarRegistros(termino) {
       if (!termino.trim()) {
@@ -233,7 +233,7 @@ verificarSesion();
       } else {
         // Convertir el término a minúsculas para búsqueda sin distinción de mayúsculas
         termino = termino.toLowerCase();
-        
+
         // Filtrar los datos según el término de búsqueda
         datosFiltrados = datosCompletos.filter(usuario => {
           // Buscar en todos los campos relevantes
@@ -247,7 +247,7 @@ verificarSesion();
           });
         });
       }
-      
+
       // Actualizar la paginación con los resultados filtrados
       mostrarDatosPaginados(1); // Siempre volver a la primera página después de una búsqueda
     }
@@ -281,7 +281,7 @@ verificarSesion();
       modal.show();
     }
 
-    document.getElementById("btnConfirmarAccion").addEventListener("click", function() {
+    document.getElementById("btnConfirmarAccion").addEventListener("click", function () {
       if (estadoSolicitud === 'Denegado') {
         const razonSelect = document.getElementById('razonDenegacion');
         const otroMotivo = document.getElementById('otroMotivo');
@@ -339,9 +339,9 @@ verificarSesion();
       }
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           console.log('Respuesta del servidor:', data); // Debug
@@ -382,103 +382,100 @@ verificarSesion();
     }
 
     function mostrarDatosPaginados(pagina) {
-        paginaActual = pagina; // Actualizar la variable global
-        
-        const totalPaginas = Math.ceil(datosFiltrados.length / registrosPorPagina);
-        // Asegurar que la página actual es válida
-        if (paginaActual < 1) paginaActual = 1;
-        if (paginaActual > totalPaginas && totalPaginas > 0) paginaActual = totalPaginas;
-        
-        const inicio = (paginaActual - 1) * registrosPorPagina;
-        const fin = Math.min(inicio + registrosPorPagina, datosFiltrados.length);
-        const datosPagina = datosFiltrados.slice(inicio, fin);
-        
-        actualizarTabla(datosPagina);
-        actualizarPaginacion(totalPaginas, paginaActual);
+      paginaActual = pagina; // Actualizar la variable global
+
+      const totalPaginas = Math.ceil(datosFiltrados.length / registrosPorPagina);
+      // Asegurar que la página actual es válida
+      if (paginaActual < 1) paginaActual = 1;
+      if (paginaActual > totalPaginas && totalPaginas > 0) paginaActual = totalPaginas;
+
+      const inicio = (paginaActual - 1) * registrosPorPagina;
+      const fin = Math.min(inicio + registrosPorPagina, datosFiltrados.length);
+      const datosPagina = datosFiltrados.slice(inicio, fin);
+
+      actualizarTabla(datosPagina);
+      actualizarPaginacion(totalPaginas, paginaActual);
     }
 
-// Función para actualizar la paginación
-function actualizarPaginacion(totalPaginas, paginaActual) {
-  const paginacion = document.querySelector('.pagination');
-  paginacion.innerHTML = '';
-  
-  // No mostrar paginación si no hay páginas
-  if (totalPaginas === 0) return;
-  
-  // Botón anterior
-  const prevLi = document.createElement('li');
-  prevLi.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
-  const prevA = document.createElement('a');
-  prevA.className = 'page-link';
-  prevA.href = '#';
-  prevA.innerHTML = '&laquo; Anterior';
-  prevA.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (paginaActual > 1) {
-      mostrarDatosPaginados(paginaActual - 1);
+    // Función para actualizar la paginación
+    function actualizarPaginacion(totalPaginas, paginaActual) {
+      const paginacion = document.querySelector('.pagination');
+      paginacion.innerHTML = '';
+
+      // No mostrar paginación si no hay páginas
+      if (totalPaginas === 0) return;
+
+      // Botón anterior
+      const prevLi = document.createElement('li');
+      prevLi.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+      const prevA = document.createElement('a');
+      prevA.className = 'page-link';
+      prevA.href = '#';
+      prevA.innerHTML = '&laquo; Anterior';
+      prevA.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (paginaActual > 1) {
+          mostrarDatosPaginados(paginaActual - 1);
+        }
+      });
+      prevLi.appendChild(prevA);
+      paginacion.appendChild(prevLi);
+
+      // Determinar rango de páginas a mostrar
+      let startPage = Math.max(1, paginaActual - 2);
+      let endPage = Math.min(totalPaginas, startPage + 4);
+
+      if (endPage - startPage < 4 && totalPaginas > 4) {
+        startPage = Math.max(1, endPage - 4);
+      }
+
+      // Páginas numéricas
+      for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === paginaActual ? 'active' : ''}`;
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.href = '#';
+        a.textContent = i;
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          mostrarDatosPaginados(i);
+        });
+        li.appendChild(a);
+        paginacion.appendChild(li);
+      }
+
+      // Botón siguiente
+      const nextLi = document.createElement('li');
+      nextLi.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+      const nextA = document.createElement('a');
+      nextA.className = 'page-link';
+      nextA.href = '#';
+      nextA.innerHTML = 'Siguiente &raquo;';
+      nextA.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (paginaActual < totalPaginas) {
+          mostrarDatosPaginados(paginaActual + 1);
+        }
+      });
+      nextLi.appendChild(nextA);
+      paginacion.appendChild(nextLi);
     }
-  });
-  prevLi.appendChild(prevA);
-  paginacion.appendChild(prevLi);
-  
-  // Determinar rango de páginas a mostrar
-  let startPage = Math.max(1, paginaActual - 2);
-  let endPage = Math.min(totalPaginas, startPage + 4);
-  
-  if (endPage - startPage < 4 && totalPaginas > 4) {
-    startPage = Math.max(1, endPage - 4);
-  }
-  
-  // Páginas numéricas
-  for (let i = startPage; i <= endPage; i++) {
-    const li = document.createElement('li');
-    li.className = `page-item ${i === paginaActual ? 'active' : ''}`;
-    const a = document.createElement('a');
-    a.className = 'page-link';
-    a.href = '#';
-    a.textContent = i;
-    a.addEventListener('click', function(e) {
-      e.preventDefault();
-      mostrarDatosPaginados(i);
-    });
-    li.appendChild(a);
-    paginacion.appendChild(li);
-  }
-  
-  // Botón siguiente
-  const nextLi = document.createElement('li');
-  nextLi.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
-  const nextA = document.createElement('a');
-  nextA.className = 'page-link';
-  nextA.href = '#';
-  nextA.innerHTML = 'Siguiente &raquo;';
-  nextA.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (paginaActual < totalPaginas) {
-      mostrarDatosPaginados(paginaActual + 1);
-    }
-  });
-  nextLi.appendChild(nextA);
-  paginacion.appendChild(nextLi);
-}
 
     // Función para actualizar la tabla con los datos proporcionados
-function actualizarTabla(datos) {
-  let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
-  tabla.innerHTML = '';
+    function actualizarTabla(datos) {
+      let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
+      tabla.innerHTML = '';
 
-  if (!Array.isArray(datos) || datos.length === 0) {
-    tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes que coincidan con la búsqueda</td></tr>';
-    return;
-  }
+      if (!Array.isArray(datos) || datos.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes que coincidan con la búsqueda</td></tr>';
+        return;
+      }
+      data.forEach(usuario => {
+            let fila = tabla.insertRow();
 
-  datos.forEach(usuario => {
-    const estadoUsuario = usuario.estado || 'Pendiente';
-    const esPendiente = estadoUsuario === 'Pendiente';
-
-    let fila = tabla.insertRow();
-    
-     const botonesHTML = usuario.estado === 'Pendiente' ? `
+            // Solo mostrar botones si el estado es Pendiente
+            const botonesHTML = usuario.estado === 'Pendiente' ? `
               <div class="d-flex gap-2">
                   <button class="btn btn-success btn-sm btn-aprobar" data-id="${usuario.id_plaza}" onclick="mostrarModalConfirmacion('${usuario.id_plaza}', 'Aprobado', this.closest('tr'))">
                      Aprobar
@@ -488,8 +485,6 @@ function actualizarTabla(datos) {
                   </button>
               </div>
           ` : '';
-    
-      
 
             fila.innerHTML = `
               <td class="align-middle">${usuario.id_plaza}</td>
@@ -510,19 +505,19 @@ function actualizarTabla(datos) {
               <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
               <td class="align-middle">
                 ${usuario.acta_nacimiento_pdf ?
-                  `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
                     onclick="return confirm('¿Desea abrir el PDF?')">
                     <i class="fas fa-file-pdf"></i> Ver Acta
                   </a>`
-                  : 'No disponible'}
+                : 'No disponible'}
               </td>
               <td class="align-middle">
                 ${usuario.record_calificaciones ?
-                  `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
                     onclick="return confirm('¿Desea abrir el PDF?')">
                     <i class="fas fa-file-pdf"></i> Ver Record
                   </a>`
-                  : 'No disponible'}
+                : 'No disponible'}
               </td>
               <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
                   ${usuario.estado || 'Pendiente'}
@@ -532,24 +527,18 @@ function actualizarTabla(datos) {
           });
 
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
             });
           });
-        })
-        .catch(error => {
-          console.error("Error al cargar los datos:", error);
-          let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
-          tabla.innerHTML = '<tr><td colspan="18" class="text-center">Error al cargar los datos</td></tr>';
-        });
     }
 
     function cargarDatos() {
@@ -601,19 +590,19 @@ function actualizarTabla(datos) {
               <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
               <td class="align-middle">
                 ${usuario.acta_nacimiento_pdf ?
-                  `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
                     onclick="return confirm('¿Desea abrir el PDF?')">
                     <i class="fas fa-file-pdf"></i> Ver Acta
                   </a>`
-                  : 'No disponible'}
+                : 'No disponible'}
               </td>
               <td class="align-middle">
                 ${usuario.record_calificaciones ?
-                  `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
                     onclick="return confirm('¿Desea abrir el PDF?')">
                     <i class="fas fa-file-pdf"></i> Ver Record
                   </a>`
-                  : 'No disponible'}
+                : 'No disponible'}
               </td>
               <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
                   ${usuario.estado || 'Pendiente'}
@@ -623,14 +612,14 @@ function actualizarTabla(datos) {
           });
 
           document.querySelectorAll('.btn-aprobar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Aprobado', this.closest('tr'));
             });
           });
 
           document.querySelectorAll('.btn-denegar').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, 'Denegado', this.closest('tr'));
             });
@@ -667,9 +656,9 @@ function actualizarTabla(datos) {
       });
 
       fetch('filtros.php', {
-          method: 'POST',
-          body: formData
-        })
+        method: 'POST',
+        body: formData
+      })
         .then(response => response.json())
         .then(data => {
           if (data.success) {
@@ -678,7 +667,7 @@ function actualizarTabla(datos) {
             const modal = bootstrap.Modal.getInstance(modalElement);
             if (modal) {
               modal.hide();
-              modalElement.addEventListener('hidden.bs.modal', function() {
+              modalElement.addEventListener('hidden.bs.modal', function () {
                 document.body.classList.remove('modal-open');
                 document.querySelector('.modal-backdrop').remove();
               }, {
@@ -701,115 +690,115 @@ function actualizarTabla(datos) {
 
 
     function downloadExcel() {
-  // Se obtiene la información completa desde el servidor
-  fetch("dash1.php")
-    .then(response => response.json())
-    .then(data => {
-      // Mapeo de encabezados para el Excel
-      const headerMapping = {
-        'ID de plaza': 'ID de plaza',
-        'Nombre': 'Nombre del Estudiante',
-        'Apellido': 'Primer Apellido',
-        'Segundo Apellido': 'Segundo Apellido',
-        'Nombre de los padres': 'Nombre de los Tutores',
-        'Localidad': 'Localidad de Residencia',
-        'Sector': 'Sector',
-        'nacionalidad': 'Nacionalidad',
-        'grado_solicitado'  : 'Grado Solicitado',
-        'Dirección Actual': 'Domicilio Actual',
-        'Escuela Anterior': 'Centro Educativo Anterior',
-        'Fecha de nacimiento': 'Fecha de Nacimiento',
-        'Ocupación de los padres': 'Ocupación de los Tutores',
-        'Tipo de Familia': 'Tipo de familia',
-        'Teléfono de contacto': 'Teléfono para Contacto',
-        'Correo Electrónico': 'Correo Electrónico de Contacto',
-        'Acta de nacimiento': 'Acta de nacimiento',
-        'Estado': 'Estado de la Solicitud'
-      };
+      // Se obtiene la información completa desde el servidor
+      fetch("dash1.php")
+        .then(response => response.json())
+        .then(data => {
+          // Mapeo de encabezados para el Excel
+          const headerMapping = {
+            'ID de plaza': 'ID de plaza',
+            'Nombre': 'Nombre del Estudiante',
+            'Apellido': 'Primer Apellido',
+            'Segundo Apellido': 'Segundo Apellido',
+            'Nombre de los padres': 'Nombre de los Tutores',
+            'Localidad': 'Localidad de Residencia',
+            'Sector': 'Sector',
+            'nacionalidad': 'Nacionalidad',
+            'grado_solicitado': 'Grado Solicitado',
+            'Dirección Actual': 'Domicilio Actual',
+            'Escuela Anterior': 'Centro Educativo Anterior',
+            'Fecha de nacimiento': 'Fecha de Nacimiento',
+            'Ocupación de los padres': 'Ocupación de los Tutores',
+            'Tipo de Familia': 'Tipo de familia',
+            'Teléfono de contacto': 'Teléfono para Contacto',
+            'Correo Electrónico': 'Correo Electrónico de Contacto',
+            'Acta de nacimiento': 'Acta de nacimiento',
+            'Estado': 'Estado de la Solicitud'
+          };
 
-      // Se crean los encabezados basándose en el mapeo
-      const newHeaders = Object.values(headerMapping);
-      const workbookData = [newHeaders];
+          // Se crean los encabezados basándose en el mapeo
+          const newHeaders = Object.values(headerMapping);
+          const workbookData = [newHeaders];
 
-      // Se recorre cada registro obtenido
-      data.forEach(usuario => {
-        const rowData = [
-          usuario.id_plaza,
-          usuario.nombre,
-          usuario.apellido,
-          usuario.segundo_apellido || '',
-          usuario.nombre_padres ? usuario.nombre_padres : 'No registrado',
-          usuario.localidad || '',
-          usuario.sector || '',
-          usuario.nacionalidad || '',
-          usuario.grado_solicitado || '',
-          usuario.direccion || '',
-          usuario.escuela_anterior || '',
-          usuario.fecha_nacimiento || '',
-          usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado',
-          usuario.tipo_familia ? usuario.tipo_familia : 'No registrado',
-          usuario.telefono ? usuario.telefono : 'No registrado',
-          usuario.correo ? usuario.correo : 'No registrado',
-          usuario.acta_nacimiento_pdf ? 'Disponible' : 'No disponible',
-          usuario.estado || 'Pendiente'
-        ];
-        workbookData.push(rowData);
-      });
+          // Se recorre cada registro obtenido
+          data.forEach(usuario => {
+            const rowData = [
+              usuario.id_plaza,
+              usuario.nombre,
+              usuario.apellido,
+              usuario.segundo_apellido || '',
+              usuario.nombre_padres ? usuario.nombre_padres : 'No registrado',
+              usuario.localidad || '',
+              usuario.sector || '',
+              usuario.nacionalidad || '',
+              usuario.grado_solicitado || '',
+              usuario.direccion || '',
+              usuario.escuela_anterior || '',
+              usuario.fecha_nacimiento || '',
+              usuario.ocupacion_padres ? usuario.ocupacion_padres : 'No registrado',
+              usuario.tipo_familia ? usuario.tipo_familia : 'No registrado',
+              usuario.telefono ? usuario.telefono : 'No registrado',
+              usuario.correo ? usuario.correo : 'No registrado',
+              usuario.acta_nacimiento_pdf ? 'Disponible' : 'No disponible',
+              usuario.estado || 'Pendiente'
+            ];
+            workbookData.push(rowData);
+          });
 
-      // Crear la hoja de Excel a partir de los datos
-      const ws = XLSX.utils.aoa_to_sheet(workbookData);
+          // Crear la hoja de Excel a partir de los datos
+          const ws = XLSX.utils.aoa_to_sheet(workbookData);
 
-      // Configurar anchos de columna
-      const columnWidths = newHeaders.map(header => ({
-        wch: Math.max(header.length, 15)
-      }));
-      ws['!cols'] = columnWidths;
+          // Configurar anchos de columna
+          const columnWidths = newHeaders.map(header => ({
+            wch: Math.max(header.length, 15)
+          }));
+          ws['!cols'] = columnWidths;
 
-      // Dar formato a las celdas (encabezados y celda de estado)
-      for (let i = 0; i < workbookData.length; i++) {
-        for (let j = 0; j < workbookData[i].length; j++) {
-          const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
+          // Dar formato a las celdas (encabezados y celda de estado)
+          for (let i = 0; i < workbookData.length; i++) {
+            for (let j = 0; j < workbookData[i].length; j++) {
+              const cellRef = XLSX.utils.encode_cell({ r: i, c: j });
 
-          // Formato para el encabezado
-          if (i === 0) {
-            ws[cellRef].s = {
-              font: { bold: true, color: { rgb: "FFFFFF" } },
-              fill: { fgColor: { rgb: "4472C4" } },
-              alignment: { horizontal: "center", vertical: "center" }
-            };
+              // Formato para el encabezado
+              if (i === 0) {
+                ws[cellRef].s = {
+                  font: { bold: true, color: { rgb: "FFFFFF" } },
+                  fill: { fgColor: { rgb: "4472C4" } },
+                  alignment: { horizontal: "center", vertical: "center" }
+                };
+              }
+
+              // Dar formato a la celda de estado (columna 15, índice 15)
+              if (j === 15 && i > 0) {
+                const estado = String(workbookData[i][j]).toLowerCase();
+                let fillColor = "FFFFFF";
+                if (estado === 'aprobado') fillColor = "C6EFCE";
+                else if (estado === 'denegado') fillColor = "FFC7CE";
+                else if (estado === 'pendiente') fillColor = "FFEB9C";
+
+                ws[cellRef].s = {
+                  fill: { fgColor: { rgb: fillColor } }
+                };
+              }
+            }
           }
 
-          // Dar formato a la celda de estado (columna 15, índice 15)
-          if (j === 15 && i > 0) {
-            const estado = String(workbookData[i][j]).toLowerCase();
-            let fillColor = "FFFFFF";
-            if (estado === 'aprobado') fillColor = "C6EFCE";
-            else if (estado === 'denegado') fillColor = "FFC7CE";
-            else if (estado === 'pendiente') fillColor = "FFEB9C";
+          // Crear el libro y agregar la hoja
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
 
-            ws[cellRef].s = {
-              fill: { fgColor: { rgb: fillColor } }
-            };
-          }
-        }
-      }
-
-      // Crear el libro y agregar la hoja
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Solicitudes");
-
-      // Generar el archivo Excel con un nombre basado en la fecha actual
-      const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
-      const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
-      XLSX.writeFile(wb, fileName);
-    })
-    .catch(error => {
-      console.error("Error al descargar Excel:", error);
-    });
-}
+          // Generar el archivo Excel con un nombre basado en la fecha actual
+          const timestamp = new Date().toISOString().replace(/[-:.]/g, "");
+          const fileName = `Reporte_Admisiones_${timestamp}.xlsx`;
+          XLSX.writeFile(wb, fileName);
+        })
+        .catch(error => {
+          console.error("Error al descargar Excel:", error);
+        });
+    }
 
     // Código para agregar el botón de Excel
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Buscar el elemento "Reporte de datos" de manera más precisa
       const reporteLink = document.querySelector('a.nav-link i.fa-solid.fa-clipboard').closest('.nav-item');
 
@@ -828,7 +817,7 @@ function actualizarTabla(datos) {
       }
     });
 
-   
+
 
     // Función modificada de cargarDatos
     function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
@@ -840,7 +829,7 @@ function actualizarTabla(datos) {
 
           datosCompletos = datosPaginados;
           datosFiltrados = [...datosPaginados]; // Inicialmente, los datos filtrados son todos los datos
-          
+
           let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '';
 
@@ -883,19 +872,19 @@ function actualizarTabla(datos) {
           <td class="align-middle">${usuario.correo ? usuario.correo : 'No registrado'}</td>
           <td class="align-middle">
             ${usuario.acta_nacimiento_pdf ?
-              `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
+                `<a href="ver_pdf.php?tipo=acta&id=${usuario.id_plaza}" class="btn btn-sm btn-danger" target="_blank" 
                 onclick="return confirm('¿Desea abrir el PDF?')">
                 <i class="fas fa-file-pdf"></i> Ver Acta
               </a>`
-              : 'No disponible'}
+                : 'No disponible'}
           </td>
           <td class="align-middle">
             ${usuario.record_calificaciones ?
-              `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
+                `<a href="ver_pdf.php?tipo=record&id=${usuario.id_plaza}" class="btn btn-sm btn-primary" target="_blank" 
                 onclick="return confirm('¿Desea abrir el PDF?')">
                 <i class="fas fa-file-pdf"></i> Ver Record
               </a>`
-              : 'No disponible'}
+                : 'No disponible'}
           </td>
           <td class="align-middle fw-bold estado ${usuario.estado ? 'estado-' + usuario.estado.toLowerCase() : 'estado-pendiente'}">
               ${usuario.estado || 'Pendiente'}
@@ -912,7 +901,7 @@ function actualizarTabla(datos) {
           // Reenlazar los event listeners para los botones de aprobar/denegar
           document.querySelectorAll('.btn-aprobar, .btn-denegar').forEach(btn => {
             const tipo = btn.classList.contains('btn-aprobar') ? 'Aprobado' : 'Denegado';
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
               const id = this.getAttribute('data-id');
               mostrarModalConfirmacion(id, tipo, this.closest('tr'));
             });
