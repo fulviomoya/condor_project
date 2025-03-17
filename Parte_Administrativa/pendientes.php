@@ -397,6 +397,71 @@ verificarSesion();
         actualizarPaginacion(totalPaginas, paginaActual);
     }
 
+// Función para actualizar la paginación
+function actualizarPaginacion(totalPaginas, paginaActual) {
+  const paginacion = document.querySelector('.pagination');
+  paginacion.innerHTML = '';
+  
+  // No mostrar paginación si no hay páginas
+  if (totalPaginas === 0) return;
+  
+  // Botón anterior
+  const prevLi = document.createElement('li');
+  prevLi.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+  const prevA = document.createElement('a');
+  prevA.className = 'page-link';
+  prevA.href = '#';
+  prevA.innerHTML = '&laquo; Anterior';
+  prevA.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (paginaActual > 1) {
+      mostrarDatosPaginados(paginaActual - 1);
+    }
+  });
+  prevLi.appendChild(prevA);
+  paginacion.appendChild(prevLi);
+  
+  // Determinar rango de páginas a mostrar
+  let startPage = Math.max(1, paginaActual - 2);
+  let endPage = Math.min(totalPaginas, startPage + 4);
+  
+  if (endPage - startPage < 4 && totalPaginas > 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+  
+  // Páginas numéricas
+  for (let i = startPage; i <= endPage; i++) {
+    const li = document.createElement('li');
+    li.className = `page-item ${i === paginaActual ? 'active' : ''}`;
+    const a = document.createElement('a');
+    a.className = 'page-link';
+    a.href = '#';
+    a.textContent = i;
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      mostrarDatosPaginados(i);
+    });
+    li.appendChild(a);
+    paginacion.appendChild(li);
+  }
+  
+  // Botón siguiente
+  const nextLi = document.createElement('li');
+  nextLi.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+  const nextA = document.createElement('a');
+  nextA.className = 'page-link';
+  nextA.href = '#';
+  nextA.innerHTML = 'Siguiente &raquo;';
+  nextA.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (paginaActual < totalPaginas) {
+      mostrarDatosPaginados(paginaActual + 1);
+    }
+  });
+  nextLi.appendChild(nextA);
+  paginacion.appendChild(nextLi);
+}
+
     // Función para actualizar la tabla con los datos proporcionados
 function actualizarTabla(datos) {
   let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
