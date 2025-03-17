@@ -471,7 +471,7 @@ verificarSesion();
         tabla.innerHTML = '<tr><td colspan="19" class="text-center">No hay solicitudes que coincidan con la búsqueda</td></tr>';
         return;
       }
-      data.forEach(usuario => {
+      datos.forEach(usuario => {
             let fila = tabla.insertRow();
 
             // Solo mostrar botones si el estado es Pendiente
