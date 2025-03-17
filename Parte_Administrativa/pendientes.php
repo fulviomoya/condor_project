@@ -200,6 +200,13 @@ verificarSesion();
     document.addEventListener("DOMContentLoaded", function() {
       cargarDatos();
 
+      // Configurar el evento de búsqueda
+      const searchInput = document.querySelector('.form-control[placeholder="Buscar"]');
+      searchInput.addEventListener('input', function() {
+        paginaActual = 1; // Resetear a la primera página al buscar
+        buscarRegistros(this.value);
+      });
+      
       // Event listener para el cambio de razón
       document.getElementById('razonDenegacion').addEventListener('change', function() {
         const otroMotivoContainer = document.getElementById('otroMotivoContainer');
@@ -213,6 +220,33 @@ verificarSesion();
         if (errorDiv) errorDiv.remove();
       });
     });
+    
+    // Función para buscar registros
+    function buscarRegistros(termino) {
+      if (!termino.trim()) {
+        // Si el término de búsqueda está vacío, mostrar todos los datos
+        datosFiltrados = [...datosCompletos];
+      } else {
+        // Convertir el término a minúsculas para búsqueda sin distinción de mayúsculas
+        termino = termino.toLowerCase();
+        
+        // Filtrar los datos según el término de búsqueda
+        datosFiltrados = datosCompletos.filter(usuario => {
+          // Buscar en todos los campos relevantes
+          return Object.keys(usuario).some(key => {
+            // Verificar que el valor existe y es una cadena o número antes de buscar
+            const valor = usuario[key];
+            if (valor !== null && valor !== undefined) {
+              return String(valor).toLowerCase().includes(termino);
+            }
+            return false;
+          });
+        });
+      }
+      
+      // Actualizar la paginación con los resultados filtrados
+      mostrarDatosPaginados(1); // Siempre volver a la primera página después de una búsqueda
+    }
 
     function mostrarModalConfirmacion(id, estado, fila) {
       idSolicitud = id;
