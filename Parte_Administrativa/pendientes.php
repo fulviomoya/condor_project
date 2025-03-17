@@ -399,7 +399,7 @@ verificarSesion();
 
     // Función para actualizar la tabla con los datos proporcionados
 function actualizarTabla(datos) {
-  let tabla = document.getElementById("tablaTodosUsuarios").getElementsByTagName("tbody")[0];
+  let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
   tabla.innerHTML = '';
 
   if (!Array.isArray(datos) || datos.length === 0) {
