@@ -196,6 +196,9 @@ verificarSesion();
     let idSolicitud = null;
     let estadoSolicitud = "";
     let filaSeleccionada = null;
+  
+    let datosCompletos = []; // Para almacenar todos los datos recuperados del servidor
+    let datosFiltrados = []; // Para almacenar resultados de búsqueda
 
     document.addEventListener("DOMContentLoaded", function() {
       cargarDatos();
@@ -383,6 +386,9 @@ verificarSesion();
         .then(data => {
           let tabla = document.getElementById("tablaUsuarios").getElementsByTagName("tbody")[0];
           tabla.innerHTML = '';
+
+          datosCompletos = data;
+          datosFiltrados = [...data]; // Inicialmente, los datos filtrados son todos los datos
 
           if (!Array.isArray(data) || data.length === 0) {
             tabla.innerHTML = '<tr><td colspan="18" class="text-center">No hay solicitudes disponibles</td></tr>';
