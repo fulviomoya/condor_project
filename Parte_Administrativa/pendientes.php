@@ -915,7 +915,7 @@ verificarSesion();
 
     // Iniciar la carga de datos con la primera página
     document.addEventListener('DOMContentLoaded', () => {
-      cargarDatos(1, 50);
+      cargarDatos(1, 550);
     });
   </script>
 </body>
