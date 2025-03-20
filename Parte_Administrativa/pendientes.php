@@ -135,15 +135,6 @@ verificarSesion();
             </tbody>
           </table>
         </div>
-
-        <nav>
-          <ul class="pagination justify-content-end">
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">Siguientes</a></li>
-          </ul>
-        </nav>
       </div>
     </div>
   </div>
@@ -199,7 +190,7 @@ verificarSesion();
 
     let datosCompletos = []; // Para almacenar todos los datos recuperados del servidor
     let datosFiltrados = []; // Para almacenar resultados de búsqueda
-    let registrosPorPagina = 50;
+    let registrosPorPagina = 550;
 
     document.addEventListener("DOMContentLoaded", function () {
       cargarDatos();
@@ -820,7 +811,7 @@ verificarSesion();
 
 
     // Función modificada de cargarDatos
-    function cargarDatos(paginaActual = 1, registrosPorPagina = 50) {
+    function cargarDatos(paginaActual = 1, registrosPorPagina = 550) {
       fetch("dash1.php")
         .then(response => response.json())
         .then(data => {
