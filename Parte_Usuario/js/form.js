@@ -19,7 +19,7 @@ function showAlert(message, type = 'danger') {
       const bsAlert = new bootstrap.Alert(alert);
       bsAlert.close();
     }
-  }, 5000);
+  }, 4000);
 }
 
 
